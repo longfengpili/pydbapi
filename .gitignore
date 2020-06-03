@@ -1,0 +1,25 @@
+.pyc
+.vscode/
+__pycache__/
+.ipynb_checkpoints/
+.pytest_cache/
+
+*.log
+*.log.*
+*.xlsx
+*.ipynb
+*.sqlite3
+*.key
+*.crt
+*.out
+*.pid
+
+
+results/
+migrations/
+tests/
+!migrations/__init__.py
+mysetting.py
+
+
+# mysetting.py
