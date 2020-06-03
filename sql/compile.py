@@ -1,35 +1,38 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2020-06-03 15:05:16
+# @Last Modified time: 2020-06-03 18:43:37
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
+
+import re
+
 class SqlCompile(object):
 
-    def __init__(self):
-        pass
+    def __init__(self, tablename):
+        self.tablename = tablename
 
-    def select(self, tablename, columns, condition=None):
+    def select(self, columns, condition=None):
         columns = ', '.join(columns)
 
         if condition:
-            sql = f'select {columns} from {tablename} where {condition};'
+            sql = f'select {columns} from {self.tablename} where {condition};'
         else:
-            sql = f'select {columns} from {tablename};'
+            sql = f'select {columns} from {self.tablename};'
 
         return sql
 
 
-    def create_nonindex(self, tablename, columns):
+    def create_nonindex(self, columns):
         '''[summary]
         
         [description]
             create sql
         Arguments:
-            tablename {[str]} -- [表名]
+            self.tablename {[str]} -- [表名]
             columns {[dict]} -- [列名及属性]
         
         Returns:
@@ -44,23 +47,23 @@ class SqlCompile(object):
 
         columns = ',\n'.join([k.lower() + ' '+ f"{'varchar(128)' if v == 'varchar' else v}" for k, v in columns.items()])
         sql = f'''
-            create table if not exists {tablename}
+            create table if not exists {self.tablename}
             ({columns});
         '''
         sql = re.sub(r'\s{2,}', '\n', sql)
         return sql
 
-    def drop(self, tablename):
-        sql = f'drop table if exists {tablename};'
+    def drop(self):
+        sql = f'drop table if exists {self.tablename};'
         return sql
 
-    def insert(self, tablename, columns, values):
+    def insert(self, columns, values):
         '''[summary]
         
         [description]
             插入数据
         Arguments:
-            tablename {[str]} -- [表名]
+            self.tablename {[str]} -- [表名]
             columns {[dict]} -- [列名及属性]
             values {[list]} -- [插入的数据]
         '''
@@ -74,15 +77,15 @@ class SqlCompile(object):
         columns = ', '.join(columns)
         values = deal_values(values)
 
-        sql = f'''insert into {tablename}
+        sql = f'''insert into {self.tablename}
                 ({columns})
                 values ({values})
                 ;
             '''
         return sql
 
-    def delete(self, tablename, condition):
-        sql = f'''delete from {tablename} where {condition};'''
+    def delete(self, condition):
+        sql = f'''delete from {self.tablename} where {condition};'''
         return sql
 
 

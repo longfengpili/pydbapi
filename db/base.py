@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-03 18:24:25
+# @Last Modified time: 2020-06-03 19:01:07
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -76,11 +76,11 @@ class DBbase(object):
                 result = cur.fetmany(count) if count else cur.fetchall()
                 columns = tuple(map(lambda x: x[0], cur.description)) #列名
                 result.insert(0, columns)
-                try:
-                    conn.commit()
-                except Exception as e:
-                    dblog.error(e)
-                    conn.rollback()
-
+        try:
+            conn.commit()
+        except Exception as e:
+            dblog.error(e)
+            conn.rollback()
         conn.close()
+        
         return count, result
