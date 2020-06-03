@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-03 18:03:12
+# @Last Modified time: 2020-06-03 18:24:25
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -59,20 +59,21 @@ class DBbase(object):
             count {[int]} -- [影响的行数]
             result {[list]} -- [返回的结果]
         '''
+        result = None
         conn = self.get_conn()
+        # dblog.info(conn)
         cur = conn.cursor()
         sqls = sql.split(";")[:-1]
         sqls = [sql.strip() for sql in sqls if sql]
         sqls_length = len(sqls)
-
         for idx, sql in enumerate(sqls):
             parser = SqlParse(sql)
             comment, action, tablename = parser.comment, parser.action, parser.tablename
             dblog.info(f"【{idx}】({action}){tablename}")
             self.execute_step(cur, sql)
-            if idx == sqls_length - 1:
+            count = cur.rowcount
+            if idx == sqls_length - 1 and action == 'select':
                 result = cur.fetmany(count) if count else cur.fetchall()
-                count = cur.rowcount
                 columns = tuple(map(lambda x: x[0], cur.description)) #列名
                 result.insert(0, columns)
                 try:
