@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2020-06-04 12:01:18
+# @Last Modified time: 2020-06-04 16:56:37
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -14,17 +14,64 @@ class SqlCompile(object):
 
     def __init__(self, tablename):
         self.tablename = tablename
+        self.aggfunc = ['min', 'max', 'sum', 'count']
 
-    def select(self, columns, condition=None):
-        columns = ', '.join(columns)
+    def select_base(self, columns, condition=None):
+        '''[summary]
+        
+        [description]
+            生成select sql
+        Arguments:
+            columns {[dict]} -- [列的信息，需要按照排列顺序处理]
+            {'id_rename': {'source':'id', 'func': 'min', 'order': 1}, ……}
+        
+        Keyword Arguments:
+            condition {[条件]} -- [where中的条件] (default: {None})
+        
+        Returns:
+            [str] -- [返回sql]
+        
+        Raises:
+            TypeError -- [检查columns的情况]
+        '''
+        def deal_columns(columns):
+            agg_cols = []
+            ori_cols = []
+            group_cols = []
 
-        if condition:
-            sql = f'select {columns} from {self.tablename} where {condition};'
-        else:
-            sql = f'select {columns} from {self.tablename};'
+            order_cols = list(filter((lambda x: x[1].get('order', 10000) < 10000), columns.items()))
+            order_cols = sorted(order_cols, key=lambda x: x[1].get('order'))
+            order_cols = [col for col, info in order_cols]
+            order_cols = ', '.join(order_cols)
 
+            for col, info in columns.items():
+                source = info.get('source')
+                source = source if source else col
+                func = info.get('func')
+
+                if func and func in self.aggfunc:
+                    aggcol = f"{func}({source}) as {col}"
+                    agg_cols.append(aggcol)
+                else:
+                    group_cols.append(col)
+                    col = col if source == col else f"{source} as {col}"
+                    ori_cols.append(col)
+
+            cols = ori_cols + agg_cols
+            cols = ', '.join(cols)
+            group_cols = ', '.join(group_cols) if agg_cols else None
+            return cols, group_cols, order_cols
+
+        if not isinstance(columns, dict):
+            raise TypeError("colums must be a dict ! example:{'id': {'source':'id', 'func': 'min'}, ……}")
+
+        columns, group_columns, order_columns = deal_columns(columns)
+        sql = f'select {columns} from {self.tablename}'
+        condition = f"where {condition}" if condition else ''
+        group = f'group by {group_columns}' if group_columns else ''
+        order = f'order by {order_columns}' if order_columns else ''
+        sql = ' \n'.join([sql, condition, group, order]) + ';'
         return sql
-
 
     def create_nonindex(self, columns):
         '''[summary]

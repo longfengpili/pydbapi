@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-04 11:52:22
+# @Last Modified time: 2020-06-04 16:36:22
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -56,7 +56,7 @@ class DBbase(object):
             count {[int]} -- [返回的结果数量] (default: {None})
         
         Returns:
-            count {[int]} -- [影响的行数]
+            rows {[int]} -- [影响的行数]
             result {[list]} -- [返回的结果]
         '''
         result = None
@@ -71,9 +71,9 @@ class DBbase(object):
             comment, action, tablename = parser.comment, parser.action, parser.tablename
             dblog.info(f"【{idx}】({action}){tablename}")
             self.execute_step(cur, sql)
-            count = cur.rowcount
-            if idx == sqls_length - 1 and action == 'select':
-                result = cur.fetmany(count) if count else cur.fetchall()
+            rows = cur.rowcount
+            if idx == sqls_length - 1 and action == 'SELECT':
+                result = cur.fetchmany(count) if count else cur.fetchall()
                 columns = tuple(map(lambda x: x[0], cur.description)) #列名
                 result.insert(0, columns)
         try:
@@ -83,7 +83,7 @@ class DBbase(object):
             conn.rollback()
         conn.close()
         
-        return count, action, result
+        return rows, action, result
 
 
 class DBCommon(DBbase):
@@ -109,8 +109,8 @@ class DBCommon(DBbase):
         if self.__check_isauto(tablename):
             sqlcompile = SqlCompile(tablename)
             sql_for_drop = sqlcompile.drop()
-            count, action, result = self.execute(sql_for_drop)
-            return count, action, result
+            rows, action, result = self.execute(sql_for_drop)
+            return rows, action, result
         else:
             raise Exception(f"【drop】 please drop [{tablename}] on workbench! Or add rule into auto_rules !")
 
@@ -118,8 +118,8 @@ class DBCommon(DBbase):
         if self.__check_isauto(tablename):
             sqlcompile = SqlCompile(tablename)
             sql_for_delete = sqlcompile.delete(condition)
-            count, action, result = self.execute(sql_for_delete)
-            return count, action, result
+            rows, action, result = self.execute(sql_for_delete)
+            return rows, action, result
         else:
             raise Exception(f"【delete】 please delete [{tablename}] on workbench! Or add rule into auto_rules !")
 
@@ -127,9 +127,12 @@ class DBCommon(DBbase):
         if self.__check_isauto(tablename):
             sqlcompile = SqlCompile(tablename)
             sql_for_insert = sqlcompile.insert(columns, values)
-            count, action, result = self.execute(sql_for_insert)
-            return count, action, result
+            rows, action, result = self.execute(sql_for_insert)
+            return rows, action, result
         else:
-            raise Exception(f"【insert】 please insert [{tablename}] on workbench! Or add rule into auto_rules !")    
+            raise Exception(f"【insert】 please insert [{tablename}] on workbench! Or add rule into auto_rules !")
+
+
+
 
 
