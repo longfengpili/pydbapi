@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2020-06-04 16:56:37
+# @Last Modified time: 2020-06-04 17:11:49
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -24,6 +24,9 @@ class SqlCompile(object):
         Arguments:
             columns {[dict]} -- [列的信息，需要按照排列顺序处理]
             {'id_rename': {'source':'id', 'func': 'min', 'order': 1}, ……}
+            # source : 已经处理过的内容，可能已经解析，可能已经discount
+            # order: 用于排序
+            # func: 后续处理的函数
         
         Keyword Arguments:
             condition {[条件]} -- [where中的条件] (default: {None})

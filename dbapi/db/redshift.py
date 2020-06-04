@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-06-04 16:50:01
+# @Last Modified time: 2020-06-04 17:20:34
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -58,6 +58,11 @@ class RedshiftDB(DBCommon):
             tablename {[str]} -- [表名]
             columns {[dict]} -- [列的信息]
             {'id_rename': {'order': 1, 'source_col':'datas', 'source_type': '', 'func': 'min', 'source_name': 'id'}, ……}
+                # order: 用于排序
+                # source_col: 原始数据列名 用于解析
+                # source_type: 原始数据类型 用于解析
+                # source_name: 解析的KEY或者原始数据的列名
+                # func: 后续处理的函数
         
         Keyword Arguments:
             condition {[str]} -- [查询条件] (default: {None})
@@ -78,7 +83,13 @@ class RedshiftDB(DBCommon):
                 [dict] -- [构造columns] {'id_rename': {'source':'id', 'func': 'min', 'order': 1}, ……}
             '''
             columns_dealed = {}
+            if not isinstance(columns, dict):
+                raise TypeError(f"columns must be a dict !")
+
             for col, info in columns.items():
+                if not isinstance(info, dict):
+                    raise TypeError(f"【({col}){info}】info must be a dict !")
+
                 tmp = {}
                 source_col = info.get('source_col')
                 source_type = info.get('source_type', 'json') #默认json处理
