@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-03 19:01:07
+# @Last Modified time: 2020-06-04 11:12:47
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -9,12 +9,12 @@
 
 import re
 
-from sql import SqlParse
+from dbapi.sql import SqlParse
 
 import logging
 from logging import config
 
-config = config.fileConfig('dblog.conf')
+config = config.fileConfig('./dbapi/dblog.conf')
 dblog = logging.getLogger('db')
 
 class DBbase(object):
@@ -83,4 +83,4 @@ class DBbase(object):
             conn.rollback()
         conn.close()
         
-        return count, result
+        return count, action, result

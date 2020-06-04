@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-06-03 19:13:29
+# @Last Modified time: 2020-06-04 11:14:06
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -10,12 +10,12 @@
 import psycopg2
 
 from .base import DBbase
-from sql import SqlCompile
+from dbapi.sql import SqlCompile
 
 import logging
 from logging import config
 
-config = config.fileConfig('dblog.conf')
+config = config.fileConfig('./dbapi/dblog.conf')
 redlog = logging.getLogger('redshift')
 
 class RedshiftDB(DBbase):
@@ -44,15 +44,15 @@ class RedshiftDB(DBbase):
             indexes = ','.join(indexes)
             sql_for_create = f"{sql_for_create.replace(';', '')}interleaved sortkey({indexes});"
 
-        count, result = self.execute(sql_for_create)
-        return count, result
+        count, action, result = self.execute(sql_for_create)
+        return count, action, result
 
     def drop_table(self, tablename):
         if '_data_aniland' in tablename:
             sqlcompile = SqlCompile(tablename)
             sql_for_drop = sqlcompile.drop()
-            count, result = self.execute(sql_for_drop)
-            return count, result
+            count, action, result = self.execute(sql_for_drop)
+            return count, action, result
         else:
             raise Exception(f"【delete】please delete [{tablename}] on workbench!")
 

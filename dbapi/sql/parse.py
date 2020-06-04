@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2020-06-03 18:13:25
+# @Last Modified time: 2020-06-04 11:15:57
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -24,7 +24,7 @@ class SqlParse(object):
     def action(self):
         sql = re.sub('--.*?\n', '', self.sql.strip())
         action = sql.strip().split(' ')[0]
-        return action
+        return action.upper()
 
     @property
     def tablename(self):
