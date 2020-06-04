@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2020-06-03 18:43:37
+# @Last Modified time: 2020-06-04 12:01:18
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -71,7 +71,7 @@ class SqlCompile(object):
             j_values = []
             if not isinstance(values, list):
                 raise TypeError('values must be a list !')
-            j_values = [str(tuple(value)) for v in values]
+            j_values = [str(tuple(value)) for value in values]
             return ','.join(j_values)
 
         columns = ', '.join(columns)
@@ -79,7 +79,7 @@ class SqlCompile(object):
 
         sql = f'''insert into {self.tablename}
                 ({columns})
-                values ({values})
+                values {values}
                 ;
             '''
         return sql

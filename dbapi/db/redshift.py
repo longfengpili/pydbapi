@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-06-04 11:14:06
+# @Last Modified time: 2020-06-04 11:59:15
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -9,8 +9,9 @@
 
 import psycopg2
 
-from .base import DBbase
+from .base import DBCommon
 from dbapi.sql import SqlCompile
+
 
 import logging
 from logging import config
@@ -18,7 +19,7 @@ from logging import config
 config = config.fileConfig('./dbapi/dblog.conf')
 redlog = logging.getLogger('redshift')
 
-class RedshiftDB(DBbase):
+class RedshiftDB(DBCommon):
 
     def __init__(self, host=None, user=None, password=None, database=None):
         self.host = host
@@ -26,6 +27,7 @@ class RedshiftDB(DBbase):
         self.user = user
         self.password = password
         self.database = database
+        super(RedshiftDB, self).__init__()
     
     def get_conn(self):
         conn = psycopg2.connect(database=self.database, user=self.user, password=self.password, host=self.host, port=self.port)
@@ -33,7 +35,7 @@ class RedshiftDB(DBbase):
             self.get_conn()
         return conn
 
-    def create_table(self, tablename, columns, indexes=None):
+    def create(self, tablename, columns, indexes=None):
         # tablename = f"{self.database}.{tablename}"
         sqlcompile = SqlCompile(tablename)
         sql_for_create = sqlcompile.create_nonindex(columns)
@@ -47,14 +49,7 @@ class RedshiftDB(DBbase):
         count, action, result = self.execute(sql_for_create)
         return count, action, result
 
-    def drop_table(self, tablename):
-        if '_data_aniland' in tablename:
-            sqlcompile = SqlCompile(tablename)
-            sql_for_drop = sqlcompile.drop()
-            count, action, result = self.execute(sql_for_drop)
-            return count, action, result
-        else:
-            raise Exception(f"【delete】please delete [{tablename}] on workbench!")
+    
 
 
 

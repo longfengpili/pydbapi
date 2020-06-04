@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-04 11:12:47
+# @Last Modified time: 2020-06-04 11:52:22
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -9,7 +9,7 @@
 
 import re
 
-from dbapi.sql import SqlParse
+from dbapi.sql import SqlParse, SqlCompile
 
 import logging
 from logging import config
@@ -84,3 +84,52 @@ class DBbase(object):
         conn.close()
         
         return count, action, result
+
+
+class DBCommon(DBbase):
+
+    def __init__(self):
+        self.auto_rules = ['_data_aniland']
+        super(DBCommon, self).__init__()
+
+    def __check_isauto(self, tablename):
+        '''[summary]
+        
+        [description]
+            通过tablename控制是否可以通过python代码处理
+        Arguments:
+            tablename {[str]} -- [表名]
+        '''
+        for rule in self.auto_rules:
+            if rule in tablename:
+                return True
+            return False
+
+    def drop(self, tablename):
+        if self.__check_isauto(tablename):
+            sqlcompile = SqlCompile(tablename)
+            sql_for_drop = sqlcompile.drop()
+            count, action, result = self.execute(sql_for_drop)
+            return count, action, result
+        else:
+            raise Exception(f"【drop】 please drop [{tablename}] on workbench! Or add rule into auto_rules !")
+
+    def delete(self, tablename, condition):
+        if self.__check_isauto(tablename):
+            sqlcompile = SqlCompile(tablename)
+            sql_for_delete = sqlcompile.delete(condition)
+            count, action, result = self.execute(sql_for_delete)
+            return count, action, result
+        else:
+            raise Exception(f"【delete】 please delete [{tablename}] on workbench! Or add rule into auto_rules !")
+
+    def insert(self, tablename, columns, values):
+        if self.__check_isauto(tablename):
+            sqlcompile = SqlCompile(tablename)
+            sql_for_insert = sqlcompile.insert(columns, values)
+            count, action, result = self.execute(sql_for_insert)
+            return count, action, result
+        else:
+            raise Exception(f"【insert】 please insert [{tablename}] on workbench! Or add rule into auto_rules !")    
+
+
