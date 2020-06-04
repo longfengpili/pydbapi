@@ -1,13 +1,14 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2020-06-04 11:15:57
+# @Last Modified time: 2020-06-04 19:00:26
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 import re
+import os
 
 class SqlParse(object):
 
@@ -36,5 +37,48 @@ class SqlParse(object):
         tablename = create or update or insert or delete or select
         tablename = tablename.group(1) if tablename else self.sql.strip()
         return tablename
+
+
+class SqlFileParse(object):
+
+    def __init__(self, filepath):
+        self.filepath = filepath
+        self.reg_behind = '(?=[,);:\s])'
+
+    def get_content(self):
+        if not os.path.isfile(self.filepath):
+            raise Exception(f'File 【{self.filepath}】 not exists !')
+
+        with open(self.filepath, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return content
+
+    @property
+    def params(self):
+        content = self.get_content()
+        content = re.sub('--.*?\n', '\n', content) #去掉注释
+        params = re.findall(f"\$(\w+){self.reg_behind}", content)
+        return set(params)
+
+    def sub_params(self, **kw):
+        params_diff = self.params - set(kw)
+        if params_diff:
+            raise Exception(f"Need params 【{'】, 【'.join(params_diff)}】 !")
+
+        content = self.get_content()
+        for key, value in kw.items():
+            if re.search(f'(?<!in )(\${key})', content): # 检查是否有非in的情况
+                content = re.sub(f"(?<!in )\${key}{self.reg_behind}", f"'{value}'", content)
+            else:
+                value = "('" + "', '".join([v for v in value.split(',')]) + "')"
+                print(value)
+                content = re.sub(f"(?<=in )\${key}{self.reg_behind}", f"{value}", content)
+        return content
+
+    def get_sqls(self, **kw):
+        content = self.sub_params(**kw)
+        sqls = re.findall('(?<!--)\s+###\n(.*?)###', content, re.S)
+        return sqls
+
 
 
