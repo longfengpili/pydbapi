@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-06-04 17:20:34
+# @Last Modified time: 2020-06-05 16:27:09
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -75,12 +75,13 @@ class RedshiftDB(DBCommon):
             '''[summary]
             
             [description]
-            
+                处理columns
             Arguments:
                 columns {[dict]} -- [原始dict]
-            
+                {'id_rename': {'order': 1, 'source_col':'datas', 'source_type': '', 'func': 'min', 'source_name': 'id'}, ……}
             Returns:
-                [dict] -- [构造columns] {'id_rename': {'source':'id', 'func': 'min', 'order': 1}, ……}
+                [dict] -- [构造columns] 
+                {'id_rename': {'source':'id', 'func': 'min', 'order': 1}, ……}
             '''
             columns_dealed = {}
             if not isinstance(columns, dict):
@@ -93,7 +94,7 @@ class RedshiftDB(DBCommon):
                 tmp = {}
                 source_col = info.get('source_col')
                 source_type = info.get('source_type', 'json') #默认json处理
-                source_name = info.get('source_name', col)
+                source_name = info.get('source_name', col) #不存在就是用命名列
                 func = info.get('func')
                 order = info.get('order')
 
@@ -107,11 +108,44 @@ class RedshiftDB(DBCommon):
 
                 columns_dealed[col] = tmp
             return columns_dealed
+
         columns = deal_columns(columns)
         sqlcompile = SqlCompile(tablename)
         sql_for_select = sqlcompile.select_base(columns, condition)
         rows, action, result = self.execute(sql_for_select)
         return rows, action, result
+
+    def get_columns(self, tablename):
+        sql = f"""
+        select column_name
+        from information_schema.columns
+        where table_schema = '{tablename.split('.')[0]}'
+        and table_name = '{tablename.split('.')[1]}';
+        """
+        rows, action, result = self.execute(sql)
+        columns = [column[0] for column in result[1:]]
+        return columns
+
+    def add_columns(self, tablename, columns):
+        old_columns = self.get_columns(tablename)
+        old_columns = set(old_columns)
+        new_columns = set(columns)
+
+        if old_columns == new_columns:
+            redlog.info(f'【{tablename}】columns not changed !')
+        if old_columns - new_columns:
+            raise Exception(f"【{tablename}】columns【{old_columns - new_columns}】 not set, should exists !")
+        if new_columns - old_columns:
+            add_columns = new_columns - old_columns
+            for col_name in add_columns:
+                col_type = columns.get(col_name)
+                sql = f'alter table {tablename} add column {col_name} {col_type} default null;'
+                self.execute(sql)
+            redlog.info(f'【{tablename}】add columns succeeded !【{new_columns - old_columns}】')
+
+
+
+
 
 
 

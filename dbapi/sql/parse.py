@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2020-06-04 19:00:26
+# @Last Modified time: 2020-06-05 15:50:28
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -60,7 +60,7 @@ class SqlFileParse(object):
         params = re.findall(f"\$(\w+){self.reg_behind}", content)
         return set(params)
 
-    def sub_params(self, **kw):
+    def replace_params(self, **kw):
         params_diff = self.params - set(kw)
         if params_diff:
             raise Exception(f"Need params 【{'】, 【'.join(params_diff)}】 !")
@@ -76,7 +76,7 @@ class SqlFileParse(object):
         return content
 
     def get_sqls(self, **kw):
-        content = self.sub_params(**kw)
+        content = self.replace_params(**kw)
         sqls = re.findall('(?<!--)\s+###\n(.*?)###', content, re.S)
         return sqls
 
