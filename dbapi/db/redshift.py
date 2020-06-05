@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-06-05 16:27:09
+# @Last Modified time: 2020-06-05 17:01:47
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -9,7 +9,7 @@
 
 import psycopg2
 
-from .base import DBCommon
+from .base import DBCommon, DBFileExec
 from dbapi.sql import SqlCompile
 
 
@@ -19,9 +19,9 @@ from logging import config
 config = config.fileConfig('./dbapi/dblog.conf')
 redlog = logging.getLogger('redshift')
 
-class RedshiftDB(DBCommon):
+class RedshiftDB(DBCommon, DBFileExec):
 
-    def __init__(self, host=None, user=None, password=None, database=None):
+    def __init__(self, host, user, password, database):
         self.host = host
         self.port = '5439'
         self.user = user
@@ -142,11 +142,6 @@ class RedshiftDB(DBCommon):
                 sql = f'alter table {tablename} add column {col_name} {col_type} default null;'
                 self.execute(sql)
             redlog.info(f'【{tablename}】add columns succeeded !【{new_columns - old_columns}】')
-
-
-
-
-
 
 
 

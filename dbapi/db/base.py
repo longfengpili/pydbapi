@@ -1,15 +1,16 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-04 16:36:22
+# @Last Modified time: 2020-06-05 19:18:25
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 import re
+import pandas as pd
 
-from dbapi.sql import SqlParse, SqlCompile
+from dbapi.sql import SqlParse, SqlCompile, SqlFileParse
 
 import logging
 from logging import config
@@ -44,7 +45,7 @@ class DBbase(object):
             dblog.error(f"{e}{sql}")
             raise ValueError(f"{e}{sql}")
 
-    def execute(self, sql, count=None):
+    def execute(self, sql, count=None, progress=False):
         '''[summary]
         
         [description]
@@ -69,7 +70,8 @@ class DBbase(object):
         for idx, sql in enumerate(sqls):
             parser = SqlParse(sql)
             comment, action, tablename = parser.comment, parser.action, parser.tablename
-            dblog.info(f"【{idx}】({action}){tablename}")
+            if progress:
+                dblog.info(f"【{idx}】({action}){tablename}::{comment}")
             self.execute_step(cur, sql)
             rows = cur.rowcount
             if idx == sqls_length - 1 and action == 'SELECT':
@@ -131,6 +133,28 @@ class DBCommon(DBbase):
             return rows, action, result
         else:
             raise Exception(f"【insert】 please insert [{tablename}] on workbench! Or add rule into auto_rules !")
+
+
+class DBFileExec(DBbase):
+    
+    def __init__(self):
+        super(DBFileExec, self).__init__()
+
+    def get_sqls(self, filepath, **kw):
+        sqlfileparser = SqlFileParse(filepath)
+        sqls = sqlfileparser.get_sqls(**kw)
+        return sqls
+
+    def exec_file(self, filepath, **kw):
+        sqls = self.get_sqls(filepath, **kw)
+        for desc, sql in sqls.items():
+            dblog.info(f"Start Job {desc[:40]}".center(80, '='))
+            rows, action, result = self.execute(sql)
+            if action == 'SELECT':
+                dblog.info(f"【rows】: {rows}, 【action】: {action}, 【result】: \n{pd.DataFrame(result[1:], columns=result[0]).head()}")
+            dblog.info(f"End Job {desc[:40]}".center(80, '='))
+            
+
 
 
 

@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2020-06-05 15:50:28
+# @Last Modified time: 2020-06-05 17:22:21
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -71,13 +71,18 @@ class SqlFileParse(object):
                 content = re.sub(f"(?<!in )\${key}{self.reg_behind}", f"'{value}'", content)
             else:
                 value = "('" + "', '".join([v for v in value.split(',')]) + "')"
-                print(value)
                 content = re.sub(f"(?<=in )\${key}{self.reg_behind}", f"{value}", content)
         return content
 
     def get_sqls(self, **kw):
+        sqls = {}
         content = self.replace_params(**kw)
-        sqls = re.findall('(?<!--)\s+###\n(.*?)###', content, re.S)
+        sqls_tmp = re.findall('(?<!--)\s+###\n(.*?)###', content, re.S)
+        for idx, sql in enumerate(sqls_tmp):
+            purpose = re.match('--(【.*?)\n', sql.strip())
+            purpose = purpose.group(1) if purpose else f'No description {idx}'
+            sql = re.sub('--【.*?\n', '', sql.strip())
+            sqls[purpose] = sql
         return sqls
 
 
