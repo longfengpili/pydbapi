@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-08 12:37:25
+# @Last Modified time: 2020-06-08 14:09:50
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -111,6 +111,7 @@ class DBCommon(DBbase):
             sqlcompile = SqlCompile(tablename)
             sql_for_drop = sqlcompile.drop()
             rows, action, result = self.execute(sql_for_drop)
+            dblog.info(f'【{action}】{tablename} drop succeed !')
             return rows, action, result
         else:
             raise Exception(f"【drop】 please drop [{tablename}] on workbench! Or add rule into auto_rules !")
@@ -120,6 +121,7 @@ class DBCommon(DBbase):
             sqlcompile = SqlCompile(tablename)
             sql_for_delete = sqlcompile.delete(condition)
             rows, action, result = self.execute(sql_for_delete)
+            dblog.info(f'【{action}】{tablename} delete succeed !')
             return rows, action, result
         else:
             raise Exception(f"【delete】 please delete [{tablename}] on workbench! Or add rule into auto_rules !")

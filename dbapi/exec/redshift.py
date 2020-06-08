@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-06-08 12:37:02
+# @Last Modified time: 2020-06-08 14:12:01
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -9,8 +9,7 @@
 
 import psycopg2
 
-from .base import DBCommon
-from .fileexec import DBFileExec
+from dbapi.db import DBCommon, DBFileExec
 from dbapi.sql import SqlCompile
 
 
@@ -167,7 +166,7 @@ class RedshiftDB(DBCommon, DBFileExec):
                 col_type = columns.get(col_name)
                 sql = sqlred.add_columns(col_name, col_type)
                 self.execute(sql)
-            redlog.info(f'【{tablename}】add columns succeeded !【{new_columns - old_columns}】')
+            redlog.info(f'【{tablename}】add columns succeed !【{new_columns - old_columns}】')
 
 
 

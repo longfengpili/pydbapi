@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2020-06-04 17:11:49
+# @Last Modified time: 2020-06-08 13:28:10
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -20,7 +20,7 @@ class SqlCompile(object):
         '''[summary]
         
         [description]
-            生成select sql
+            生成select sql (未考虑join，所以暂时用base)
         Arguments:
             columns {[dict]} -- [列的信息，需要按照排列顺序处理]
             {'id_rename': {'source':'id', 'func': 'min', 'order': 1}, ……}
