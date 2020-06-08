@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-08 11:55:54
-# @Last Modified time: 2020-06-08 12:03:40
+# @Last Modified time: 2020-06-08 14:29:31
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -25,13 +25,13 @@ class DBFileExec(DBbase):
     def __init__(self):
         super(DBFileExec, self).__init__()
 
-    def get_sqls(self, filepath, **kw):
+    def get_filesqls(self, filepath, **kw):
         sqlfileparser = SqlFileParse(filepath)
         sqls = sqlfileparser.get_sqls(**kw)
         return sqls
 
     def exec_file(self, filepath, **kw):
-        sqls = self.get_sqls(filepath, **kw)
+        sqls = self.get_filesqls(filepath, **kw)
         for desc, sql in sqls.items():
             dblog.info(f"Start Job {desc[:40]}".center(80, '='))
             progress = True if 'show progress' in desc or 'test' in os.path.basename(filepath) else False

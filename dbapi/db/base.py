@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-08 14:09:50
+# @Last Modified time: 2020-06-08 14:27:37
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -25,7 +25,7 @@ class DBbase(object):
     def get_conn(self):
         pass
 
-    def execute_step(self, cursor, sql):
+    def __execute_step(self, cursor, sql):
         '''[summary]
         
         [description]
@@ -71,7 +71,7 @@ class DBbase(object):
             comment, action, tablename = parser.comment, parser.action, parser.tablename
             if progress:
                 dblog.info(f"【{idx}】({action}){tablename}::{comment}")
-            self.execute_step(cur, sql)
+            self.__execute_step(cur, sql)
             rows = cur.rowcount
             if idx == sqls_length - 1 and action == 'SELECT':
                 result = cur.fetchmany(count) if count else cur.fetchall()
