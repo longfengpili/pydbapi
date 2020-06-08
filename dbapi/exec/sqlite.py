@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-06-08 14:05:12
+# @Last Modified time: 2020-06-08 18:12:22
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -18,7 +18,7 @@ from dbapi.sql import SqlCompile
 import logging
 from logging import config
 
-config = config.fileConfig('./dbapi/dblog.conf')
+config = config.fileConfig('./dbapi/mylogging/dblog.conf')
 redlog = logging.getLogger('sqlite')
 
 class SqliteCompile(SqlCompile):
