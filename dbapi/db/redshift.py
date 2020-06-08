@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-06-08 11:15:09
+# @Last Modified time: 2020-06-08 11:58:30
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -9,7 +9,8 @@
 
 import psycopg2
 
-from .base import DBCommon, DBFileExec
+from .base import DBCommon
+from .fileexec import DBFileExec
 from dbapi.sql import SqlCompile
 
 
@@ -28,7 +29,7 @@ class SqlRedshiftCompile(SqlCompile):
         SqlCompile
     '''
     def __init__(self, tablename):
-        super(RedshiftDB, self).__init__(tablename)
+        super(SqlRedshiftCompile, self).__init__(tablename)
 
     def create(self, columns, indexes):
         sql = self.create_nonindex(columns)
@@ -49,7 +50,7 @@ class SqlRedshiftCompile(SqlCompile):
         return sql
 
     def add_columns(self, col_name, col_type):
-        sql = f'alter table {tablename} add column {col_name} {col_type} default null;'
+        sql = f'alter table {self.tablename} add column {col_name} {col_type} default null;'
         return sql
 
 
