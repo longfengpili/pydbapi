@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-06-08 11:58:30
+# @Last Modified time: 2020-06-08 12:37:02
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -63,6 +63,7 @@ class RedshiftDB(DBCommon, DBFileExec):
         self.password = password
         self.database = database
         super(RedshiftDB, self).__init__()
+        self.auto_rules = ['_data_aniland']
     
     def get_conn(self):
         conn = psycopg2.connect(database=self.database, user=self.user, password=self.password, host=self.host, port=self.port)

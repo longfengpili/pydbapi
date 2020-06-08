@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-08 12:03:33
+# @Last Modified time: 2020-06-08 12:37:25
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -90,7 +90,7 @@ class DBbase(object):
 class DBCommon(DBbase):
 
     def __init__(self):
-        self.auto_rules = ['_data_aniland']
+        self.auto_rules = ['test_xu']
         super(DBCommon, self).__init__()
 
     def __check_isauto(self, tablename):
