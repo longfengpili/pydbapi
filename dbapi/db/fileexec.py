@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-08 11:55:54
-# @Last Modified time: 2020-06-08 14:29:31
+# @Last Modified time: 2020-06-08 16:12:57
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -32,9 +32,12 @@ class DBFileExec(DBbase):
 
     def exec_file(self, filepath, **kw):
         sqls = self.get_filesqls(filepath, **kw)
+        filename = os.path.basename(filepath)
         for desc, sql in sqls.items():
             dblog.info(f"Start Job {desc[:40]}".center(80, '='))
-            progress = True if 'show progress' in desc or 'test' in os.path.basename(filepath) else False
+            progress = True if 'show progress' in desc or filename.startswith('test') \
+                        or filename.endswith('test.sql') else False
+            # dblog.info(f"{os.path.basename(filepath)}=={progress}")
             rows, action, result = self.execute(sql, progress=progress)
             if action == 'SELECT':
                 dblog.info(f"【rows】: {rows}, 【action】: {action}, 【result】: \n{pd.DataFrame(result[1:], columns=result[0]).head()}")
