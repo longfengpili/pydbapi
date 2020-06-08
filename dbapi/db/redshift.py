@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-06-05 17:01:47
+# @Last Modified time: 2020-06-08 11:15:09
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -18,6 +18,40 @@ from logging import config
 
 config = config.fileConfig('./dbapi/dblog.conf')
 redlog = logging.getLogger('redshift')
+
+class SqlRedshiftCompile(SqlCompile):
+    '''[summary]
+    
+    [description]
+        构造redshift sql
+    Extends:
+        SqlCompile
+    '''
+    def __init__(self, tablename):
+        super(RedshiftDB, self).__init__(tablename)
+
+    def create(self, columns, indexes):
+        sql = self.create_nonindex(columns)
+        if indexes and not isinstance(indexes, list):
+            raise TypeError(f"indexes must be a list !")
+        if indexes:
+            indexes = ','.join(indexes)
+            sql = f"{sql.replace(';', '')}interleaved sortkey({indexes});"
+        return sql
+
+    def get_columns(self):
+        sql = f"""
+        select column_name
+        from information_schema.columns
+        where table_schema = '{self.tablename.split('.')[0]}'
+        and table_name = '{self.tablename.split('.')[1]}';
+        """
+        return sql
+
+    def add_columns(self, col_name, col_type):
+        sql = f'alter table {tablename} add column {col_name} {col_type} default null;'
+        return sql
+
 
 class RedshiftDB(DBCommon, DBFileExec):
 
@@ -37,15 +71,8 @@ class RedshiftDB(DBCommon, DBFileExec):
 
     def create(self, tablename, columns, indexes=None):
         # tablename = f"{self.database}.{tablename}"
-        sqlcompile = SqlCompile(tablename)
-        sql_for_create = sqlcompile.create_nonindex(columns)
-        if indexes and not isinstance(indexes, list):
-            raise TypeError(f"indexes must be a list !")
-
-        if indexes:
-            indexes = ','.join(indexes)
-            sql_for_create = f"{sql_for_create.replace(';', '')}interleaved sortkey({indexes});"
-
+        sqlred = SqlRedshiftCompile(tablename)
+        sql_for_create = sqlred.create(columns, indexes)
         rows, action, result = self.execute(sql_for_create)
         return rows, action, result
 
@@ -110,18 +137,14 @@ class RedshiftDB(DBCommon, DBFileExec):
             return columns_dealed
 
         columns = deal_columns(columns)
-        sqlcompile = SqlCompile(tablename)
-        sql_for_select = sqlcompile.select_base(columns, condition)
+        sqlred = SqlRedshiftCompile(tablename)
+        sql_for_select = sqlred.select_base(columns, condition)
         rows, action, result = self.execute(sql_for_select)
         return rows, action, result
 
     def get_columns(self, tablename):
-        sql = f"""
-        select column_name
-        from information_schema.columns
-        where table_schema = '{tablename.split('.')[0]}'
-        and table_name = '{tablename.split('.')[1]}';
-        """
+        sqlred = SqlRedshiftCompile(tablename)
+        sql = sqlred.get_columns()
         rows, action, result = self.execute(sql)
         columns = [column[0] for column in result[1:]]
         return columns
@@ -136,10 +159,11 @@ class RedshiftDB(DBCommon, DBFileExec):
         if old_columns - new_columns:
             raise Exception(f"【{tablename}】columns【{old_columns - new_columns}】 not set, should exists !")
         if new_columns - old_columns:
+            sqlred = SqlRedshiftCompile(tablename)
             add_columns = new_columns - old_columns
             for col_name in add_columns:
                 col_type = columns.get(col_name)
-                sql = f'alter table {tablename} add column {col_name} {col_type} default null;'
+                sql = sqlred.add_columns(col_name, col_type)
                 self.execute(sql)
             redlog.info(f'【{tablename}】add columns succeeded !【{new_columns - old_columns}】')
 
