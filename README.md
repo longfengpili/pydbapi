@@ -2,21 +2,21 @@
 ## 支持的数据库类型
 + sqlite
 ```python
-from dbapi import SqliteDB
+from pydbapi import SqliteDB
 db = SqliteDB(database=None) #或者传入路径
 sql = 'select * from [table];'
 row, action, result = db.execute(sql)
 ```
 + Amazon Redshift
 ```python
-from dbapi import RedshiftDB
+from pydbapi import RedshiftDB
 db = RedshiftDB(host, user, password, database)
 sql = 'select * from [schema].[table];'
 row, action, result = db.execute(sql)
 ```
 
 ## 支持的操作
-+ execute[【db/base.py】](https://github.com/longfengpili/dbapi/blob/master/dbapi/db/base.py)
++ execute[【db/base.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/base.py)
     + 代码  
         `db.execute(sql, count=None, progress=None)`
     + params
@@ -41,19 +41,19 @@ row, action, result = db.execute(sql)
         * `tablename`: 表名;
         * `columns`： 列内容; Example: `{'id': 'integer', 'name': 'varchar', 'address': 'varchar(1024)'}`
         * `indexes`: 索引，sqlite暂不支持索引
-+ insert[【db/base.py】](https://github.com/longfengpili/dbapi/blob/master/dbapi/db/base.py)
++ insert[【db/base.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/base.py)
     + 代码  
         `db.insert(tablename, columns, values)`
     + params
         * `tablename`: 表名;
         * `columns`： 列内容; Example: `{'id': 'integer', 'name': 'varchar', 'address': 'varchar(1024)'}`
         * `values`: 插入的数值; 
-+ drop[【db/base.py】](https://github.com/longfengpili/dbapi/blob/master/dbapi/db/base.py)
++ drop[【db/base.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/base.py)
     + 代码  
         `db.drop(tablename)`
     + params
         * `tablename`: 表名;
-+ delete[【db/base.py】](https://github.com/longfengpili/dbapi/blob/master/dbapi/db/base.py)
++ delete[【db/base.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/base.py)
     + 代码  
         `db.delete(tablename, condition)`
     + params
@@ -70,13 +70,13 @@ row, action, result = db.execute(sql)
     + params
         * `tablename`: 表名;
         * `columns`： 列内容; Example: `{'id': 'integer', 'name': 'varchar', 'address': 'varchar(1024)'}`
-+ get_filesqls[【db/fileexec.py】](https://github.com/longfengpili/dbapi/blob/master/dbapi/db/fileexec.py)
++ get_filesqls[【db/fileexec.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/fileexec.py)
     + 代码  
         `db.get_filesqls(filepath, **kw)`
     + params
         * `filepath`: sql文件路径;
         * `kw`： sql文件中需要替换的参数
-+ exec_file[【db/fileexec.py】](https://github.com/longfengpili/dbapi/blob/master/dbapi/db/fileexec.py)
++ exec_file[【db/fileexec.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/fileexec.py)
     + 代码  
         `db.exec_file(filepath, **kw)`
     + params
