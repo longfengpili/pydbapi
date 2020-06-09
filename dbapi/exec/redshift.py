@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-06-08 18:12:19
+# @Last Modified time: 2020-06-09 16:24:47
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -37,15 +37,6 @@ class SqlRedshiftCompile(SqlCompile):
         if indexes:
             indexes = ','.join(indexes)
             sql = f"{sql.replace(';', '')}interleaved sortkey({indexes});"
-        return sql
-
-    def get_columns(self):
-        sql = f"""
-        select column_name
-        from information_schema.columns
-        where table_schema = '{self.tablename.split('.')[0]}'
-        and table_name = '{self.tablename.split('.')[1]}';
-        """
         return sql
 
     def add_columns(self, col_name, col_type):
@@ -143,28 +134,22 @@ class RedshiftDB(DBCommon, DBFileExec):
         rows, action, result = self.execute(sql_for_select)
         return rows, action, result
 
-    def get_columns(self, tablename):
-        sqlred = SqlRedshiftCompile(tablename)
-        sql = sqlred.get_columns()
-        rows, action, result = self.execute(sql)
-        columns = [column[0] for column in result[1:]]
-        return columns
-
     def add_columns(self, tablename, columns):
         old_columns = self.get_columns(tablename)
         old_columns = set(old_columns)
         new_columns = set(columns)
+        # redlog.info(f'{old_columns}, {new_columns}')
 
         if old_columns == new_columns:
             redlog.info(f'【{tablename}】columns not changed !')
         if old_columns - new_columns:
             raise Exception(f"【{tablename}】columns【{old_columns - new_columns}】 not set, should exists !")
         if new_columns - old_columns:
-            sqlred = SqlRedshiftCompile(tablename)
+            sqlcompile = SqlRedshiftCompile(tablename)
             add_columns = new_columns - old_columns
             for col_name in add_columns:
                 col_type = columns.get(col_name)
-                sql = sqlred.add_columns(col_name, col_type)
+                sql = sqlcompile.add_columns(col_name, col_type)
                 self.execute(sql)
             redlog.info(f'【{tablename}】add columns succeed !【{new_columns - old_columns}】')
 

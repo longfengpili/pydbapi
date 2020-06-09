@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-08 18:08:49
+# @Last Modified time: 2020-06-09 16:28:25
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -60,14 +60,17 @@ class DBbase(object):
             rows {[int]} -- [影响的行数]
             result {[list]} -- [返回的结果]
         '''
+        rows = 0
         result = None
         conn = self.get_conn()
         # dblog.info(conn)
         cur = conn.cursor()
+        sql = sql if sql.strip().endswith(';') else sql.strip() + ';'
         sqls = sql.split(";")[:-1]
         sqls = [sql.strip() for sql in sqls if sql]
         sqls_length = len(sqls)
         for idx, sql in enumerate(sqls):
+            # dblog.info(sql)
             parser = SqlParse(sql)
             comment, action, tablename = parser.comment, parser.action, parser.tablename
             if progress:
@@ -135,6 +138,12 @@ class DBCommon(DBbase):
             return rows, action, result
         else:
             raise Exception(f"【insert】 please insert [{tablename}] on workbench! Or add rule into auto_rules !")
+
+    def get_columns(self, tablename):
+        sql = f"select * from {tablename} limit 1;"
+        rows, action, result = self.execute(sql)
+        columns = result[0]
+        return columns
 
 
 
