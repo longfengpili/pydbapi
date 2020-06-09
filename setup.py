@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-09 16:46:54
-# @Last Modified time: 2020-06-09 18:12:29
+# @Last Modified time: 2020-06-10 07:41:48
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -9,7 +9,7 @@
 
 import setuptools
 
-VERSION = '0.0.1'
+VERSION = '0.0.2'
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
