@@ -82,3 +82,9 @@ row, action, result = db.execute(sql)
     + params
         * `filepath`: sql文件路径;
         * `kw`： sql文件中需要替换的参数
+
+## 支持的的settings[【conf/settings.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/conf/settings.py)
++ AUTO_RULES  
+    可以自动执行表名（表名包含即可）
++ REDSHIFT_AUTO_RULES   
+    Amazon Redshift 可以自动执行表名（表名包含即可）

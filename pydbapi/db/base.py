@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-10 15:08:42
+# @Last Modified time: 2020-06-10 15:49:56
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -11,6 +11,7 @@ import re
 import os
 
 from pydbapi.sql import SqlParse, SqlCompile
+from pydbapi.conf import AUTO_RULES
 
 import logging
 import logging.config
@@ -94,7 +95,7 @@ class DBbase(object):
 class DBCommon(DBbase):
 
     def __init__(self):
-        self.auto_rules = ['test_xu']
+        self.auto_rules = AUTO_RULES
         super(DBCommon, self).__init__()
 
     def __check_isauto(self, tablename):
