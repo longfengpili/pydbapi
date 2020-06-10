@@ -1,4 +1,10 @@
 # pydbapi
+
+## Installation
+```python
+pip install pydbapi
+```
+
 ## 支持的数据库类型
 + sqlite
 ```python

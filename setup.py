@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-09 16:46:54
-# @Last Modified time: 2020-06-10 16:47:36
+# @Last Modified time: 2020-06-10 17:43:55
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -9,6 +9,7 @@
 
 import os
 import sys
+import shutil
 import setuptools
 
 VERSION = '0.0.9'
@@ -23,10 +24,10 @@ if sys.argv[1] == 'build':
     os.system('python setup.py sdist bdist_wheel')
 elif sys.argv[1] == 'publish':
     os.system('python setup.py sdist bdist_wheel')
-    os.removedirs(f'./pydbapi-{VERSION}')
-    os.removedirs(f'./build')
-    os.removedirs(f'./pydbapi.egg-info')
-    os.system(f'python -m twine upload twine upload dist/*{VERSION}* --repository pydbapi')
+    os.system(f'python -m twine upload dist/*{VERSION}* --repository pydbapi')
+    shutil.rmtree(f'./build')
+    shutil.rmtree(f'./pydbapi.egg-info')
+    sys.exit()
 
 setuptools.setup(
     name="pydbapi", # Replace with your own username
@@ -36,7 +37,7 @@ setuptools.setup(
     description="A simple database API",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/longfengpili/pydbapi",
+    url="https://pypi.org/project/pydbapi/",
     packages=setuptools.find_packages(),
     install_requires=requires,
     classifiers=[
@@ -45,6 +46,9 @@ setuptools.setup(
     ],
     keywords = ["dbapi", "sqlite3", "redshift"], 
     python_requires='>=3.6',
+    project_urls={
+        'Documentation': 'https://github.com/longfengpili/pydbapi/blob/master/README.md',
+        'Source': 'https://github.com/longfengpili/pydbapi',
+    },
 )
-
 
