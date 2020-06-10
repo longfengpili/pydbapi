@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-09 16:46:54
-# @Last Modified time: 2020-06-10 07:41:48
+# @Last Modified time: 2020-06-10 12:07:43
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -9,10 +9,14 @@
 
 import setuptools
 
-VERSION = '0.0.2'
+VERSION = '0.0.5'
 
-with open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+with open('README.md', 'r', encoding='utf-8') as f:
+    long_description = f.read()
+
+with open('./requirements.txt', 'r', encoding='utf-8') as f:
+    requires = f.readlines()
+
 
 setuptools.setup(
     name="pydbapi", # Replace with your own username
@@ -24,6 +28,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/longfengpili/dbapi",
     packages=setuptools.find_packages(),
+    install_requires=requires,
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
@@ -34,4 +39,4 @@ setuptools.setup(
 
 
 # python setup.py sdist bdist_wheel
-# python -m twine upload dist/*
+# python -m twine upload dist/*0.0.3* --repository pydbapi

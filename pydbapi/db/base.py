@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-09 16:28:25
+# @Last Modified time: 2020-06-10 11:53:12
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -10,12 +10,12 @@
 import re
 import os
 
-from dbapi.sql import SqlParse, SqlCompile
+from pydbapi.sql import SqlParse, SqlCompile
 
 import logging
 from logging import config
 
-config = config.fileConfig('./dbapi/mylogging/dblog.conf')
+config = config.fileConfig('./pydbapi/mylogging/dblog.conf')
 dblog = logging.getLogger('db')
 
 class DBbase(object):
