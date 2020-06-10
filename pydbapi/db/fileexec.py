@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-08 11:55:54
-# @Last Modified time: 2020-06-10 11:53:09
+# @Last Modified time: 2020-06-10 15:08:40
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -14,9 +14,9 @@ from .base import DBbase
 from pydbapi.sql import SqlFileParse
 
 import logging
-from logging import config
-
-config = config.fileConfig('./pydbapi/mylogging/dblog.conf')
+import logging.config
+from pydbapi.conf import LOGGING_CONFIG
+logging.config.dictConfig(LOGGING_CONFIG)
 dblog = logging.getLogger('db')
 
 

@@ -1,11 +1,12 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
-# @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-06-10 11:53:05
+# @Date:   2020-06-10 14:40:50
+# @Last Modified time: 2020-06-10 15:08:37
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
+
 
 import psycopg2
 
@@ -14,9 +15,9 @@ from pydbapi.sql import SqlCompile
 
 
 import logging
-from logging import config
-
-config = config.fileConfig('./pydbapi/mylogging/dblog.conf')
+import logging.config
+from pydbapi.conf import LOGGING_CONFIG
+logging.config.dictConfig(LOGGING_CONFIG)
 redlog = logging.getLogger('redshift')
 
 class SqlRedshiftCompile(SqlCompile):
@@ -27,6 +28,7 @@ class SqlRedshiftCompile(SqlCompile):
     Extends:
         SqlCompile
     '''
+    
     def __init__(self, tablename):
         super(SqlRedshiftCompile, self).__init__(tablename)
 

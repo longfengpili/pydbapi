@@ -1,0 +1,106 @@
+# @Author: chunyang.xu
+# @Email:  398745129@qq.com
+# @Date:   2020-06-10 14:14:53
+# @Last Modified time: 2020-06-10 15:08:44
+# @github: https://github.com/longfengpili
+
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
+
+import os
+LOG_BASE_PATH = './pydbapi/logs'
+
+LOGGING_CONFIG = {
+    'version': 1,  # 保留字
+    'disable_existing_loggers': False,  # 禁用已经存在的logger实例
+    # 日志文件的格式
+    'formatters': {
+        # 详细的日志格式
+        'standard': {
+            'format': '%(asctime)s - %(threadName)s:%(thread)d - %(name)s - %(levelname)s - %(pathname)s - %(lineno)d - %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        # 简单的日志格式
+        'simple': {
+            'format': '%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        # 定义一个特殊的日志格式
+        'collect': {
+            'format': '%(message)s'
+        }
+    },
+    # 过滤器
+    'filters': {
+    },
+    # 处理器
+    'handlers': {
+        # 在终端打印
+        'console': {
+            'level': 'INFO',
+            'filters': [],  
+            'class': 'logging.StreamHandler',  #
+            'formatter': 'simple'
+        },
+        # 默认的
+        'default': {
+            'level': 'INFO',
+            'class': 'pydbapi.conf.MakeFileHandler',  # 能够判断创建日持文件
+            'filename': os.path.join(LOG_BASE_PATH, 'default.log'),  # 日志文件
+            'when': 'd', # 每天备份
+            'interval': 1,
+            'backupCount': 30,  # 最多备份几个
+            'formatter': 'standard',
+            'encoding': 'utf-8',
+        },
+        'db': {
+            'level': 'INFO',
+            'class': 'pydbapi.conf.MakeFileHandler',  # 保存到文件，自动切
+            'filename': os.path.join(LOG_BASE_PATH, 'db.log'),  # 日志文件
+            'when': 'd', # 每小时备份
+            'interval': 1,
+            'backupCount': 30,
+            'formatter': 'simple',
+            'encoding': "utf-8"
+        },
+        'sql': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',  # 保存到文件，自动切
+            'filename': os.path.join(LOG_BASE_PATH, 'sql.log'),  # 日志文件
+            'when': 'd', # 每小时备份
+            'interval': 1,
+            'backupCount': 30,
+            'formatter': 'simple',
+            'encoding': "utf-8"
+        },
+    },
+    'loggers': {
+       # 默认的logger应用如下配置
+        '': {
+            'handlers': ['console', 'default'],  
+            'level': 'INFO',
+            'propagate': True,  # 向不向更高级别的logger传递
+        },
+        'db': {
+            'handlers': ['console', 'db'],
+            'level': 'INFO',
+            'propagate': False,  # 向不向更高级别的logger传递
+        },
+        'sql': {
+            'handlers': ['console', 'sql'],
+            'level': 'INFO',
+            'propagate': False,  # 向不向更高级别的logger传递
+        },
+        'redshift': {
+            'handlers': ['console', 'sql'],
+            'level': 'INFO',
+            'propagate': False,  # 向不向更高级别的logger传递
+        },
+        'sqlite': {
+            'handlers': ['console', 'sql'],
+            'level': 'INFO',
+            'propagate': False,  # 向不向更高级别的logger传递
+        },
+    },
+}
+
