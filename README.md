@@ -82,9 +82,9 @@ row, action, result = db.execute(sql)
     + params
         * `filepath`: sql文件路径;
         * `kw`： sql文件中需要替换的参数
-+ exec_file[【db/fileexec.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/fileexec.py)
++ file_exec[【db/fileexec.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/fileexec.py)
     + 代码  
-        `db.exec_file(filepath, **kw)`
+        `db.file_exec(filepath, **kw)`
     + params
         * `filepath`: sql文件路径;
         * `kw`： sql文件中需要替换的参数
