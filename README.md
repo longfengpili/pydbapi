@@ -16,8 +16,15 @@ row, action, result = db.execute(sql)
 + Amazon Redshift
 ```python
 from pydbapi import RedshiftDB
-db = RedshiftDB(host, user, password, database)
+db = RedshiftDB(host, user, password, database, port='5439')
 sql = 'select * from [schema].[table];'
+row, action, result = db.execute(sql)
+```
++ Mysql
+```python
+from pydbapi import MysqlDB
+db = MysqlDB(host, user, password, database, port='3306')
+sql = 'select * from [table];'
 row, action, result = db.execute(sql)
 ```
 
@@ -87,7 +94,24 @@ row, action, result = db.execute(sql)
         `db.file_exec(filepath, **kw)`
     + params
         * `filepath`: sql文件路径;
-        * `kw`： sql文件中需要替换的参数
+        * `kw`： sql文件中需要替换的参数 在sql文件中用`$param`表示参数
+    + sql文件格式
+        ```sql
+        ###
+        --【desc1 [show progress]】 #sql描述
+        --step1
+        sql1;
+        --step2
+        sql2 where name = $name;
+        ###
+        ###
+        --【desc2 [show progress]】 #sql描述
+        --step1
+        sql1;
+        --step2
+        sql2;
+        ###
+        ```
 
 ## 支持的的settings[【conf/settings.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/conf/settings.py)
 + AUTO_RULES  

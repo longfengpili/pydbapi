@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:14:53
-# @Last Modified time: 2020-06-10 15:55:45
+# @Last Modified time: 2020-06-11 14:15:52
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -97,12 +97,17 @@ LOGGING_CONFIG = {
             'propagate': False,  # 向不向更高级别的logger传递
         },
         'redshift': {
-            'handlers': ['console', 'sql'],
+            'handlers': ['console', 'db'],
             'level': 'INFO',
             'propagate': False,  # 向不向更高级别的logger传递
         },
         'sqlite': {
-            'handlers': ['console', 'sql'],
+            'handlers': ['console', 'db'],
+            'level': 'INFO',
+            'propagate': False,  # 向不向更高级别的logger传递
+        },
+        'mysql': {
+            'handlers': ['console', 'db'],
             'level': 'INFO',
             'propagate': False,  # 向不向更高级别的logger传递
         },

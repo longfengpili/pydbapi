@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-10 15:49:56
+# @Last Modified time: 2020-06-11 15:09:59
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -39,7 +39,7 @@ class DBbase(object):
         Raises:
             ValueError -- [sql执行错误原因及SQL]
         '''
-        sql = re.sub('\s{2,}', '\n', sql)
+        sql = re.sub(r'\s{2,}', '\n', sql)
         try:
             cursor.execute(sql)
         except Exception as e:
@@ -73,13 +73,14 @@ class DBbase(object):
         for idx, sql in enumerate(sqls):
             # dblog.info(sql)
             parser = SqlParse(sql)
-            comment, action, tablename = parser.comment, parser.action, parser.tablename
+            comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
             if progress:
                 dblog.info(f"【{idx}】({action}){tablename}::{comment}")
             self.__execute_step(cur, sql)
             rows = cur.rowcount
             if idx == sqls_length - 1 and action == 'SELECT':
                 result = cur.fetchmany(count) if count else cur.fetchall()
+                result = list(result) if result else []
                 columns = tuple(map(lambda x: x[0], cur.description)) #列名
                 result.insert(0, columns)
         try:

@@ -1,37 +1,37 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2020-06-11 14:19:28
+# @Last Modified time: 2020-06-11 14:54:16
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 
-import psycopg2
+import pymysql
 
 from pydbapi.db import DBCommon, DBFileExec
 from pydbapi.sql import SqlCompile
-from pydbapi.conf import REDSHIFT_AUTO_RULES
+from pydbapi.conf import AUTO_RULES
 
 
 import logging
 import logging.config
 from pydbapi.conf import LOGGING_CONFIG
 logging.config.dictConfig(LOGGING_CONFIG)
-redlog = logging.getLogger('redshift')
+mysqllog = logging.getLogger('mysql')
 
-class SqlRedshiftCompile(SqlCompile):
+class SqlMysqlCompile(SqlCompile):
     '''[summary]
     
     [description]
-        构造redshift sql
+        构造mysql sql
     Extends:
         SqlCompile
     '''
     
     def __init__(self, tablename):
-        super(SqlRedshiftCompile, self).__init__(tablename)
+        super(SqlMysqlCompile, self).__init__(tablename)
 
     def create(self, columns, indexes):
         sql = self.create_nonindex(columns)
@@ -39,34 +39,36 @@ class SqlRedshiftCompile(SqlCompile):
             raise TypeError(f"indexes must be a list !")
         if indexes:
             indexes = ','.join(indexes)
-            sql = f"{sql.replace(';', '')}interleaved sortkey({indexes});"
+            sql = f"{sql.replace(r');', '')},index({indexes}));"
         return sql
 
     def add_columns(self, col_name, col_type):
-        sql = f'alter table {self.tablename} add column {col_name} {col_type} default null;'
+        col_type = f"{col_type}(32)" if col_type == 'varchar' else col_type
+        sql = f'alter table {self.tablename} add column {col_name} {col_type};'
         return sql
 
 
-class RedshiftDB(DBCommon, DBFileExec):
+class MysqlDB(DBCommon, DBFileExec):
 
-    def __init__(self, host, user, password, database, port='5439'):
+    def __init__(self, host, user, password, database, port='3306', charset="utf8"):
         self.host = host
         self.port = port
         self.user = user
         self.password = password
         self.database = database
-        super(RedshiftDB, self).__init__()
-        self.auto_rules = REDSHIFT_AUTO_RULES
+        self.charset = charset
+        super(MysqlDB, self).__init__()
+        self.auto_rules = AUTO_RULES
     
     def get_conn(self):
-        conn = psycopg2.connect(database=self.database, user=self.user, password=self.password, host=self.host, port=self.port)
+        conn = pymysql.connect(database=self.database, user=self.user, password=self.password, host=self.host, port=self.port, charset=self.charset)
         if not conn:
             self.get_conn()
         return conn
 
     def create(self, tablename, columns, indexes=None):
         # tablename = f"{self.database}.{tablename}"
-        sqlcompile = SqlRedshiftCompile(tablename)
+        sqlcompile = SqlMysqlCompile(tablename)
         sql_for_create = sqlcompile.create(columns, indexes)
         rows, action, result = self.execute(sql_for_create)
         return rows, action, result
@@ -125,14 +127,14 @@ class RedshiftDB(DBCommon, DBFileExec):
                 if order:
                     tmp['order'] = order
                 if source_col and source_type == 'json':
-                    source_name = f"json_extract_path_text({source_col}, '{source_name}')"
+                    source_name = f"JSON_EXTRACT({source_col}, '$.{source_name}')"
                 tmp['source'] = source_name
 
                 columns_dealed[col] = tmp
             return columns_dealed
 
         columns = deal_columns(columns)
-        sqlcompile = SqlRedshiftCompile(tablename)
+        sqlcompile = SqlMysqlCompile(tablename)
         sql_for_select = sqlcompile.select_base(columns, condition)
         rows, action, result = self.execute(sql_for_select)
         return rows, action, result
@@ -141,20 +143,20 @@ class RedshiftDB(DBCommon, DBFileExec):
         old_columns = self.get_columns(tablename)
         old_columns = set(old_columns)
         new_columns = set(columns)
-        # redlog.info(f'{old_columns}, {new_columns}')
+        # mysqllog.info(f'{old_columns}, {new_columns}')
 
         if old_columns == new_columns:
-            redlog.info(f'【{tablename}】columns not changed !')
+            mysqllog.info(f'【{tablename}】columns not changed !')
         if old_columns - new_columns:
             raise Exception(f"【{tablename}】columns【{old_columns - new_columns}】 not set, should exists !")
         if new_columns - old_columns:
-            sqlcompile = SqlRedshiftCompile(tablename)
+            sqlcompile = SqlMysqlCompile(tablename)
             add_columns = new_columns - old_columns
             for col_name in add_columns:
                 col_type = columns.get(col_name)
                 sql = sqlcompile.add_columns(col_name, col_type)
                 self.execute(sql)
-            redlog.info(f'【{tablename}】add columns succeed !【{new_columns - old_columns}】')
+            mysqllog.info(f'【{tablename}】add columns succeed !【{new_columns - old_columns}】')
 
 
 
