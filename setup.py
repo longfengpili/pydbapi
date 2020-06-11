@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-09 16:46:54
-# @Last Modified time: 2020-06-11 15:19:42
+# @Last Modified time: 2020-06-11 15:30:26
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -26,7 +26,7 @@ if sys.argv[1] == 'build':
 elif sys.argv[1] == 'publish':
     os.system('python setup.py sdist bdist_wheel')
     os.system(f'python -m twine upload dist/*{VERSION}* --repository {PROJECT_NAME}')
-    shutil.rmtree(f'./{PROJECT_NAME}-{VERSION}')
+    # shutil.rmtree(f'./{PROJECT_NAME}-{VERSION}')
     shutil.rmtree(f'./build')
     shutil.rmtree(f'./{PROJECT_NAME}.egg-info')
     sys.exit()

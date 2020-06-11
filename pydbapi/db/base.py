@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-11 15:09:59
+# @Last Modified time: 2020-06-11 16:08:58
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -107,6 +107,7 @@ class DBCommon(DBbase):
         Arguments:
             tablename {[str]} -- [表名]
         '''
+        if not self.auto_rules: return True
         for rule in self.auto_rules:
             if rule in tablename:
                 return True
