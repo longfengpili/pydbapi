@@ -34,7 +34,7 @@ row, action, result = db.execute(sql)
         `db.execute(sql, count=None, progress=None)`
     + params
         * `count`: 返回结果的数量;
-        * `progress`： 是否打印执行进度。文件名以'<font color=red>test</font>'开始或者结尾，或者在desc中增加'<font color=red>show progress</font>';
+        * `progress`： 是否打印执行进度。
 + select
     + 代码  
         `db.select(tablename, columns, condition=None)`
@@ -93,8 +93,8 @@ row, action, result = db.execute(sql)
     + 代码  
         `db.file_exec(filepath, **kw)`
     + params
-        * `filepath`: sql文件路径;
-        * `kw`： sql文件中需要替换的参数 在sql文件中用`$param`表示参数
+        * `filepath`: sql文件路径; 文件名以<font color=red>`test`</font>开始或者结尾会打印sql执行的步骤;
+        * `kw`： sql文件中需要替换的参数 在sql文件中用`$param`；在desc中增加<font color=red>`show progress`</font>会打印sql执行的步骤;
     + sql文件格式
         ```sql
         ###
