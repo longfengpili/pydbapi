@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-11 16:08:58
+# @Last Modified time: 2020-06-15 16:12:25
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -29,13 +29,13 @@ class DBbase(object):
 
     def __execute_step(self, cursor, sql):
         '''[summary]
-        
+
         [description]
             在conn中执行单步sql
         Arguments:
             cursor {[cursor]} -- [游标]
             sql {[str]} -- [sql]
-        
+
         Raises:
             ValueError -- [sql执行错误原因及SQL]
         '''
@@ -46,17 +46,17 @@ class DBbase(object):
             dblog.error(f"{e}{sql}")
             raise ValueError(f"【Error】:{e}【Sql】:{sql};")
 
-    def execute(self, sql, count=None, progress=False):
+    def execute(self, sql, count=None, verbose=False):
         '''[summary]
-        
+
         [description]
             执行sql
         Arguments:
             sql {[str]} -- [sql]
-        
+
         Keyword Arguments:
             count {[int]} -- [返回的结果数量] (default: {None})
-        
+
         Returns:
             rows {[int]} -- [影响的行数]
             result {[list]} -- [返回的结果]
@@ -74,7 +74,7 @@ class DBbase(object):
             # dblog.info(sql)
             parser = SqlParse(sql)
             comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
-            if progress:
+            if verbose:
                 dblog.info(f"【{idx}】({action}){tablename}::{comment}")
             self.__execute_step(cur, sql)
             rows = cur.rowcount
@@ -89,7 +89,7 @@ class DBbase(object):
             dblog.error(e)
             conn.rollback()
         conn.close()
-        
+
         return rows, action, result
 
 
@@ -101,7 +101,7 @@ class DBCommon(DBbase):
 
     def __check_isauto(self, tablename):
         '''[summary]
-        
+
         [description]
             通过tablename控制是否可以通过python代码处理
         Arguments:
