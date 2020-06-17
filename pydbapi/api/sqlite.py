@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-06-10 15:08:29
+# @Last Modified time: 2020-06-17 21:08:44
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -22,7 +22,7 @@ sqlitelog = logging.getLogger('sqlite')
 
 class SqliteCompile(SqlCompile):
     '''[summary]
-    
+
     [description]
         构造redshift sql
     Extends:
@@ -51,7 +51,7 @@ class SqliteDB(DBCommon, DBFileExec):
     def __init__(self, database=None):
         self.database = database
         super(SqliteDB, self).__init__()
-    
+
     def get_conn(self):
         if not self.database:
             self.database = os.path.join(os.environ['USERPROFILE'], 'sqlite3_test.db')
@@ -69,7 +69,7 @@ class SqliteDB(DBCommon, DBFileExec):
 
     def select(self, tablename, columns, condition=None):
         '''[summary]
-        
+
         [description]
             查询数据，暂时不考虑join形式。如果是join形式请使用原始sql查询。
         Arguments:
@@ -81,24 +81,24 @@ class SqliteDB(DBCommon, DBFileExec):
                 # source_type: 原始数据类型 用于解析
                 # source_name: 解析的KEY或者原始数据的列名
                 # func: 后续处理的函数
-        
+
         Keyword Arguments:
             condition {[str]} -- [查询条件] (default: {None})
-        
+
         Returns:
             [type] -- [description]
         '''
 
         def deal_columns(columns):
             '''[summary]
-            
+
             [description]
                 处理columns
             Arguments:
                 columns {[dict]} -- [原始dict]
                 {'id_rename': {'order': 1, 'source_col':'datas', 'source_type': '', 'func': 'min', 'source_name': 'id'}, ……}
             Returns:
-                [dict] -- [构造columns] 
+                [dict] -- [构造columns]
                 {'id_rename': {'source':'id', 'func': 'min', 'order': 1}, ……}
             '''
             columns_dealed = {}

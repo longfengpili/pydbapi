@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2020-06-11 14:19:28
+# @Last Modified time: 2020-06-17 21:08:47
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -23,13 +23,13 @@ redlog = logging.getLogger('redshift')
 
 class SqlRedshiftCompile(SqlCompile):
     '''[summary]
-    
+
     [description]
         构造redshift sql
     Extends:
         SqlCompile
     '''
-    
+
     def __init__(self, tablename):
         super(SqlRedshiftCompile, self).__init__(tablename)
 
@@ -57,7 +57,7 @@ class RedshiftDB(DBCommon, DBFileExec):
         self.database = database
         super(RedshiftDB, self).__init__()
         self.auto_rules = REDSHIFT_AUTO_RULES
-    
+
     def get_conn(self):
         conn = psycopg2.connect(database=self.database, user=self.user, password=self.password, host=self.host, port=self.port)
         if not conn:
@@ -73,7 +73,7 @@ class RedshiftDB(DBCommon, DBFileExec):
 
     def select(self, tablename, columns, condition=None):
         '''[summary]
-        
+
         [description]
             查询数据，暂时不考虑join形式。如果是join形式请使用原始sql查询。
         Arguments:
@@ -85,24 +85,24 @@ class RedshiftDB(DBCommon, DBFileExec):
                 # source_type: 原始数据类型 用于解析
                 # source_name: 解析的KEY或者原始数据的列名
                 # func: 后续处理的函数
-        
+
         Keyword Arguments:
             condition {[str]} -- [查询条件] (default: {None})
-        
+
         Returns:
             [type] -- [description]
         '''
 
         def deal_columns(columns):
             '''[summary]
-            
+
             [description]
                 处理columns
             Arguments:
                 columns {[dict]} -- [原始dict]
                 {'id_rename': {'order': 1, 'source_col':'datas', 'source_type': '', 'func': 'min', 'source_name': 'id'}, ……}
             Returns:
-                [dict] -- [构造columns] 
+                [dict] -- [构造columns]
                 {'id_rename': {'source':'id', 'func': 'min', 'order': 1}, ……}
             '''
             columns_dealed = {}

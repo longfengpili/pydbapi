@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-09 16:46:54
-# @Last Modified time: 2020-06-11 15:30:26
+# @Last Modified time: 2020-06-17 21:07:37
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -12,7 +12,7 @@ import sys
 import shutil
 import setuptools
 
-VERSION = '0.0.20'
+VERSION = '0.0.21'
 PROJECT_NAME = 'pydbapi'
 
 with open('README.md', 'r', encoding='utf-8') as f:
@@ -46,7 +46,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
     ],
-    keywords = ["dbapi", "sqlite3", "redshift"], 
+    keywords = ["dbapi", "sqlite3", "redshift"],
     python_requires = '>=3.6',
     project_urls = {
         'Documentation': f'https://github.com/longfengpili/{PROJECT_NAME}/blob/master/README.md',

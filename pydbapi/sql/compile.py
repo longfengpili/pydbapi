@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2020-06-08 13:28:10
+# @Last Modified time: 2020-06-17 21:08:21
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -18,7 +18,7 @@ class SqlCompile(object):
 
     def select_base(self, columns, condition=None):
         '''[summary]
-        
+
         [description]
             生成select sql (未考虑join，所以暂时用base)
         Arguments:
@@ -27,13 +27,13 @@ class SqlCompile(object):
             # source : 已经处理过的内容，可能已经解析，可能已经discount
             # order: 用于排序
             # func: 后续处理的函数
-        
+
         Keyword Arguments:
             condition {[条件]} -- [where中的条件] (default: {None})
-        
+
         Returns:
             [str] -- [返回sql]
-        
+
         Raises:
             TypeError -- [检查columns的情况]
         '''
@@ -78,20 +78,20 @@ class SqlCompile(object):
 
     def create_nonindex(self, columns):
         '''[summary]
-        
+
         [description]
             create sql
         Arguments:
             self.tablename {[str]} -- [表名]
             columns {[dict]} -- [列名及属性]
-        
+
         Returns:
             [str] -- [sql]
-        
+
         Raises:
             TypeError -- [类别错误]
         '''
-        
+
         if not isinstance(columns, dict):
             raise TypeError('colums must be a dict ! example:{"column_name":"column_type"}')
 
@@ -109,7 +109,7 @@ class SqlCompile(object):
 
     def insert(self, columns, values):
         '''[summary]
-        
+
         [description]
             插入数据
         Arguments:
