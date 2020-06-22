@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-15 16:12:25
+# @Last Modified time: 2020-06-22 11:39:08
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -148,7 +148,31 @@ class DBCommon(DBbase):
         columns = result[0]
         return columns
 
-
+    def select(self, tablename, columns, condition=None):
+        '''[summary]
+        
+        [description]
+            执行select 
+        Arguments:
+            tablename {[str]} -- [表名]
+            columns {[dict]} -- [列的信息]
+            {'id_rename': {'sqlexpr':'id', 'func': 'min', 'order': 1}, ……}
+                # sqlexpr : sql表达式， 如果为空则默认获取key值。 可以是任何sql表达式。
+                # order: 用于排序
+                # func: 后续处理的函数
+        
+        Keyword Arguments:
+            condition {[str]} -- [where中的表达式] (default: {None})
+        
+        Returns:
+            rows[int] -- [影响的数量]
+            action[str] -- [sql表达式DML]
+            result[list] -- [结果, 第一个元素是列名]
+        '''
+        sqlcompile = SqlCompile(tablename)
+        sql_for_select = sqlcompile.select_base(columns, condition)
+        rows, action, result = self.execute(sql_for_select)
+        return rows, action, result
 
 
 

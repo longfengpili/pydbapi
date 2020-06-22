@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2020-06-08 13:28:10
+# @Last Modified time: 2020-06-22 11:35:47
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -23,8 +23,8 @@ class SqlCompile(object):
             生成select sql (未考虑join，所以暂时用base)
         Arguments:
             columns {[dict]} -- [列的信息，需要按照排列顺序处理]
-            {'id_rename': {'source':'id', 'func': 'min', 'order': 1}, ……}
-            # source : 已经处理过的内容，可能已经解析，可能已经discount
+            {'id_rename': {'sqlexpr':'id', 'func': 'min', 'order': 1}, ……}
+            # sqlexpr : sql表达式
             # order: 用于排序
             # func: 后续处理的函数
         
@@ -48,16 +48,15 @@ class SqlCompile(object):
             order_cols = ', '.join(order_cols)
 
             for col, info in columns.items():
-                source = info.get('source')
-                source = source if source else col
+                sqlexpr = info.get('sqlexpr', col)
                 func = info.get('func')
 
                 if func and func in self.aggfunc:
-                    aggcol = f"{func}({source}) as {col}"
+                    aggcol = f"{func}({sqlexpr}) as {col}"
                     agg_cols.append(aggcol)
                 else:
                     group_cols.append(col)
-                    col = col if source == col else f"{source} as {col}"
+                    col = col if sqlexpr == col else f"{sqlexpr} as {col}"
                     ori_cols.append(col)
 
             cols = ori_cols + agg_cols
