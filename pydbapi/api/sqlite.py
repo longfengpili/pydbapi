@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-06-22 11:20:43
+# @Last Modified time: 2020-06-22 11:57:45
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -85,11 +85,4 @@ class SqliteDB(DBCommon, DBFileExec):
                 sql = sqlcompile.add_columns(col_name, col_type)
                 self.execute(sql)
             sqlitelog.info(f'【{tablename}】add columns succeeded !【{new_columns - old_columns}】')
-
-
-
-
-
-
-
 

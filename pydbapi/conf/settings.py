@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:14:53
-# @Last Modified time: 2020-06-11 16:11:40
+# @Last Modified time: 2020-06-17 21:08:34
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -43,7 +43,7 @@ LOGGING_CONFIG = {
         # 在终端打印
         'console': {
             'level': 'INFO',
-            'filters': [],  
+            'filters': [],
             'class': 'logging.StreamHandler',  #
             'formatter': 'simple'
         },
@@ -82,7 +82,7 @@ LOGGING_CONFIG = {
     'loggers': {
        # 默认的logger应用如下配置
         '': {
-            'handlers': ['console', 'default'],  
+            'handlers': ['console', 'default'],
             'level': 'INFO',
             'propagate': True,  # 向不向更高级别的logger传递
         },

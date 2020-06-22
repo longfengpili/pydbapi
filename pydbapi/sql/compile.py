@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2020-06-22 11:35:47
+# @Last Modified time: 2020-06-22 11:58:16
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -136,6 +136,3 @@ class SqlCompile(object):
     def delete(self, condition):
         sql = f'''delete from {self.tablename} where {condition};'''
         return sql
-
-
-

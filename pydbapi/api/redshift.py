@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2020-06-22 11:18:29
+# @Last Modified time: 2020-06-22 11:57:28
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -89,11 +89,4 @@ class RedshiftDB(DBCommon, DBFileExec):
                 sql = sqlcompile.add_columns(col_name, col_type)
                 self.execute(sql)
             redlog.info(f'【{tablename}】add columns succeed !【{new_columns - old_columns}】')
-
-
-
-
-
-
-
 

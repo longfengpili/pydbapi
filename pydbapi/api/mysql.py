@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2020-06-22 11:20:32
+# @Last Modified time: 2020-06-22 11:57:01
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -91,11 +91,3 @@ class MysqlDB(DBCommon, DBFileExec):
                 sql = sqlcompile.add_columns(col_name, col_type)
                 self.execute(sql)
             mysqllog.info(f'【{tablename}】add columns succeed !【{new_columns - old_columns}】')
-
-
-
-
-
-
-
-
