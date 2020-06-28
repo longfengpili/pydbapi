@@ -98,7 +98,7 @@ row, action, result = db.execute(sql)
         #【arguments】#
         ts = '2020-06-28'
         date = today
-        date_max = today + shift(7, 'day')
+        date_max = date + shift(7, 'day')
         #【arguments】#
         ###
         --【desc1 [verbose]】 #sql描述
