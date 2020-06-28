@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-06-22 11:57:45
+# @Last Modified time: 2020-06-28 11:21:39
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -18,7 +18,7 @@ import logging
 import logging.config
 from pydbapi.conf import LOGGING_CONFIG
 logging.config.dictConfig(LOGGING_CONFIG)
-sqlitelog = logging.getLogger('sqlite')
+sqlitelogger = logging.getLogger('sqlite')
 
 class SqliteCompile(SqlCompile):
     '''[summary]
@@ -71,10 +71,10 @@ class SqliteDB(DBCommon, DBFileExec):
         old_columns = self.get_columns(tablename)
         old_columns = set(old_columns)
         new_columns = set(columns)
-        # sqlitelog.info(f'{old_columns}, {new_columns}')
+        # sqlitelogger.info(f'{old_columns}, {new_columns}')
 
         if old_columns == new_columns:
-            sqlitelog.info(f'【{tablename}】columns not changed !')
+            sqlitelogger.info(f'【{tablename}】columns not changed !')
         if old_columns - new_columns:
             raise Exception(f"【{tablename}】columns【{old_columns - new_columns}】 not set, should exists !")
         if new_columns - old_columns:
@@ -84,5 +84,5 @@ class SqliteDB(DBCommon, DBFileExec):
                 col_type = columns.get(col_name)
                 sql = sqlcompile.add_columns(col_name, col_type)
                 self.execute(sql)
-            sqlitelog.info(f'【{tablename}】add columns succeeded !【{new_columns - old_columns}】')
+            sqlitelogger.info(f'【{tablename}】add columns succeeded !【{new_columns - old_columns}】')
 

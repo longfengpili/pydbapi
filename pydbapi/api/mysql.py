@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2020-06-22 11:57:01
+# @Last Modified time: 2020-06-28 11:21:27
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -19,7 +19,7 @@ import logging
 import logging.config
 from pydbapi.conf import LOGGING_CONFIG
 logging.config.dictConfig(LOGGING_CONFIG)
-mysqllog = logging.getLogger('mysql')
+mysqllogger = logging.getLogger('mysql')
 
 class SqlMysqlCompile(SqlCompile):
     '''[summary]
@@ -77,10 +77,10 @@ class MysqlDB(DBCommon, DBFileExec):
         old_columns = self.get_columns(tablename)
         old_columns = set(old_columns)
         new_columns = set(columns)
-        # mysqllog.info(f'{old_columns}, {new_columns}')
+        # mysqllogger.info(f'{old_columns}, {new_columns}')
 
         if old_columns == new_columns:
-            mysqllog.info(f'【{tablename}】columns not changed !')
+            mysqllogger.info(f'【{tablename}】columns not changed !')
         if old_columns - new_columns:
             raise Exception(f"【{tablename}】columns【{old_columns - new_columns}】 not set, should exists !")
         if new_columns - old_columns:
@@ -90,4 +90,4 @@ class MysqlDB(DBCommon, DBFileExec):
                 col_type = columns.get(col_name)
                 sql = sqlcompile.add_columns(col_name, col_type)
                 self.execute(sql)
-            mysqllog.info(f'【{tablename}】add columns succeed !【{new_columns - old_columns}】')
+            mysqllogger.info(f'【{tablename}】add columns succeed !【{new_columns - old_columns}】')
