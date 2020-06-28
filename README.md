@@ -86,15 +86,20 @@ row, action, result = db.execute(sql)
         `db.get_filesqls(filepath, **kw)`
     + params
         * `filepath`: sql文件路径;
-        * `kw`： sql文件中需要替换的参数
+        * `kw`： sql文件中需要替换的参数，会替换sqlfile中的arguments;
 + file_exec[【db/fileexec.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/fileexec.py)
     + 代码  
         `db.file_exec(filepath, **kw)`
     + params
         * `filepath`: sql文件路径; 文件名以<font color=red>`test`</font>开始或者结尾会打印sql执行的步骤;
-        * `kw`： sql文件中需要替换的参数 在sql文件中用`$param`；在desc中增加<font color=red>`verbose`</font>会打印sql执行的步骤;
-    + sql文件格式
+        * `kw`： sql文件中需要替换的参数 在sql文件中用`$param`, 会替换sqlfile中的arguments;
+    + sql文件格式(在desc中增加<font color=red>`verbose`</font>会打印sql执行的步骤;)
         ```sql
+        #【arguments】#
+        ts = '2020-06-28'
+        date = today
+        date_max = today + shift(7, 'day')
+        #【arguments】#
         ###
         --【desc1 [verbose]】 #sql描述
         --step1
@@ -110,6 +115,13 @@ row, action, result = db.execute(sql)
         sql2;
         ###
         ```
+    + arguments
+        * today: 获取执行的日期
+        * now：获取执行的时间
+        * date_argument + shift(interval, unit)： 获取date_argument偏移以后的时间
+            - date_argument必须先设置
+            - interval 间隔
+            - unit 间隔单位
 
 ## 支持的的settings[【conf/settings.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/conf/settings.py)
 + AUTO_RULES  
