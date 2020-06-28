@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-22 11:39:08
+# @Last Modified time: 2020-06-28 11:56:25
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -9,6 +9,7 @@
 
 import re
 import os
+import pandas as pd
 
 from pydbapi.sql import SqlParse, SqlCompile
 from pydbapi.conf import AUTO_RULES
@@ -17,7 +18,7 @@ import logging
 import logging.config
 from pydbapi.conf import LOGGING_CONFIG
 logging.config.dictConfig(LOGGING_CONFIG)
-dblog = logging.getLogger('db')
+dblogger = logging.getLogger('db')
 
 class DBbase(object):
 
@@ -43,7 +44,7 @@ class DBbase(object):
         try:
             cursor.execute(sql)
         except Exception as e:
-            dblog.error(f"{e}{sql}")
+            dblogger.error(f"{e}{sql}")
             raise ValueError(f"【Error】:{e}【Sql】:{sql};")
 
     def execute(self, sql, count=None, verbose=False):
@@ -64,30 +65,36 @@ class DBbase(object):
         rows = 0
         result = None
         conn = self.get_conn()
-        # dblog.info(conn)
+        # dblogger.info(conn)
         cur = conn.cursor()
         sql = sql if sql.strip().endswith(';') else sql.strip() + ';'
         sqls = sql.split(";")[:-1]
         sqls = [sql.strip() for sql in sqls if sql]
         sqls_length = len(sqls)
         for idx, sql in enumerate(sqls):
-            # dblog.info(sql)
+            # dblogger.info(sql)
             parser = SqlParse(sql)
             comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
             if verbose:
-                dblog.info(f"【{idx}】({action}){tablename}::{comment}")
+                dblogger.info(f"【{idx}】({action}){tablename}::{comment}")
             self.__execute_step(cur, sql)
-            rows = cur.rowcount
             if idx == sqls_length - 1 and action == 'SELECT':
                 result = cur.fetchmany(count) if count else cur.fetchall()
                 result = list(result) if result else []
                 columns = tuple(map(lambda x: x[0], cur.description)) #列名
                 result.insert(0, columns)
+            elif verbose and action == 'SELECT':
+                result = cur.fetchmany(10)
+                result = list(result) if result else []
+                columns = tuple(map(lambda x: x[0], cur.description)) #列名
+                dblogger.info(f"\n{pd.DataFrame(result, columns=columns)}")
         try:
             conn.commit()
         except Exception as e:
-            dblog.error(e)
+            dblogger.error(e)
             conn.rollback()
+            
+        rows = cur.rowcount
         conn.close()
 
         return rows, action, result
@@ -118,7 +125,7 @@ class DBCommon(DBbase):
             sqlcompile = SqlCompile(tablename)
             sql_for_drop = sqlcompile.drop()
             rows, action, result = self.execute(sql_for_drop)
-            dblog.info(f'【{action}】{tablename} drop succeed !')
+            dblogger.info(f'【{action}】{tablename} drop succeed !')
             return rows, action, result
         else:
             raise Exception(f"【drop】 please drop [{tablename}] on workbench! Or add rule into auto_rules !")
@@ -128,7 +135,7 @@ class DBCommon(DBbase):
             sqlcompile = SqlCompile(tablename)
             sql_for_delete = sqlcompile.delete(condition)
             rows, action, result = self.execute(sql_for_delete)
-            dblog.info(f'【{action}】{tablename} delete succeed !')
+            dblogger.info(f'【{action}】{tablename} delete succeed !')
             return rows, action, result
         else:
             raise Exception(f"【delete】 please delete [{tablename}] on workbench! Or add rule into auto_rules !")
