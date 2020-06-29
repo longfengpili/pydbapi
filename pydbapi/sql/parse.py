@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2020-06-29 15:26:03
+# @Last Modified time: 2020-06-29 16:51:34
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -66,7 +66,7 @@ class SqlFileParse(object):
             content = f.read()
         return content
 
-    def parse_argument(self, argument):
+    def parse_argument(self, argument, arguments):
         argument_map = {
             'today': 'date.today()',
             'now': 'datetime.now()',
@@ -75,11 +75,9 @@ class SqlFileParse(object):
         key, value = key.strip(), value.strip()
         value = argument_map.get(value, value)
         try:
-            value = eval(value)
+            value = eval(value, globals(), arguments)
         except NameError as e:
             raise NameError(f"{e}, please set it before '{key}' !!!")
-
-        globals()[key] = value # 设置为全局变量用于后续变量的获取
         return key, value
 
     @property
@@ -98,7 +96,7 @@ class SqlFileParse(object):
         arguments_temp = ';'.join(arguments_temp).replace('\n', ';')
         arguments_temp = [argument.strip() for argument in arguments_temp.split(';') if argument]
         for argument in arguments_temp:
-            key, value = self.parse_argument(argument)
+            key, value = self.parse_argument(argument, arguments)
             arguments[key] = value
 
         arguments = {k: f"'{datetime.strftime(v, '%Y-%m-%d %H:%M:%S')}'" if isinstance(v, datetime)

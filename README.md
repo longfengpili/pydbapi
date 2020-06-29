@@ -116,7 +116,8 @@ row, action, result = db.execute(sql)
         ###
         ```
     + arguments
-        * 支持python表达式（datetime、date、timedelta）和全局变量
+        * 支持python表达式（datetime、date、timedelta）
+        * 支持全局变量和当前sqlfile设置过的变量
         * now：获取执行的时间
         * today: 获取执行的日期
 
