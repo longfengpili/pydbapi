@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2020-06-29 15:13:33
+# @Last Modified time: 2020-06-29 15:26:03
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -100,6 +100,10 @@ class SqlFileParse(object):
         for argument in arguments_temp:
             key, value = self.parse_argument(argument)
             arguments[key] = value
+
+        arguments = {k: f"'{datetime.strftime(v, '%Y-%m-%d %H:%M:%S')}'" if isinstance(v, datetime)
+                        else f"'{datetime.strftime(v, '%Y-%m-%d')}'" if isinstance(v, date)
+                        else v for k, v in arguments.items()} # 处理时间
         return arguments
 
     @property
@@ -109,13 +113,13 @@ class SqlFileParse(object):
         parameters = re.findall(rf"\$(\w+){self.reg_behind}", content)
         return set(parameters)
 
-    def replace_params(self, **kw):
+    def replace_params(self, **kwargs):
         '''[summary]
         
         [description]
             替换具体的参数值，传入的参数值会覆盖文件中设置的参数值
         Arguments:
-            **kw {[参数]} -- [传入的参数值]
+            **kwargs {[参数]} -- [传入的参数值]
         
         Returns:
             [str] -- [替换过后的内容]
@@ -123,21 +127,19 @@ class SqlFileParse(object):
         Raises:
             Exception -- [需要设置参数]
         '''
-        kw = {k: f"'{v}'" if isinstance(v, str) else v for k, v in kw.items()} # str加引号处理
+        kwargs = {k: f"'{v}'" if isinstance(v, str) else v for k, v in kwargs.items()} # str加引号处理
         arguments = self.arguments
-        arguments = {k: f"'{datetime.strftime(v, '%Y-%m-%d %H:%M:%S')}'" if isinstance(v, datetime)
-                        else f"'{datetime.strftime(v, '%Y-%m-%d')}'" if isinstance(v, date)
-                        else v for k, v in arguments.items()} # 处理时间
-        arguments_same = set(arguments) & set(kw)
+        
+        arguments_same = set(arguments) & set(kwargs)
         if arguments_same:
-            input_arg = {arg: kw.get(arg) for arg in arguments_same}
+            input_arg = {arg: kwargs.get(arg) for arg in arguments_same}
             file_arg = {arg: arguments.get(arg) for arg in arguments_same}
-            sqllogger.warning(f"""{arguments_same} Use Input arguments {input_arg}, NotUse sqlfile setting {file_arg}!""")
+            sqllogger.warning(f"{arguments_same} Use Input arguments {input_arg}, NotUse sqlfile setting {file_arg}!")
 
-        arguments.update(kw)
-        params_diff = self.parameters - set(arguments)
-        if params_diff:
-            raise Exception(f"Need params 【{'】, 【'.join(params_diff)}】 !")
+        arguments.update(kwargs)
+        arguments_lack = self.parameters - set(arguments)
+        if arguments_lack:
+            raise Exception(f"Need params 【{'】, 【'.join(arguments_lack)}】 !")
 
         content = self.get_content()
         for key, value in arguments.items():
@@ -145,9 +147,9 @@ class SqlFileParse(object):
         sqllogger.info(f"【Final Arguments】The file 【{os.path.basename(self.filepath)}】 Use arguments {arguments}")
         return content
 
-    def get_sqls(self, **kw):
+    def get_sqls(self, **kwargs):
         sqls = {}
-        content = self.replace_params(**kw)
+        content = self.replace_params(**kwargs)
         sqls_tmp = re.findall(r'(?<!--)\s+###\n(.*?)###', content, re.S)
         for idx, sql in enumerate(sqls_tmp):
             purpose = re.match('--(【.*?】)\n', sql.strip())
