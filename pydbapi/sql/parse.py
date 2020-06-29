@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2020-06-28 16:48:32
+# @Last Modified time: 2020-06-29 10:58:57
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -137,7 +137,9 @@ class SqlFileParse(object):
                         if isinstance(v, datetime) else v for k, v in arguments.items()} # 处理时间
         arguments_same = set(arguments) & set(kw)
         if arguments_same:
-            sqllogger.warning(f"{arguments_same} will use the func input arguments, not use sqlfile setting !")
+            input_arg = {arg: kw.get(arg) for arg in arguments_same}
+            file_arg = {arg: arguments.get(arg) for arg in arguments_same}
+            sqllogger.warning(f"""{arguments_same} Use Input arguments {input_arg}, NotUse sqlfile setting {file_arg}!""")
 
         arguments.update(kw)
         params_diff = self.parameters - set(arguments)
@@ -147,7 +149,7 @@ class SqlFileParse(object):
         content = self.get_content()
         for key, value in arguments.items():
             content = re.sub(rf"\${key}{self.reg_behind}", f"{value}", content)
-        sqllogger.warning(f"The file {os.path.basename(self.filepath)} use arguments {arguments}")
+        sqllogger.warning(f"【Final Arguments】The file 【{os.path.basename(self.filepath)}】 Use arguments {arguments}")
         return content
 
     def get_sqls(self, **kw):
