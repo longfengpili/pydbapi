@@ -98,7 +98,7 @@ row, action, result = db.execute(sql)
         #【arguments】#
         ts = '2020-06-28'
         date = today
-        date_max = date + shift(7, 'day')
+        date_max = date + timedelta(days=10)
         #【arguments】#
         ###
         --【desc1 [verbose]】 #sql描述
@@ -116,12 +116,9 @@ row, action, result = db.execute(sql)
         ###
         ```
     + arguments
-        * today: 获取执行的日期
+        * 支持python表达式（datetime、date、timedelta）和全局变量
         * now：获取执行的时间
-        * date_argument + shift(interval, unit)： 获取date_argument偏移以后的时间
-            - date_argument必须先设置
-            - interval 间隔
-            - unit 间隔单位
+        * today: 获取执行的日期
 
 ## 支持的的settings[【conf/settings.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/conf/settings.py)
 + AUTO_RULES  

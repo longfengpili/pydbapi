@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2020-06-29 10:58:57
+# @Last Modified time: 2020-06-29 15:13:33
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -66,29 +66,21 @@ class SqlFileParse(object):
             content = f.read()
         return content
 
-    def convert_argument(self, arguments, argument, value):
-        now = datetime.now()
-        if value == 'now':
-            value = datetime.now()
-        elif value == 'today':
-            value = datetime.combine(date.today(), datetime.min.time())
-        elif 'shift' in value:
-            result = re.search(f"shift\((-*\d+).*?(\w+)\)", value)
-            interval, unit = result.group(1), result.group(2)
-            base = (value.split('+')[0]).strip()
-            basevalue = arguments.get(base)
-            if not basevalue:
-                raise Exception(f"You must set {base} before {argument} !!!")
+    def parse_argument(self, argument):
+        argument_map = {
+            'today': 'date.today()',
+            'now': 'datetime.now()',
+        }
+        key, value = argument.split('=', 1)
+        key, value = key.strip(), value.strip()
+        value = argument_map.get(value, value)
+        try:
+            value = eval(value)
+        except NameError as e:
+            raise NameError(f"{e}, please set it before '{key}' !!!")
 
-            if unit not in ['year', 'day', 'hour', 'minute', 'second']:
-                raise Exception(f"The unit {unit} is not supported, supported units are year, day, hour, minute, second")
-            interval = int(interval) * 365 * 24 * 60 * 60 if unit == 'year' \
-                        else int(interval) * 24 * 60 * 60 if unit == 'day' \
-                        else int(interval) * 60 * 60 if unit == 'hour' \
-                        else int(interval) * 60 if unit == 'minute' \
-                        else int(interval) if unit == 'second' else int(interval)
-            value = basevalue + timedelta(seconds=interval)
-        return value
+        globals()[key] = value # 设置为全局变量用于后续变量的获取
+        return key, value
 
     @property
     def arguments(self):
@@ -106,8 +98,8 @@ class SqlFileParse(object):
         arguments_temp = ';'.join(arguments_temp).replace('\n', ';')
         arguments_temp = [argument.strip() for argument in arguments_temp.split(';') if argument]
         for argument in arguments_temp:
-            arg, value = argument.split('=', 1)
-            arguments[arg.strip()] = self.convert_argument(arguments, arg, value.strip())
+            key, value = self.parse_argument(argument)
+            arguments[key] = value
         return arguments
 
     @property
@@ -133,8 +125,9 @@ class SqlFileParse(object):
         '''
         kw = {k: f"'{v}'" if isinstance(v, str) else v for k, v in kw.items()} # str加引号处理
         arguments = self.arguments
-        arguments = {k: f"'{datetime.strftime(v, '%Y-%m-%d %H:%M:%S')}'" 
-                        if isinstance(v, datetime) else v for k, v in arguments.items()} # 处理时间
+        arguments = {k: f"'{datetime.strftime(v, '%Y-%m-%d %H:%M:%S')}'" if isinstance(v, datetime)
+                        else f"'{datetime.strftime(v, '%Y-%m-%d')}'" if isinstance(v, date)
+                        else v for k, v in arguments.items()} # 处理时间
         arguments_same = set(arguments) & set(kw)
         if arguments_same:
             input_arg = {arg: kw.get(arg) for arg in arguments_same}
@@ -149,7 +142,7 @@ class SqlFileParse(object):
         content = self.get_content()
         for key, value in arguments.items():
             content = re.sub(rf"\${key}{self.reg_behind}", f"{value}", content)
-        sqllogger.warning(f"【Final Arguments】The file 【{os.path.basename(self.filepath)}】 Use arguments {arguments}")
+        sqllogger.info(f"【Final Arguments】The file 【{os.path.basename(self.filepath)}】 Use arguments {arguments}")
         return content
 
     def get_sqls(self, **kw):
