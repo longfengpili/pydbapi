@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:14:53
-# @Last Modified time: 2020-06-17 21:08:34
+# @Last Modified time: 2020-07-01 16:55:10
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -13,8 +13,8 @@ import os
 AUTO_RULES = ['test_xu'] # 可以自动执行表名（表名包含即可）
 REDSHIFT_AUTO_RULES = ['_data_aniland'] # Amazon Redshift 可以自动执行表名（表名包含即可）
 
-
-LOG_BASE_PATH = os.path.join(os.environ['USERPROFILE'], '.pydbapi') # 可以user目录下查看日志
+USERPATH = os.environ['USERPROFILE'] if 'USERPROFILE' in os.environ else os.environ['HOME'] if 'HOME' in os.environ else ''
+LOG_BASE_PATH = os.path.join(USERPATH, 'pydbapilog') # 可以user目录下查看日志
 LOGGING_CONFIG = {
     'version': 1,  # 保留字
     'disable_existing_loggers': False,  # 禁用已经存在的logger实例
