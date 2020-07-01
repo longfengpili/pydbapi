@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-28 11:56:25
+# @Last Modified time: 2020-07-01 15:23:11
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -118,7 +118,7 @@ class DBCommon(DBbase):
         for rule in self.auto_rules:
             if rule in tablename:
                 return True
-            return False
+        return False
 
     def drop(self, tablename):
         if self.__check_isauto(tablename):
