@@ -1,13 +1,16 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-04 17:45:04
-# @Last Modified time: 2020-07-01 16:30:09
+# @Last Modified time: 2020-07-01 16:40:29
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 import os
+
+files = os.listdir('./')
+print(files)
 
 import pytest
 from pydbapi.sql import SqlFileParse
