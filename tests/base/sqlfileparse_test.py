@@ -1,21 +1,21 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-04 17:45:04
-# @Last Modified time: 2020-06-28 10:58:22
+# @Last Modified time: 2020-07-01 16:30:09
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 import os
-USERPROFILE = os.environ['USERPROFILE']
-import sys
-sys.path.append(USERPROFILE)
 
 import pytest
-from mysetting import *
 from pydbapi.sql import SqlFileParse
 import pandas as pd
+
+files = os.listdir('./')
+print(files)
+
 
 class TestSqlFileParse:
 
