@@ -1,7 +1,9 @@
 
 # Mine ignores
 .vscode/
-tests/
+tests/*
+!tests/sqlite/
+!tests/base/
 logs/
 mysetting.py
 

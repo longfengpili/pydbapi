@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2020-06-22 11:58:16
+# @Last Modified time: 2020-07-01 16:09:47
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -118,6 +118,8 @@ class SqlCompile(object):
         '''
         def deal_values(values):
             j_values = []
+            if not values:
+                raise ValueError(f"{values} is empty !!!")
             if not isinstance(values, list):
                 raise TypeError('values must be a list !')
             j_values = [str(tuple(value)) for value in values]
