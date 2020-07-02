@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-09 16:46:54
-# @Last Modified time: 2020-07-01 16:10:09
+# @Last Modified time: 2020-07-02 10:46:28
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -40,7 +40,7 @@ setuptools.setup(
     long_description = long_description,
     long_description_content_type = "text/markdown",
     url = f"https://pypi.org/project/{PROJECT_NAME}/",
-    packages = setuptools.find_packages(exclude=['tests']),
+    packages = setuptools.find_packages(exclude=["tests.*", "tests"]),
     install_requires = requires,
     classifiers = [
         "Programming Language :: Python :: 3",
