@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-07-02 14:56:26
+# @Last Modified time: 2020-07-02 17:34:43
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -86,7 +86,7 @@ class DBbase(object):
 
             self.__execute_step(cur, sql)
 
-            if action == "select":
+            if action == "SELECT":
                 columns, results = cur_getresults(cur, count)
                 if idx == sqls_length - 1 or verbose:
                     dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
