@@ -12,7 +12,7 @@ import sys
 import shutil
 import setuptools
 
-VERSION = '0.0.24'
+VERSION = '0.0.25'
 PROJECT_NAME = 'pydbapi'
 
 with open('README.md', 'r', encoding='utf-8') as f:
