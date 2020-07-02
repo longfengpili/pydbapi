@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-07-01 15:23:11
+# @Last Modified time: 2020-07-02 14:47:04
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -60,10 +60,16 @@ class DBbase(object):
 
         Returns:
             rows {[int]} -- [影响的行数]
-            result {[list]} -- [返回的结果]
+            results {[list]} -- [返回的结果]
         '''
+        def cur_getresults(cur, count):
+            results = cur.fetchmany(count) if count else cur.fetchall()
+            results = list(results) if results else []
+            columns = tuple(map(lambda x: x[0], cur.description)) #列名
+            return columns, results
+
         rows = 0
-        result = None
+        results = None
         conn = self.get_conn()
         # dblogger.info(conn)
         cur = conn.cursor()
@@ -79,15 +85,11 @@ class DBbase(object):
                 dblogger.info(f"【{idx}】({action}){tablename}::{comment}")
             self.__execute_step(cur, sql)
             if idx == sqls_length - 1 and action == 'SELECT':
-                result = cur.fetchmany(count) if count else cur.fetchall()
-                result = list(result) if result else []
-                columns = tuple(map(lambda x: x[0], cur.description)) #列名
-                result.insert(0, columns)
+                columns, results = cur_getresults(cur, count)
+                results.insert(0, columns)
             elif verbose and action == 'SELECT':
-                result = cur.fetchmany(10)
-                result = list(result) if result else []
-                columns = tuple(map(lambda x: x[0], cur.description)) #列名
-                dblogger.info(f"\n{pd.DataFrame(result, columns=columns)}")
+                columns, results = cur_getresults(cur, 10)
+                dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
         try:
             conn.commit()
         except Exception as e:
@@ -97,7 +99,7 @@ class DBbase(object):
         rows = cur.rowcount
         conn.close()
 
-        return rows, action, result
+        return rows, action, results
 
 
 class DBCommon(DBbase):
