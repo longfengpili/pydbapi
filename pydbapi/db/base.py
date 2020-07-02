@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-07-02 14:47:04
+# @Last Modified time: 2020-07-02 14:56:26
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -82,20 +82,21 @@ class DBbase(object):
             parser = SqlParse(sql)
             comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
             if verbose:
-                dblogger.info(f"【{idx}】({action}){tablename}::{comment}")
+                dblogger.info(f"Start 【{idx}】({action}){tablename}::{comment}")
+
             self.__execute_step(cur, sql)
-            if idx == sqls_length - 1 and action == 'SELECT':
+
+            if action == "select":
                 columns, results = cur_getresults(cur, count)
-                results.insert(0, columns)
-            elif verbose and action == 'SELECT':
-                columns, results = cur_getresults(cur, 10)
-                dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
+                if idx == sqls_length - 1 or verbose:
+                    dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
+                    results.insert(0, columns)
+                    
         try:
             conn.commit()
         except Exception as e:
             dblogger.error(e)
             conn.rollback()
-            
         rows = cur.rowcount
         conn.close()
 
