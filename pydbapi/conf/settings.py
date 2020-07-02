@@ -1,13 +1,15 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:14:53
-# @Last Modified time: 2020-07-01 16:55:10
+# @Last Modified time: 2020-07-02 18:15:19
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 import os
+import sys
+import colorlog
 
 
 AUTO_RULES = ['test_xu'] # 可以自动执行表名（表名包含即可）
@@ -33,6 +35,19 @@ LOGGING_CONFIG = {
         # 定义一个特殊的日志格式
         'collect': {
             'format': '%(message)s'
+        },
+        # color
+        'color': {
+            '()': colorlog.ColoredFormatter,
+            'format': '%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(filename)s - %(lineno)d - %(log_color)s%(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+            'log_colors': {
+                'CRITICAL': 'bold_red',
+                'ERROR': 'red',
+                'WARNING': 'purple',
+                'INFO': 'green',
+                'DEBUG': 'yellow'
+            }
         }
     },
     # 过滤器
@@ -45,7 +60,7 @@ LOGGING_CONFIG = {
             'level': 'INFO',
             'filters': [],
             'class': 'logging.StreamHandler',  #
-            'formatter': 'simple'
+            'formatter': 'color' if sys.stdout.isatty() else 'simple'
         },
         # 默认的
         'default': {
