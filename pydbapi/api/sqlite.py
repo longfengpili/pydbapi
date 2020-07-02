@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-07-01 16:59:23
+# @Last Modified time: 2020-07-02 11:20:19
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -13,7 +13,7 @@ import sqlite3
 
 from pydbapi.db import DBCommon, DBFileExec
 from pydbapi.sql import SqlCompile
-from pydbapi.conf import USERPATH
+from pydbapi.conf import LOG_BASE_PATH
 
 import logging
 import logging.config
@@ -55,7 +55,7 @@ class SqliteDB(DBCommon, DBFileExec):
     
     def get_conn(self):
         if not self.database:
-            self.database = os.path.join(USERPATH, 'sqlite3_test.db')
+            self.database = os.path.join(LOG_BASE_PATH, 'sqlite3_test.db')
         conn = sqlite3.connect(database=self.database)
         if not conn:
             self.get_conn()
