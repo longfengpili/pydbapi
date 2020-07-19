@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-04 17:45:04
-# @Last Modified time: 2020-07-01 16:43:00
+# @Last Modified time: 2020-07-19 17:54:04
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -43,7 +43,7 @@ class TestSqlFileParse:
 
     def test_sqls(self):
         filepparser = SqlFileParse(self.filepath)
-        sqls = filepparser.get_sqls(date_min='2012-12-12', date_max='2012-12-12', fpid= '12551515, 44546456')
+        sqls = filepparser.get_filesqls(date_min='2012-12-12', date_max='2012-12-12', fpid= '12551515, 44546456')
         for sql in sqls:
             print('='*50)
             print(f"{sql}\n{sqls.get(sql)}")
