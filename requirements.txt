@@ -1,5 +1,7 @@
 psycopg2
 pandas
 pymysql
+colorlog
 google-cloud-bigquery
 google-auth-oauthlib
+

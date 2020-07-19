@@ -1,9 +1,14 @@
 
 # Mine ignores
 .vscode/
-tests/
 logs/
 mysetting.py
+
+tests/*
+!tests/sqlite/
+!tests/base/
+!tests/__init__.py
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

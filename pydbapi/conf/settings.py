@@ -1,20 +1,22 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:14:53
-# @Last Modified time: 2020-06-11 16:11:40
+# @Last Modified time: 2020-07-19 17:08:49
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 import os
+import sys
+import colorlog
 
 
 AUTO_RULES = ['test_xu'] # 可以自动执行表名（表名包含即可）
-REDSHIFT_AUTO_RULES = ['_data_aniland'] # Amazon Redshift 可以自动执行表名（表名包含即可）
+REDSHIFT_AUTO_RULES = AUTO_RULES + ['_data_aniland'] # Amazon Redshift 可以自动执行表名（表名包含即可）
 
-
-LOG_BASE_PATH = os.path.join(os.environ['USERPROFILE'], '.pydbapi') # 可以user目录下查看日志
+USERPATH = os.environ['USERPROFILE'] if 'USERPROFILE' in os.environ else os.environ['HOME'] if 'HOME' in os.environ else ''
+LOG_BASE_PATH = os.path.join(USERPATH, 'pydbapilog') # 可以user目录下查看日志
 LOGGING_CONFIG = {
     'version': 1,  # 保留字
     'disable_existing_loggers': False,  # 禁用已经存在的logger实例
@@ -33,6 +35,19 @@ LOGGING_CONFIG = {
         # 定义一个特殊的日志格式
         'collect': {
             'format': '%(message)s'
+        },
+        # color
+        'color': {
+            '()': colorlog.ColoredFormatter,
+            'format': '%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(filename)s - %(lineno)d - %(log_color)s%(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+            'log_colors': {
+                'CRITICAL': 'bold_red',
+                'ERROR': 'red',
+                'WARNING': 'purple',
+                'INFO': 'green',
+                'DEBUG': 'yellow'
+            }
         }
     },
     # 过滤器
@@ -43,9 +58,9 @@ LOGGING_CONFIG = {
         # 在终端打印
         'console': {
             'level': 'INFO',
-            'filters': [],  
+            'filters': [],
             'class': 'logging.StreamHandler',  #
-            'formatter': 'simple'
+            'formatter': 'color' if sys.stdout.isatty() else 'simple'
         },
         # 默认的
         'default': {
@@ -82,7 +97,7 @@ LOGGING_CONFIG = {
     'loggers': {
        # 默认的logger应用如下配置
         '': {
-            'handlers': ['console', 'default'],  
+            'handlers': ['console', 'default'],
             'level': 'INFO',
             'propagate': True,  # 向不向更高级别的logger传递
         },

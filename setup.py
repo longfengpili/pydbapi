@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-09 16:46:54
-# @Last Modified time: 2020-06-11 15:30:26
+# @Last Modified time: 2020-07-02 11:07:21
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -12,7 +12,7 @@ import sys
 import shutil
 import setuptools
 
-VERSION = '0.0.20'
+VERSION = '0.0.26'
 PROJECT_NAME = 'pydbapi'
 
 with open('README.md', 'r', encoding='utf-8') as f:
@@ -40,7 +40,7 @@ setuptools.setup(
     long_description = long_description,
     long_description_content_type = "text/markdown",
     url = f"https://pypi.org/project/{PROJECT_NAME}/",
-    packages = setuptools.find_packages(exclude=['tests']),
+    packages = setuptools.find_packages(exclude=["tests.*", "tests"]),
     install_requires = requires,
     classifiers = [
         "Programming Language :: Python :: 3",
@@ -53,4 +53,3 @@ setuptools.setup(
         'Source': f'https://github.com/longfengpili/{PROJECT_NAME}',
     },
 )
-

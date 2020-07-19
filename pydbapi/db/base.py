@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-06-11 16:08:58
+# @Last Modified time: 2020-07-02 17:34:43
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -9,6 +9,7 @@
 
 import re
 import os
+import pandas as pd
 
 from pydbapi.sql import SqlParse, SqlCompile
 from pydbapi.conf import AUTO_RULES
@@ -17,7 +18,7 @@ import logging
 import logging.config
 from pydbapi.conf import LOGGING_CONFIG
 logging.config.dictConfig(LOGGING_CONFIG)
-dblog = logging.getLogger('db')
+dblogger = logging.getLogger('db')
 
 class DBbase(object):
 
@@ -29,13 +30,13 @@ class DBbase(object):
 
     def __execute_step(self, cursor, sql):
         '''[summary]
-        
+
         [description]
             在conn中执行单步sql
         Arguments:
             cursor {[cursor]} -- [游标]
             sql {[str]} -- [sql]
-        
+
         Raises:
             ValueError -- [sql执行错误原因及SQL]
         '''
@@ -43,54 +44,63 @@ class DBbase(object):
         try:
             cursor.execute(sql)
         except Exception as e:
-            dblog.error(f"{e}{sql}")
+            dblogger.error(f"{e}{sql}")
             raise ValueError(f"【Error】:{e}【Sql】:{sql};")
 
-    def execute(self, sql, count=None, progress=False):
+    def execute(self, sql, count=None, verbose=False):
         '''[summary]
-        
+
         [description]
             执行sql
         Arguments:
             sql {[str]} -- [sql]
-        
+
         Keyword Arguments:
             count {[int]} -- [返回的结果数量] (default: {None})
-        
+
         Returns:
             rows {[int]} -- [影响的行数]
-            result {[list]} -- [返回的结果]
+            results {[list]} -- [返回的结果]
         '''
+        def cur_getresults(cur, count):
+            results = cur.fetchmany(count) if count else cur.fetchall()
+            results = list(results) if results else []
+            columns = tuple(map(lambda x: x[0], cur.description)) #列名
+            return columns, results
+
         rows = 0
-        result = None
+        results = None
         conn = self.get_conn()
-        # dblog.info(conn)
+        # dblogger.info(conn)
         cur = conn.cursor()
         sql = sql if sql.strip().endswith(';') else sql.strip() + ';'
         sqls = sql.split(";")[:-1]
         sqls = [sql.strip() for sql in sqls if sql]
         sqls_length = len(sqls)
         for idx, sql in enumerate(sqls):
-            # dblog.info(sql)
+            # dblogger.info(sql)
             parser = SqlParse(sql)
             comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
-            if progress:
-                dblog.info(f"【{idx}】({action}){tablename}::{comment}")
+            if verbose:
+                dblogger.info(f"Start 【{idx}】({action}){tablename}::{comment}")
+
             self.__execute_step(cur, sql)
-            rows = cur.rowcount
-            if idx == sqls_length - 1 and action == 'SELECT':
-                result = cur.fetchmany(count) if count else cur.fetchall()
-                result = list(result) if result else []
-                columns = tuple(map(lambda x: x[0], cur.description)) #列名
-                result.insert(0, columns)
+
+            if action == "SELECT":
+                columns, results = cur_getresults(cur, count)
+                if idx == sqls_length - 1 or verbose:
+                    dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
+                    results.insert(0, columns)
+                    
         try:
             conn.commit()
         except Exception as e:
-            dblog.error(e)
+            dblogger.error(e)
             conn.rollback()
+        rows = cur.rowcount
         conn.close()
-        
-        return rows, action, result
+
+        return rows, action, results
 
 
 class DBCommon(DBbase):
@@ -101,7 +111,7 @@ class DBCommon(DBbase):
 
     def __check_isauto(self, tablename):
         '''[summary]
-        
+
         [description]
             通过tablename控制是否可以通过python代码处理
         Arguments:
@@ -111,14 +121,14 @@ class DBCommon(DBbase):
         for rule in self.auto_rules:
             if rule in tablename:
                 return True
-            return False
+        return False
 
     def drop(self, tablename):
         if self.__check_isauto(tablename):
             sqlcompile = SqlCompile(tablename)
             sql_for_drop = sqlcompile.drop()
             rows, action, result = self.execute(sql_for_drop)
-            dblog.info(f'【{action}】{tablename} drop succeed !')
+            dblogger.info(f'【{action}】{tablename} drop succeed !')
             return rows, action, result
         else:
             raise Exception(f"【drop】 please drop [{tablename}] on workbench! Or add rule into auto_rules !")
@@ -128,7 +138,7 @@ class DBCommon(DBbase):
             sqlcompile = SqlCompile(tablename)
             sql_for_delete = sqlcompile.delete(condition)
             rows, action, result = self.execute(sql_for_delete)
-            dblog.info(f'【{action}】{tablename} delete succeed !')
+            dblogger.info(f'【{action}】{tablename} delete succeed !')
             return rows, action, result
         else:
             raise Exception(f"【delete】 please delete [{tablename}] on workbench! Or add rule into auto_rules !")
@@ -148,7 +158,31 @@ class DBCommon(DBbase):
         columns = result[0]
         return columns
 
-
+    def select(self, tablename, columns, condition=None):
+        '''[summary]
+        
+        [description]
+            执行select 
+        Arguments:
+            tablename {[str]} -- [表名]
+            columns {[dict]} -- [列的信息]
+            {'id_rename': {'sqlexpr':'id', 'func': 'min', 'order': 1}, ……}
+                # sqlexpr : sql表达式， 如果为空则默认获取key值。 可以是任何sql表达式。
+                # order: 用于排序
+                # func: 后续处理的函数
+        
+        Keyword Arguments:
+            condition {[str]} -- [where中的表达式] (default: {None})
+        
+        Returns:
+            rows[int] -- [影响的数量]
+            action[str] -- [sql表达式DML]
+            result[list] -- [结果, 第一个元素是列名]
+        '''
+        sqlcompile = SqlCompile(tablename)
+        sql_for_select = sqlcompile.select_base(columns, condition)
+        rows, action, result = self.execute(sql_for_select)
+        return rows, action, result
 
 
 
