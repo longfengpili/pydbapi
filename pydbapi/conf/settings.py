@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:14:53
-# @Last Modified time: 2020-07-02 18:15:19
+# @Last Modified time: 2020-07-19 17:08:49
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -13,7 +13,7 @@ import colorlog
 
 
 AUTO_RULES = ['test_xu'] # 可以自动执行表名（表名包含即可）
-REDSHIFT_AUTO_RULES = ['_data_aniland'] # Amazon Redshift 可以自动执行表名（表名包含即可）
+REDSHIFT_AUTO_RULES = AUTO_RULES + ['_data_aniland'] # Amazon Redshift 可以自动执行表名（表名包含即可）
 
 USERPATH = os.environ['USERPROFILE'] if 'USERPROFILE' in os.environ else os.environ['HOME'] if 'HOME' in os.environ else ''
 LOG_BASE_PATH = os.path.join(USERPATH, 'pydbapilog') # 可以user目录下查看日志

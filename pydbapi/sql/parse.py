@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2020-06-29 16:51:34
+# @Last Modified time: 2020-07-19 17:34:06
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -22,6 +22,7 @@ class SqlParse(object):
 
     def __init__(self, orisql):
         self.orisql = orisql
+        self.reg_behind = r'(?=[,);:\s])'
 
     @property
     def comment(self):
@@ -145,7 +146,7 @@ class SqlFileParse(object):
         sqllogger.info(f"【Final Arguments】The file 【{os.path.basename(self.filepath)}】 Use arguments {arguments}")
         return content
 
-    def get_sqls(self, **kwargs):
+    def get_filesqls(self, **kwargs):
         sqls = {}
         content = self.replace_params(**kwargs)
         sqls_tmp = re.findall(r'(?<!--)\s+###\n(.*?)###', content, re.S)

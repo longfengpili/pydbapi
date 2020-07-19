@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-08 11:55:54
-# @Last Modified time: 2020-07-02 17:35:27
+# @Last Modified time: 2020-07-19 17:49:59
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -27,7 +27,7 @@ class DBFileExec(DBbase):
 
     def get_filesqls(self, filepath, **kw):
         sqlfileparser = SqlFileParse(filepath)
-        sqls = sqlfileparser.get_sqls(**kw)
+        sqls = sqlfileparser.get_filesqls(**kw)
         return sqls
 
     def file_exec(self, filepath, **kw):
@@ -41,8 +41,6 @@ class DBFileExec(DBbase):
             # dblogger.info(f"{os.path.basename(filepath)}=={progress}")
             rows, action, result = self.execute(sql, verbose=verbose)
             results[desc] = result
-            if action == 'SELECT' and verbose:
-                dblogger.info(f"【rows】: {rows}, 【action】: {action}, 【result】: \n{pd.DataFrame(result[1:], columns=result[0]).head()}")
             dblogger.info(f"End Job 【{filename}】{desc}".center(80, '='))
         return results
 
