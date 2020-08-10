@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2020-07-19 17:34:06
+# @Last Modified time: 2020-08-10 18:48:59
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -143,17 +143,18 @@ class SqlFileParse(object):
         content = self.get_content()
         for key, value in arguments.items():
             content = re.sub(rf"\${key}{self.reg_behind}", f"{value}", content)
-        sqllogger.info(f"【Final Arguments】The file 【{os.path.basename(self.filepath)}】 Use arguments {arguments}")
-        return content
+        arguments = {k: arguments.get(k) for k in self.parameters}
+        # sqllogger.info(f"【Final Arguments】The file 【{os.path.basename(self.filepath)}】 Use arguments {arguments}")
+        return arguments, content
 
     def get_filesqls(self, **kwargs):
         sqls = {}
-        content = self.replace_params(**kwargs)
+        arguments, content = self.replace_params(**kwargs)
         sqls_tmp = re.findall(r'(?<!--)\s+###\n(.*?)###', content, re.S)
         for idx, sql in enumerate(sqls_tmp):
             purpose = re.match('--(【.*?】)\n', sql.strip())
-            purpose = f"{purpose.group(1)}--第{idx+1}个SQL" if purpose else f'【No description】--第{idx+1}个SQL'
+            purpose = f"【{idx+1:0>3d}】{purpose.group(1)}" if purpose else f'【{idx+1:0>3d}】【No description】'
             sql = re.sub('--【.*?\n', '', sql.strip())
             sqls[purpose] = sql
-        return sqls
+        return arguments, sqls
 
