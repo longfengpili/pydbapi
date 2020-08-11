@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-08-11 12:33:44
+# @Last Modified time: 2020-08-11 14:36:00
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -79,17 +79,19 @@ class DBbase(object):
         sqls = sql.split(";")[:-1]
         sqls = [sql.strip() for sql in sqls if sql]
         sqls_length = len(sqls)
-        sqls = sqls if verbose else tqdm(sqls, ncols=100) # 如果没有verbose显示进度条
+        bar_format='{l_bar}{bar:30}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
+        sqls = sqls if verbose else tqdm(sqls, ncols=100, ascii=" >", postfix=[''], bar_format=bar_format) # 如果没有verbose显示进度条
         for sql in sqls:
             idx += 1
             # dblogger.info(sql)
             parser = SqlParse(sql)
             comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
+            step = f"【{idx}】({action}){tablename}::{comment}"
             if verbose:
-                dblogger.info(f"Start 【{idx}】({action}){tablename}::{comment}")
+                dblogger.info(f"Start {step}")
             else:
-                desc = '执行结束' if idx == sqls_length else f"【{idx}】({action}){comment}"
-                sqls.set_description(desc)
+                sqls.postfix[0] = step
+                sqls.update()
 
             self.__execute_step(cur, sql)
 
