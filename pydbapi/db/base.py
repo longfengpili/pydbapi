@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-08-11 14:36:00
+# @Last Modified time: 2020-08-11 19:16:58
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -71,7 +71,6 @@ class DBbase(object):
 
         rows = 0
         idx = 0
-        results = None
         conn = self.get_conn()
         # dblogger.info(conn)
         cur = conn.cursor()
@@ -80,8 +79,9 @@ class DBbase(object):
         sqls = [sql.strip() for sql in sqls if sql]
         sqls_length = len(sqls)
         bar_format='{l_bar}{bar:30}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
-        sqls = sqls if verbose else tqdm(sqls, ncols=100, ascii=" >", postfix=[''], bar_format=bar_format) # 如果没有verbose显示进度条
+        sqls = sqls if verbose else tqdm(sqls, ncols=100, postfix=['start'], bar_format=bar_format) # 如果没有verbose显示进度条
         for sql in sqls:
+            results = None
             idx += 1
             # dblogger.info(sql)
             parser = SqlParse(sql)
@@ -95,9 +95,10 @@ class DBbase(object):
 
             self.__execute_step(cur, sql)
 
-            if action == "SELECT" and (verbose or idx == sqls_length):
+            if action == 'SELECT' and (verbose or idx == sqls_length):
                 columns, results = cur_getresults(cur, count)
-                dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
+                if verbose:
+                    dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
                 results.insert(0, columns)
         try:
             conn.commit()
@@ -106,7 +107,6 @@ class DBbase(object):
             conn.rollback()
         rows = cur.rowcount
         conn.close()
-
         return rows, action, results
 
 

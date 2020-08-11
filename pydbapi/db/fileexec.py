@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-08 11:55:54
-# @Last Modified time: 2020-08-11 13:27:26
+# @Last Modified time: 2020-08-11 19:17:52
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -42,7 +42,7 @@ class DBFileExec(DBbase):
             # dblogger.info(f"Start {desc}")
             verbose = True if 'verbose' in desc or filename.startswith('test') \
                         or filename.endswith('test.sql') else False
-            rows, action, result = self.execute(sql, verbose=False)
+            rows, action, result = self.execute(sql, verbose=verbose)
             results[desc] = result
             # dblogger.info(f"End {desc}")
         et = time.time()
