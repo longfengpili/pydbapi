@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-08 11:55:54
-# @Last Modified time: 2020-08-10 18:50:08
+# @Last Modified time: 2020-08-11 12:29:46
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -39,12 +39,12 @@ class DBFileExec(DBbase):
         arguments, sqls = self.get_filesqls(filepath, **kw)
         dblogger.info(f"【Final Arguments】The file 【{filename}】 Use arguments {arguments}")
         for desc, sql in sqls.items():
-            dblogger.info(f"Start {desc}")
+            # dblogger.info(f"Start {desc}")
             verbose = True if 'verbose' in desc or filename.startswith('test') \
                         or filename.endswith('test.sql') else False
             rows, action, result = self.execute(sql, verbose=verbose)
             results[desc] = result
-            dblogger.info(f"End {desc}")
+            # dblogger.info(f"End {desc}")
 
         et = time.time()
         dblogger.info(f"End Job 【{filename}】, cost {et - st:.2f} seconds".center(80, '='))

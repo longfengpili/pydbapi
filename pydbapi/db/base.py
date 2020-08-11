@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-07-02 17:34:43
+# @Last Modified time: 2020-08-11 12:33:44
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -10,6 +10,7 @@
 import re
 import os
 import pandas as pd
+from tqdm import tqdm
 
 from pydbapi.sql import SqlParse, SqlCompile
 from pydbapi.conf import AUTO_RULES
@@ -69,6 +70,7 @@ class DBbase(object):
             return columns, results
 
         rows = 0
+        idx = 0
         results = None
         conn = self.get_conn()
         # dblogger.info(conn)
@@ -77,21 +79,24 @@ class DBbase(object):
         sqls = sql.split(";")[:-1]
         sqls = [sql.strip() for sql in sqls if sql]
         sqls_length = len(sqls)
-        for idx, sql in enumerate(sqls):
+        sqls = sqls if verbose else tqdm(sqls, ncols=100) # 如果没有verbose显示进度条
+        for sql in sqls:
+            idx += 1
             # dblogger.info(sql)
             parser = SqlParse(sql)
             comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
             if verbose:
                 dblogger.info(f"Start 【{idx}】({action}){tablename}::{comment}")
+            else:
+                desc = '执行结束' if idx == sqls_length else f"【{idx}】({action}){comment}"
+                sqls.set_description(desc)
 
             self.__execute_step(cur, sql)
 
-            if action == "SELECT":
+            if action == "SELECT" and (verbose or idx == sqls_length):
                 columns, results = cur_getresults(cur, count)
-                if idx == sqls_length - 1 or verbose:
-                    dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
-                    results.insert(0, columns)
-                    
+                dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
+                results.insert(0, columns)
         try:
             conn.commit()
         except Exception as e:
