@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:58:41
-# @Last Modified time: 2020-07-02 18:12:51
+# @Last Modified time: 2020-08-18 18:47:33
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -79,7 +79,7 @@ class TestSqlite:
 
     def test_execfile(self):
         dirpath = os.path.dirname(os.path.abspath(__file__))
-        filepath = os.path.join(dirpath,'sqlite_test.sql')
+        filepath = os.path.join(dirpath,'sqlite.sql')
         self.sqlite.file_exec(filepath, name='pizza')
 
 
