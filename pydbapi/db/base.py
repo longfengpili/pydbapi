@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-08-11 19:16:58
+# @Last Modified time: 2020-08-19 09:53:27
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -88,9 +88,9 @@ class DBbase(object):
             comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
             step = f"【{idx}】({action}){tablename}::{comment}"
             if verbose:
-                dblogger.info(f"Start {step}")
+                dblogger.info(f"Start::{step}")
             else:
-                sqls.postfix[0] = step
+                sqls.postfix[0] = f"End::{step}"
                 sqls.update()
 
             self.__execute_step(cur, sql)
