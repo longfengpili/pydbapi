@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-08-19 09:53:27
+# @Last Modified time: 2020-08-19 10:26:28
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -90,7 +90,7 @@ class DBbase(object):
             if verbose:
                 dblogger.info(f"Start::{step}")
             else:
-                sqls.postfix[0] = f"End::{step}"
+                sqls.postfix[0] = f"{step}"
                 sqls.update()
 
             self.__execute_step(cur, sql)
