@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-09 16:46:54
-# @Last Modified time: 2020-10-22 18:41:48
+# @Last Modified time: 2020-10-22 18:46:32
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -12,7 +12,7 @@ import sys
 import shutil
 import setuptools
 
-VERSION = '0.0.31'
+VERSION = '0.0.32'
 PROJECT_NAME = 'pydbapi'
 
 with open('README.md', 'r', encoding='utf-8') as f:
