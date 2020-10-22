@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-09 16:46:54
-# @Last Modified time: 2020-10-22 18:17:43
+# @Last Modified time: 2020-10-22 18:41:48
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -47,7 +47,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
     ],
     keywords = ["dbapi", "sqlite3", "redshift", 'snowflake'], 
-    python_requires = ['3.6', '3.7'],
+    python_requires = ">=3.6",
     project_urls = {
         'Documentation': f'https://github.com/longfengpili/{PROJECT_NAME}/blob/master/README.md',
         'Source': f'https://github.com/longfengpili/{PROJECT_NAME}',
