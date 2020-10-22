@@ -27,6 +27,13 @@ db = MysqlDB(host, user, password, database, port='3306')
 sql = 'select * from [table];'
 row, action, result = db.execute(sql)
 ```
++ Snowflake
+```python
+from pydbapi import SnowflakeDB
+db = SnowflakeDB(user, password, account, warehouse, database, schema)
+sql = 'select * from [table];'
+row, action, result = db.execute(sql)
+```
 
 ## 支持的操作
 + execute[【db/base.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/base.py)
