@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-10-22 17:59:09
+# @Last Modified time: 2020-10-22 18:16:31
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -10,6 +10,7 @@
 import re
 import os
 import pandas as pd
+from tqdm import tqdm
 
 from pydbapi.sql import SqlParse, SqlCompile
 from pydbapi.conf import AUTO_RULES
@@ -69,7 +70,7 @@ class DBbase(object):
             return columns, results
 
         rows = 0
-        results = None
+        idx = 0
         conn = self.get_conn()
         # dblogger.info(conn)
         cur = conn.cursor()
@@ -77,21 +78,28 @@ class DBbase(object):
         sqls = sql.split(";")[:-1]
         sqls = [sql.strip() for sql in sqls if sql]
         sqls_length = len(sqls)
-        for idx, sql in enumerate(sqls):
+        bar_format='{l_bar}{bar:30}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
+        sqls = sqls if verbose else tqdm(sqls, ncols=100, postfix=['start'], bar_format=bar_format) # 如果没有verbose显示进度条
+        for sql in sqls:
+            results = None
+            idx += 1
             # dblogger.info(sql)
             parser = SqlParse(sql)
             comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
+            step = f"【{idx}】({action}){tablename}::{comment}"
             if verbose:
-                dblogger.info(f"Start 【{idx}】({action}){tablename}::{comment}")
+                dblogger.info(f"Start::{step}")
+            else:
+                sqls.postfix[0] = f"{step}"
+                sqls.update()
 
             self.__execute_step(cur, sql)
 
-            if action == "SELECT":
+            if action == 'SELECT' and (verbose or idx == sqls_length):
                 columns, results = cur_getresults(cur, count)
-                if idx == sqls_length - 1 or verbose:
+                if verbose:
                     dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
-                    results.insert(0, columns)
-                    
+                results.insert(0, columns)
         try:
             conn.commit()
         except Exception as e:
@@ -99,7 +107,6 @@ class DBbase(object):
             conn.rollback()
         rows = cur.rowcount
         conn.close()
-
         return rows, action, results
 
 
@@ -156,7 +163,6 @@ class DBCommon(DBbase):
         sql = f"select * from {tablename} limit 1;"
         rows, action, result = self.execute(sql)
         columns = result[0]
-        columns = [c.lower() for c in columns]
         return columns
 
     def select(self, tablename, columns, condition=None):
@@ -184,10 +190,4 @@ class DBCommon(DBbase):
         sql_for_select = sqlcompile.select_base(columns, condition)
         rows, action, result = self.execute(sql_for_select)
         return rows, action, result
-
-
-
-
-
-
 

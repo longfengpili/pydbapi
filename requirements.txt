@@ -3,3 +3,5 @@ pandas
 pymysql
 colorlog
 snowflake-connector-python
+tqdm
+
