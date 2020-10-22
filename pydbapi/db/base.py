@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-07-02 17:34:43
+# @Last Modified time: 2020-10-22 17:59:09
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -156,6 +156,7 @@ class DBCommon(DBbase):
         sql = f"select * from {tablename} limit 1;"
         rows, action, result = self.execute(sql)
         columns = result[0]
+        columns = [c.lower() for c in columns]
         return columns
 
     def select(self, tablename, columns, condition=None):

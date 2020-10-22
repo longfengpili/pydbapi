@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-10-22 16:12:47
-# @Last Modified time: 2020-10-22 16:26:51
+# @Last Modified time: 2020-10-22 17:55:44
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -38,7 +38,7 @@ class SqlSnowflakeCompile(SqlCompile):
             raise TypeError(f"indexes must be a list !")
         if indexes:
             indexes = ','.join(indexes)
-            sql = f"{sql.replace(r');', '')},index({indexes}));"
+            sql = f"{sql.replace(';', '')} cluster by ({indexes});"
         return sql
 
     def add_columns(self, col_name, col_type):
@@ -49,14 +49,13 @@ class SqlSnowflakeCompile(SqlCompile):
 
 class SnowflakeDB(DBCommon, DBFileExec):
 
-    def __init__(self, host, user, password, warehouse, database, schema):
-        self.account = host  # account
+    def __init__(self, user, password, account, warehouse, database, schema):
         self.user = user
         self.password = password
+        self.account = account
         self.warehouse = warehouse
         self.database = database
         self.schema = schema
-        self.charset = charset
         super(SnowflakeDB, self).__init__()
         self.auto_rules = AUTO_RULES
     
@@ -78,7 +77,7 @@ class SnowflakeDB(DBCommon, DBFileExec):
         old_columns = self.get_columns(tablename)
         old_columns = set(old_columns)
         new_columns = set(columns)
-        # mysqllogger.info(f'{old_columns}, {new_columns}')
+        mysqllogger.info(f'{old_columns}, {new_columns}')
 
         if old_columns == new_columns:
             mysqllogger.info(f'【{tablename}】columns not changed !')
