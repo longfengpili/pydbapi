@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-10-22 16:12:47
-# @Last Modified time: 2020-10-22 17:55:44
+# @Last Modified time: 2020-11-06 16:47:48
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -58,10 +58,10 @@ class SnowflakeDB(DBCommon, DBFileExec):
         self.schema = schema
         super(SnowflakeDB, self).__init__()
         self.auto_rules = AUTO_RULES
-    
+
     def get_conn(self):
-        conn = snowflake.connector.connect(database=self.database, user=self.user, password=self.password, 
-            account=self.account, warehouse=self.warehouse, schema=self.schema)
+        conn = snowflake.connector.connect(database=self.database, user=self.user, password=self.password,
+                                           account=self.account, warehouse=self.warehouse, schema=self.schema)
         if not conn:
             self.get_conn()
         return conn

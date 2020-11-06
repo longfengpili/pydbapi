@@ -1,14 +1,13 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-10-22 18:32:24
+# @Last Modified time: 2020-11-06 16:51:47
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 import re
-import os
 import pandas as pd
 from tqdm import tqdm
 
@@ -20,6 +19,7 @@ import logging.config
 from pydbapi.conf import LOGGING_CONFIG
 logging.config.dictConfig(LOGGING_CONFIG)
 dblogger = logging.getLogger('db')
+
 
 class DBbase(object):
 
@@ -66,7 +66,7 @@ class DBbase(object):
         def cur_getresults(cur, count):
             results = cur.fetchmany(count) if count else cur.fetchall()
             results = list(results) if results else []
-            columns = tuple(map(lambda x: x[0], cur.description)) #列名
+            columns = tuple(map(lambda x: x[0].lower(), cur.description))  # 列名
             return columns, results
 
         rows = 0
@@ -78,8 +78,8 @@ class DBbase(object):
         sqls = sql.split(";")[:-1]
         sqls = [sql.strip() for sql in sqls if sql]
         sqls_length = len(sqls)
-        bar_format='{l_bar}{bar:30}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
-        sqls = sqls if verbose else tqdm(sqls, ncols=100, postfix=['start'], bar_format=bar_format) # 如果没有verbose显示进度条
+        bar_format = '{l_bar}{bar:30}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
+        sqls = sqls if verbose else tqdm(sqls, ncols=100, postfix=['start'], bar_format=bar_format)  # 如果没有verbose显示进度条
         for sql in sqls:
             results = None
             idx += 1
@@ -124,7 +124,8 @@ class DBCommon(DBbase):
         Arguments:
             tablename {[str]} -- [表名]
         '''
-        if not self.auto_rules: return True
+        if not self.auto_rules:
+            return True
         for rule in self.auto_rules:
             if rule in tablename:
                 return True
@@ -168,7 +169,7 @@ class DBCommon(DBbase):
 
     def select(self, tablename, columns, condition=None):
         '''[summary]
-        
+
         [description]
             执行select 
         Arguments:
@@ -178,10 +179,10 @@ class DBCommon(DBbase):
                 # sqlexpr : sql表达式， 如果为空则默认获取key值。 可以是任何sql表达式。
                 # order: 用于排序
                 # func: 后续处理的函数
-        
+
         Keyword Arguments:
             condition {[str]} -- [where中的表达式] (default: {None})
-        
+
         Returns:
             rows[int] -- [影响的数量]
             action[str] -- [sql表达式DML]
@@ -191,4 +192,3 @@ class DBCommon(DBbase):
         sql_for_select = sqlcompile.select_base(columns, condition)
         rows, action, result = self.execute(sql_for_select)
         return rows, action, result
-
