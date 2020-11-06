@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-11-06 16:51:47
+# @Last Modified time: 2020-11-06 18:35:08
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -79,16 +79,16 @@ class DBbase(object):
         sqls = [sql.strip() for sql in sqls if sql]
         sqls_length = len(sqls)
         bar_format = '{l_bar}{bar:30}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
-        sqls = sqls if verbose else tqdm(sqls, ncols=100, postfix=['start'], bar_format=bar_format)  # 如果没有verbose显示进度条
+        sqls = sqls if verbose else tqdm(sqls, ncols=100, postfix=['START'], bar_format=bar_format)  # 如果没有verbose显示进度条
         for sql in sqls:
             results = None
             idx += 1
             # dblogger.info(sql)
             parser = SqlParse(sql)
             comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
-            step = f"【{idx}】({action}){tablename}::{comment}"
+            step = f"【{idx:0>2d}_PROGRESS】({action}){tablename}::{comment}"
             if verbose:
-                dblogger.info(f"Start::{step}")
+                dblogger.info(f"{step}")
             else:
                 sqls.postfix[0] = f"{step}"
                 sqls.update()
