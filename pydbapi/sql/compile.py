@@ -1,14 +1,15 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2020-07-01 16:09:47
+# @Last Modified time: 2020-11-30 16:24:23
 # @github: https://github.com/longfengpili
 
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 
 import re
+
 
 class SqlCompile(object):
 
@@ -18,7 +19,7 @@ class SqlCompile(object):
 
     def select_base(self, columns, condition=None):
         '''[summary]
-        
+
         [description]
             生成select sql (未考虑join，所以暂时用base)
         Arguments:
@@ -27,13 +28,13 @@ class SqlCompile(object):
             # sqlexpr : sql表达式
             # order: 用于排序
             # func: 后续处理的函数
-        
+
         Keyword Arguments:
             condition {[条件]} -- [where中的条件] (default: {None})
-        
+
         Returns:
             [str] -- [返回sql]
-        
+
         Raises:
             TypeError -- [检查columns的情况]
         '''
@@ -77,20 +78,20 @@ class SqlCompile(object):
 
     def create_nonindex(self, columns):
         '''[summary]
-        
+
         [description]
             create sql
         Arguments:
             self.tablename {[str]} -- [表名]
             columns {[dict]} -- [列名及属性]
-        
+
         Returns:
             [str] -- [sql]
-        
+
         Raises:
             TypeError -- [类别错误]
         '''
-        
+
         if not isinstance(columns, dict):
             raise TypeError('colums must be a dict ! example:{"column_name":"column_type"}')
 
@@ -106,9 +107,9 @@ class SqlCompile(object):
         sql = f'drop table if exists {self.tablename};'
         return sql
 
-    def insert(self, columns, values):
+    def _insert_by_value(self, columns, values):
         '''[summary]
-        
+
         [description]
             插入数据
         Arguments:
@@ -133,6 +134,25 @@ class SqlCompile(object):
                 values {values}
                 ;
             '''
+        return sql
+
+    def _insert_by_select(self, fromtable, columns, condition=None):
+        selectsql = self.select_base(columns, fromtable, condition=condition)
+
+        sql = f'''insert into {self.tablename} {selectsql}'''
+        return sql
+
+    def insert(self, columns, inserttype='value', values=None, fromtable=None, condition=None):
+        if inserttype == 'value':
+            if not values:
+                raise Exception(f"InsertType is {inserttype}, values must be not None")
+            sql = self._insert_by_value(columns, values)
+        elif inserttype == 'insert':
+            if not fromtable:
+                raise Exception(f"InsertType is {inserttype}, fromtable must be not None")
+            sql = self._insert_by_select(fromtable, columns, condition=condition)
+        else:
+            raise Exception(f"Not supported {inserttype}, insertType must be value or insert")
         return sql
 
     def delete(self, condition):
