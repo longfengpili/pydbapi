@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-11-30 16:28:21
-# @Last Modified time: 2020-11-30 18:33:52
+# @Last Modified time: 2020-11-30 19:04:30
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -47,7 +47,7 @@ class ColumnsModel(object):
     @property
     def create_cols(self):
         create_cols = [col.create_sqlexpr for col in self.columns]
-        create_cols = ',\n'.join(create_cols)
+        create_cols = '(' + '),\n('.join(create_cols) + ')'
         return create_cols
 
     @property
@@ -63,8 +63,13 @@ class ColumnsModel(object):
         return func_cols
 
     @property
+    def select_cols(self):
+        select_cols = self.nonfunc_cols + ',\n' + self.func_cols if self.func_cols else self.nonfunc_cols
+        return select_cols
+
+    @property
     def order_cols(self):
         order_cols = [col for col in self.columns if col.order]
         order_cols = [col.newname for col in sorted(order_cols, key=lambda x: [x.order, x.newname])]
-        order_cols = ',\n'.join(order_cols)
+        order_cols = ', '.join(order_cols)
         return order_cols

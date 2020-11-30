@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2020-08-10 18:48:59
+# @Last Modified time: 2020-11-30 18:42:38
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -84,7 +84,7 @@ class SqlFileParse(object):
     @property
     def arguments(self):
         '''[summary]
-        
+
         [description]
             获取文件中配置的arguments
         Returns:
@@ -114,21 +114,21 @@ class SqlFileParse(object):
 
     def replace_params(self, **kwargs):
         '''[summary]
-        
+
         [description]
             替换具体的参数值，传入的参数值会覆盖文件中设置的参数值
         Arguments:
             **kwargs {[参数]} -- [传入的参数值]
-        
+
         Returns:
             [str] -- [替换过后的内容]
-        
+
         Raises:
             Exception -- [需要设置参数]
         '''
         kwargs = {k: f"'{v}'" if isinstance(v, str) else v for k, v in kwargs.items()} # str加引号处理
         arguments = self.arguments
-        
+
         arguments_same = set(arguments) & set(kwargs)
         if arguments_same:
             input_arg = {arg: kwargs.get(arg) for arg in arguments_same}
@@ -157,4 +157,3 @@ class SqlFileParse(object):
             sql = re.sub('--【.*?\n', '', sql.strip())
             sqls[purpose] = sql
         return arguments, sqls
-

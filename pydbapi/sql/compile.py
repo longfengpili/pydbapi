@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2020-11-30 18:35:13
+# @Last Modified time: 2020-11-30 19:05:02
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -9,7 +9,7 @@
 
 
 import re
-from .colmodel import ColumnModel
+from .colmodel import ColumnsModel
 
 
 class SqlCompile(object):
@@ -24,11 +24,7 @@ class SqlCompile(object):
         [description]
             生成select sql (未考虑join，所以暂时用base)
         Arguments:
-            columns {[dict]} -- [列的信息，需要按照排列顺序处理]
-            {'id_rename': {'sqlexpr':'id', 'func': 'min', 'order': 1}, ……}
-            # sqlexpr : sql表达式
-            # order: 用于排序
-            # func: 后续处理的函数
+            columns {[ColumnsModel]} -- [列信息需要按照排列顺序处理]
 
         Keyword Arguments:
             condition {[条件]} -- [where中的条件] (default: {None})
@@ -39,42 +35,22 @@ class SqlCompile(object):
         Raises:
             TypeError -- [检查columns的情况]
         '''
-        def deal_columns(columns):
-            agg_cols = []
-            ori_cols = []
-            group_cols = []
 
-            order_cols = list(filter((lambda x: x[1].get('order', 10000) < 10000), columns.items()))
-            order_cols = sorted(order_cols, key=lambda x: x[1].get('order'))
-            order_cols = [col for col, info in order_cols]
-            order_cols = ', '.join(order_cols)
+        if not isinstance(columns, ColumnsModel):
+            raise TypeError("colums must be a ColumnsModel !")
 
-            for col, info in columns.items():
-                sqlexpr = info.get('sqlexpr', col)
-                func = info.get('func')
-
-                if func and func in self.aggfunc:
-                    aggcol = f"{func}({sqlexpr}) as {col}"
-                    agg_cols.append(aggcol)
-                else:
-                    group_cols.append(col)
-                    col = col if sqlexpr == col else f"{sqlexpr} as {col}"
-                    ori_cols.append(col)
-
-            cols = ori_cols + agg_cols
-            cols = ', '.join(cols)
-            group_cols = ', '.join(group_cols) if agg_cols else None
-            return cols, group_cols, order_cols
-
-        if not isinstance(columns, dict):
-            raise TypeError("colums must be a dict ! example:{'id': {'source':'id', 'func': 'min'}, ……}")
-
-        columns, group_columns, order_columns = deal_columns(columns)
-        sql = f'select {columns} from {self.tablename}'
+        sql = f'select {columns.select_cols}\nfrom {self.tablename}'
         condition = f"where {condition}" if condition else ''
-        group = f'group by {group_columns}' if group_columns else ''
-        order = f'order by {order_columns}' if order_columns else ''
-        sql = ' \n'.join([sql, condition, group, order]) + ';'
+        group = f'group by {columns.nonfunc_cols}' if columns.func_cols else ''
+        order = f'order by {columns.order_cols}' if columns.order_cols else ''
+
+        if condition:
+            sql = sql + '\n' + condition
+        if group:
+            sql = sql + '\n' + group
+        if order:
+            sql = sql + '\n' + order
+        sql = sql + '\n;'
         return sql
 
     def create_nonindex(self, columns):
@@ -84,7 +60,7 @@ class SqlCompile(object):
             create sql
         Arguments:
             self.tablename {[str]} -- [表名]
-            columns {[dict]} -- [列名及属性]
+            columns {[ColumnsModel]} -- [列信息]
 
         Returns:
             [str] -- [sql]
@@ -93,15 +69,10 @@ class SqlCompile(object):
             TypeError -- [类别错误]
         '''
 
-        if not isinstance(columns, dict):
-            raise TypeError('colums must be a dict ! example:{"column_name":"column_type"}')
+        if not isinstance(columns, ColumnsModel):
+            raise TypeError("colums must be a ColumnsModel !")
 
-        columns = ',\n'.join([k.lower() + ' '+ f"{'varchar(128)' if v == 'varchar' else v}" for k, v in columns.items()])
-        sql = f'''
-            create table if not exists {self.tablename}
-            ({columns});
-        '''
-        sql = re.sub(r'\s{2,}', '\n', sql)
+        sql = f'create table if not exists {self.tablename}\n{columns.create_cols};'
         return sql
 
     def drop(self):
@@ -115,7 +86,7 @@ class SqlCompile(object):
             插入数据
         Arguments:
             self.tablename {[str]} -- [表名]
-            columns {[dict]} -- [列名及属性]
+            columns {[ColumnsModel]} -- [列信息]
             values {[list]} -- [插入的数据]
         '''
         def deal_values(values):
@@ -125,16 +96,14 @@ class SqlCompile(object):
             if not isinstance(values, list):
                 raise TypeError('values must be a list !')
             j_values = [str(tuple(value)) for value in values]
-            return ','.join(j_values)
+            return ',\n'.join(j_values)
 
-        columns = ', '.join(columns)
         values = deal_values(values)
 
-        sql = f'''insert into {self.tablename}
-                ({columns})
-                values {values}
-                ;
-            '''
+        if not isinstance(columns, ColumnsModel):
+            raise TypeError("colums must be a ColumnsModel !")
+
+        sql = f'insert into {self.tablename}\n({columns.new_cols})\nvalues\n{values};'
         return sql
 
     def _insert_by_select(self, fromtable, columns, condition=None):
