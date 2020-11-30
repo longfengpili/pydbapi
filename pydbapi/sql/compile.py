@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2020-11-30 16:24:23
+# @Last Modified time: 2020-11-30 18:35:13
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -9,6 +9,7 @@
 
 
 import re
+from .colmodel import ColumnModel
 
 
 class SqlCompile(object):
