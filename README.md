@@ -61,11 +61,14 @@ row, action, result = db.execute(sql)
         * `indexes`: 索引，sqlite暂不支持索引
 + insert[【db/base.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/base.py)
     + 代码  
-        `db.insert(tablename, columns, values)`
+        `db.insert(tablename, columns, inserttype='value', values=None, fromtable=None, condition=None)`
     + params
         * `tablename`: 表名;
         * `columns`： 列内容; Example: `{'id': 'integer', 'name': 'varchar', 'address': 'varchar(1024)'}`
-        * `values`: 插入的数值; 
+        * `inserttype`: 插入数据类型，支持value、select
+        * `values`: inserttype='value',插入的数值; 
+        * `fromtable`: inserttype='select',数据来源表;
+        * `condition`:  inserttype='select',数据来源条件;
 + drop[【db/base.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/base.py)
     + 代码  
         `db.drop(tablename)`

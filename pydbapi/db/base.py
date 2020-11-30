@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-11-06 18:35:08
+# @Last Modified time: 2020-11-30 16:25:43
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -151,10 +151,11 @@ class DBCommon(DBbase):
         else:
             raise Exception(f"【delete】 please delete [{tablename}] on workbench! Or add rule into auto_rules !")
 
-    def insert(self, tablename, columns, values):
+    def insert(self, tablename, columns, inserttype='value', values=None, fromtable=None, condition=None):
         if self.__check_isauto(tablename):
             sqlcompile = SqlCompile(tablename)
-            sql_for_insert = sqlcompile.insert(columns, values)
+            sql_for_insert = sqlcompile.insert(columns, inserttype=inserttype, values=values,
+                                               fromtable=fromtable, condition=condition)
             rows, action, result = self.execute(sql_for_insert)
             return rows, action, result
         else:
