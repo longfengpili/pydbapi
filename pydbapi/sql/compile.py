@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2020-11-30 19:05:02
+# @Last Modified time: 2020-12-01 14:25:58
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -18,7 +18,7 @@ class SqlCompile(object):
         self.tablename = tablename
         self.aggfunc = ['min', 'max', 'sum', 'count']
 
-    def select_base(self, columns, condition=None):
+    def select_base(self, columns, fromtable=None, condition=None):
         '''[summary]
 
         [description]
@@ -35,11 +35,11 @@ class SqlCompile(object):
         Raises:
             TypeError -- [检查columns的情况]
         '''
-
+        tablename = fromtable or self.tablename
         if not isinstance(columns, ColumnsModel):
             raise TypeError("colums must be a ColumnsModel !")
 
-        sql = f'select {columns.select_cols}\nfrom {self.tablename}'
+        sql = f'select {columns.select_cols}\nfrom {tablename}'
         condition = f"where {condition}" if condition else ''
         group = f'group by {columns.nonfunc_cols}' if columns.func_cols else ''
         order = f'order by {columns.order_cols}' if columns.order_cols else ''
@@ -109,7 +109,7 @@ class SqlCompile(object):
     def _insert_by_select(self, fromtable, columns, condition=None):
         selectsql = self.select_base(columns, fromtable, condition=condition)
 
-        sql = f'''insert into {self.tablename} {selectsql}'''
+        sql = f'''insert into {self.tablename}\n({columns.new_cols})\n{selectsql}'''
         return sql
 
     def insert(self, columns, inserttype='value', values=None, fromtable=None, condition=None):
@@ -117,12 +117,12 @@ class SqlCompile(object):
             if not values:
                 raise Exception(f"InsertType is {inserttype}, values must be not None")
             sql = self._insert_by_value(columns, values)
-        elif inserttype == 'insert':
+        elif inserttype == 'select':
             if not fromtable:
                 raise Exception(f"InsertType is {inserttype}, fromtable must be not None")
             sql = self._insert_by_select(fromtable, columns, condition=condition)
         else:
-            raise Exception(f"Not supported {inserttype}, insertType must be value or insert")
+            raise Exception(f"Not supported {inserttype}, insertType must be value or select")
         return sql
 
     def delete(self, condition):

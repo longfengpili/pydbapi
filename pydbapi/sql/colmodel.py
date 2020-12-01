@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-11-30 16:28:21
-# @Last Modified time: 2020-11-30 19:04:30
+# @Last Modified time: 2020-12-01 14:28:05
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -10,10 +10,9 @@
 
 class ColumnModel(object):
 
-    def __init__(self, newname, coltype, oldname, sqlexpr, func=None, order=0):
+    def __init__(self, newname, coltype, sqlexpr, func=None, order=0):
         self.newname = newname
         self.coltype = coltype
-        self.oldname = oldname
         self.sqlexpr = sqlexpr
         self.func = func
         self.order = order
@@ -40,7 +39,9 @@ class ColumnsModel(object):
 
     @property
     def new_cols(self):
-        new_cols = [col.newname for col in self.columns]
+        new_cols1 = [col.newname for col in self.columns if not col.func]
+        new_cols2 = [col.newname for col in self.columns if col.func]
+        new_cols = new_cols1 + new_cols2
         new_cols = ', '.join(new_cols)
         return new_cols
 
