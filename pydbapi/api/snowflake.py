@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-10-22 16:12:47
-# @Last Modified time: 2020-11-06 16:47:48
+# @Last Modified time: 2020-12-02 14:28:27
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -18,17 +18,18 @@ import logging
 import logging.config
 from pydbapi.conf import LOGGING_CONFIG
 logging.config.dictConfig(LOGGING_CONFIG)
-mysqllogger = logging.getLogger('mysql')
+sflogger = logging.getLogger('snowflake')
+
 
 class SqlSnowflakeCompile(SqlCompile):
     '''[summary]
-    
+
     [description]
         构造mysql sql
     Extends:
         SqlCompile
     '''
-    
+
     def __init__(self, tablename):
         super(SqlSnowflakeCompile, self).__init__(tablename)
 
@@ -38,12 +39,7 @@ class SqlSnowflakeCompile(SqlCompile):
             raise TypeError(f"indexes must be a list !")
         if indexes:
             indexes = ','.join(indexes)
-            sql = f"{sql.replace(';', '')} cluster by ({indexes});"
-        return sql
-
-    def add_columns(self, col_name, col_type):
-        col_type = f"{col_type}(32)" if col_type == 'varchar' else col_type
-        sql = f'alter table {self.tablename} add column {col_name} {col_type};'
+            sql = f"{sql.replace(';', '')}\ncluster by ({indexes});"
         return sql
 
 
@@ -72,22 +68,3 @@ class SnowflakeDB(DBCommon, DBFileExec):
         sql_for_create = sqlcompile.create(columns, indexes)
         rows, action, result = self.execute(sql_for_create)
         return rows, action, result
-
-    def add_columns(self, tablename, columns):
-        old_columns = self.get_columns(tablename)
-        old_columns = set(old_columns)
-        new_columns = set(columns)
-        mysqllogger.info(f'{old_columns}, {new_columns}')
-
-        if old_columns == new_columns:
-            mysqllogger.info(f'【{tablename}】columns not changed !')
-        if old_columns - new_columns:
-            raise Exception(f"【{tablename}】columns【{old_columns - new_columns}】 not set, should exists !")
-        if new_columns - old_columns:
-            sqlcompile = SqlSnowflakeCompile(tablename)
-            add_columns = new_columns - old_columns
-            for col_name in add_columns:
-                col_type = columns.get(col_name)
-                sql = sqlcompile.add_columns(col_name, col_type)
-                self.execute(sql)
-            mysqllogger.info(f'【{tablename}】add columns succeed !【{new_columns - old_columns}】')

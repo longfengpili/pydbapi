@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2020-12-01 14:25:58
+# @Last Modified time: 2020-12-02 15:52:58
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -16,7 +16,6 @@ class SqlCompile(object):
 
     def __init__(self, tablename):
         self.tablename = tablename
-        self.aggfunc = ['min', 'max', 'sum', 'count']
 
     def select_base(self, columns, fromtable=None, condition=None):
         '''[summary]
@@ -41,7 +40,7 @@ class SqlCompile(object):
 
         sql = f'select {columns.select_cols}\nfrom {tablename}'
         condition = f"where {condition}" if condition else ''
-        group = f'group by {columns.nonfunc_cols}' if columns.func_cols else ''
+        group = f'group by {columns.group_cols}' if columns.group_cols else ''
         order = f'order by {columns.order_cols}' if columns.order_cols else ''
 
         if condition:
@@ -127,4 +126,9 @@ class SqlCompile(object):
 
     def delete(self, condition):
         sql = f'''delete from {self.tablename} where {condition};'''
+        return sql
+
+    def add_column(self, colname, coltype):
+        coltype = f"{coltype}(32)" if coltype == 'varchar' else coltype
+        sql = f'alter table {self.tablename} add column {colname} {coltype};'
         return sql

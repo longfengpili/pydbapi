@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-11-30 16:25:43
+# @Last Modified time: 2020-12-02 14:41:16
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -176,10 +176,6 @@ class DBCommon(DBbase):
         Arguments:
             tablename {[str]} -- [表名]
             columns {[dict]} -- [列的信息]
-            {'id_rename': {'sqlexpr':'id', 'func': 'min', 'order': 1}, ……}
-                # sqlexpr : sql表达式， 如果为空则默认获取key值。 可以是任何sql表达式。
-                # order: 用于排序
-                # func: 后续处理的函数
 
         Keyword Arguments:
             condition {[str]} -- [where中的表达式] (default: {None})
@@ -190,6 +186,26 @@ class DBCommon(DBbase):
             result[list] -- [结果, 第一个元素是列名]
         '''
         sqlcompile = SqlCompile(tablename)
-        sql_for_select = sqlcompile.select_base(columns, condition)
+        sql_for_select = sqlcompile.select_base(columns, condition=condition)
         rows, action, result = self.execute(sql_for_select)
         return rows, action, result
+
+    def add_columns(self, tablename, columns):
+        old_columns = self.get_columns(tablename)
+        old_columns = set(old_columns)
+        new_columns = columns.new_cols
+        new_columns = set([col.strip() for col in new_columns.split(',')])
+        # dblogger.info(f'{old_columns}, {new_columns}')
+
+        if old_columns == new_columns:
+            dblogger.info(f'【{tablename}】columns not changed !')
+        if old_columns - new_columns:
+            raise Exception(f"【{tablename}】columns【{old_columns - new_columns}】 not set, should exists !")
+        if new_columns - old_columns:
+            sqlcompile = SqlCompile(tablename)
+            add_columns = new_columns - old_columns
+            for col_name in add_columns:
+                column = columns.get_column_by_name(col_name)
+                sql = sqlcompile.add_column(column.newname, column.coltype)
+                self.execute(sql)
+            dblogger.info(f'【{tablename}】add columns succeeded !【{new_columns - old_columns}】')

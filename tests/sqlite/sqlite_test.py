@@ -1,24 +1,30 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:58:41
-# @Last Modified time: 2020-08-18 18:47:33
+# @Last Modified time: 2020-12-02 11:55:54
 # @github: https://github.com/longfengpili
 
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 import os
 import pytest
-
-from pydbapi import SqliteDB
+from pydbapi.sql import ColumnModel, ColumnsModel
+from pydbapi.api import SqliteDB
 import pandas as pd
 
+
 class TestSqlite:
-    
+
     def setup_method(self, method):
         self.sqlite = SqliteDB()
         self.tablename = 'test_xu'
-        self.columns = {'id': 'integer', 'name': 'varchar', 'address': 'varchar(1024)', 'birthday': 'datetime', 'score': 'varchar(1024)'}
+        self.id = ColumnModel('id', 'varchar')
+        self.name = ColumnModel('name', 'varchar')
+        self.address = ColumnModel('address', 'varchar(1024)')
+        self.birthday = ColumnModel('birthday', 'varchar')
+        self.score = ColumnModel('score', 'varchar(1024)')
+        self.columns = ColumnsModel(self.id, self.name, self.address, self.birthday, self.score)
 
     def teardown_method(self, method):
         pass
@@ -55,15 +61,16 @@ class TestSqlite:
 
     def test_insert(self):
         values = [[1, 'apple', 'beijing', '2012-01-23', '{"yuwen": 90, "shuxue": 20}'],
-                    [2, 'banana', 'shanghai', '2020-02-25 01:00:00', '{"yuwen": 91, "shuxue": 80}'],
-                    [3, 'chocolate', 'yunnan', '2020-06-14 23:00:05', '{"yuwen": 90, "shuxue": 90}'],
-                    [4, 'pizza', 'taiwan', '2020-05-15 23:08:25', '{"yuwen": 10, "shuxue": 21}'],
-                    [5, 'pizza', 'hebei', '2020-08-12 14:05:36', '{"yuwen": 30, "shuxue": 23}']]
-        rows, action, result = self.sqlite.insert(self.tablename, self.columns, values)
+                  [2, 'banana', 'shanghai', '2020-02-25 01:00:00', '{"yuwen": 91, "shuxue": 80}'],
+                  [3, 'chocolate', 'yunnan', '2020-06-14 23:00:05', '{"yuwen": 90, "shuxue": 90}'],
+                  [4, 'pizza', 'taiwan', '2020-05-15 23:08:25', '{"yuwen": 10, "shuxue": 21}'],
+                  [5, 'pizza', 'hebei', '2020-08-12 14:05:36', '{"yuwen": 30, "shuxue": 23}']]
+        rows, action, result = self.sqlite.insert(self.tablename, self.columns, values=values)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_select(self):
-        columns = {'id': {}, 'name': {}, 'yuwen': {'sqlexpr': "score", 'order': 1}}
+        yuwen = ColumnModel('yuwen', sqlexpr="score", order=1)
+        columns = ColumnsModel(self.id, self.name, yuwen)
         rows, action, result = self.sqlite.select(self.tablename, columns)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: \n{pd.DataFrame(result[1:], columns=result[0])}")
 
@@ -72,17 +79,12 @@ class TestSqlite:
         print(f" 【columns】: {columns}")
 
     def test_addcol(self):
-        columns = {'id': 'integer', 'name': 'varchar', 'address': 'varchar(1024)', 
-                'birthday': 'datetime', 'score': 'varchar(1024)', 
-                'author': 'varchar', 'author1': 'varchar'}
+        author = ColumnModel('author')
+        author1 = ColumnModel('author1')
+        columns = ColumnsModel(self.id, self.name, self.address, self.birthday, self.score, author, author1)
         self.sqlite.add_columns(self.tablename, columns)
 
     def test_execfile(self):
         dirpath = os.path.dirname(os.path.abspath(__file__))
-        filepath = os.path.join(dirpath,'sqlite.sql')
+        filepath = os.path.join(dirpath, 'sqlite.sql')
         self.sqlite.file_exec(filepath, name='pizza')
-
-
-
-
-

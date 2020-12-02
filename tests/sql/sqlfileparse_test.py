@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-04 17:45:04
-# @Last Modified time: 2020-08-10 18:53:13
+# @Last Modified time: 2020-12-02 14:56:08
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -21,7 +21,7 @@ class TestSqlFileParse:
 
     def setup_method(self, method):
         self.dirpath = os.path.dirname(os.path.abspath(__file__))
-        self.filepath = os.path.join(self.dirpath,'sql.sql')
+        self.filepath = os.path.join(self.dirpath, 'sql.sql')
 
     def teardown_method(self, method):
         pass
@@ -38,14 +38,12 @@ class TestSqlFileParse:
     # @pytest.mark.skip()
     def test_repalceparams(self):
         filepparser = SqlFileParse(self.filepath)
-        content = filepparser.replace_params(date_min='2012-12-12', date_max='2012-12-12', fpid= '12551515, 44546456')
+        content = filepparser.replace_params(date_min='2012-12-12', date_max='2012-12-12', fpid='12551515, 44546456')
         print(content)
 
     def test_sqls(self):
         filepparser = SqlFileParse(self.filepath)
-        arguments, sqls = filepparser.get_filesqls(date_min='2012-12-12', date_max='2012-12-12', fpid= '12551515, 44546456')
+        arguments, sqls = filepparser.get_filesqls(date_min='2012-12-12', date_max='2012-12-12', fpid='12551515, 44546456')
         for sql in sqls:
             print('='*50)
             print(f"{sql}\n{sqls.get(sql)}")
-
-

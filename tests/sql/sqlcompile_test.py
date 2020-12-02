@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-11-30 18:43:01
-# @Last Modified time: 2020-12-01 14:29:06
+# @Last Modified time: 2020-12-02 16:01:07
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -14,8 +14,8 @@ from pydbapi.sql import ColumnModel, ColumnsModel, SqlCompile
 class TestSqlCompile:
 
     def setup_method(self, method):
-        self.fname = ColumnModel('name', 'varchar', 'fname + lname', order='2')
-        self.lname = ColumnModel('lname', 'varchar', 'substr(lname, 2, 10)', order='1')
+        self.fname = ColumnModel('name', 'varchar', 'fname + lname', order=2)
+        self.lname = ColumnModel('lname', 'varchar', 'substr(lname, 2, 10)', order=1)
         self.age_nonfunc = ColumnModel('age', 'integer', 'age')
         self.age_func = ColumnModel('age', 'integer', 'age', 'min')
         self.columns1 = ColumnsModel(self.fname, self.lname, self.age_nonfunc)
