@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2020-12-02 14:29:53
+# @Last Modified time: 2021-02-01 19:14:09
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -47,7 +47,7 @@ class SqlMysqlCompile(SqlCompile):
 
 class MysqlDB(DBCommon, DBFileExec):
 
-    def __init__(self, host, user, password, database, port='3306', charset="utf8"):
+    def __init__(self, host, user, password, database, port=3306, charset="utf8"):
         self.host = host
         self.port = port
         self.user = user
