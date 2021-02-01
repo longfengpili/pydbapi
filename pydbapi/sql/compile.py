@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2021-02-01 19:26:33
+# @Last Modified time: 2021-02-01 20:59:58
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -94,7 +94,9 @@ class SqlCompile(object):
             if not isinstance(values, list):
                 raise TypeError('values must be a list !')
             j_values = [str(tuple(value)) for value in values]
-            return ',\n'.join(j_values)
+            j_values = ',\n'.join(j_values)
+            j_values = j_values.replace('\'\'', 'null')  # 空值替换为null
+            return j_values
 
         values = deal_values(values)
 
