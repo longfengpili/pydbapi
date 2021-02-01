@@ -1,14 +1,15 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-11-30 18:43:01
-# @Last Modified time: 2020-12-02 16:01:07
+# @Last Modified time: 2021-02-01 19:27:10
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 
-from pydbapi.sql import ColumnModel, ColumnsModel, SqlCompile
+from pydbapi.col import ColumnModel, ColumnsModel
+from pydbapi.sql import SqlCompile
 
 
 class TestSqlCompile:

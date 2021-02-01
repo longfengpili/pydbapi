@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:58:41
-# @Last Modified time: 2020-12-02 11:55:54
+# @Last Modified time: 2021-02-01 19:25:10
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -9,7 +9,7 @@
 
 import os
 import pytest
-from pydbapi.sql import ColumnModel, ColumnsModel
+from pydbapi.col import ColumnModel, ColumnsModel
 from pydbapi.api import SqliteDB
 import pandas as pd
 

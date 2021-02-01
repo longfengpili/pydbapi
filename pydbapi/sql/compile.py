@@ -1,15 +1,14 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2020-12-02 15:52:58
+# @Last Modified time: 2021-02-01 19:26:33
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 
-import re
-from .colmodel import ColumnsModel
+from pydbapi.col import ColumnsModel
 
 
 class SqlCompile(object):

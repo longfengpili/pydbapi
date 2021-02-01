@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2020-11-30 18:42:38
+# @Last Modified time: 2021-02-01 19:28:07
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -17,6 +17,7 @@ import logging.config
 from pydbapi.conf import LOGGING_CONFIG
 logging.config.dictConfig(LOGGING_CONFIG)
 sqllogger = logging.getLogger('sql')
+
 
 class SqlParse(object):
 
@@ -92,7 +93,7 @@ class SqlFileParse(object):
         '''
         arguments = {}
         content = self.get_content()
-        content = re.sub('--.*?\n', '\n', content) #去掉注释
+        content = re.sub('--.*?\n', '\n', content)  # 去掉注释
         arguments_temp = re.findall(r'(?<!--)\s+#【arguments】#\n(.*?)#【arguments】#', content, re.S)
         arguments_temp = ';'.join(arguments_temp).replace('\n', ';')
         arguments_temp = [argument.strip() for argument in arguments_temp.split(';') if argument]
@@ -102,13 +103,13 @@ class SqlFileParse(object):
 
         arguments = {k: f"'{datetime.strftime(v, '%Y-%m-%d %H:%M:%S')}'" if isinstance(v, datetime)
                         else f"'{datetime.strftime(v, '%Y-%m-%d')}'" if isinstance(v, date)
-                        else v for k, v in arguments.items()} # 处理时间
+                        else v for k, v in arguments.items()}  # 处理时间
         return arguments
 
     @property
     def parameters(self):
         content = self.get_content()
-        content = re.sub('--.*?\n', '\n', content) #去掉注释
+        content = re.sub('--.*?\n', '\n', content)  # 去掉注释
         parameters = re.findall(rf"\$(\w+){self.reg_behind}", content)
         return set(parameters)
 
