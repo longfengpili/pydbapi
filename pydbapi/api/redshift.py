@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2020-12-02 14:29:44
+# @Last Modified time: 2021-02-02 12:26:46
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -46,14 +46,14 @@ class SqlRedshiftCompile(SqlCompile):
 
 class RedshiftDB(DBCommon, DBFileExec):
 
-    def __init__(self, host, user, password, database, port='5439'):
+    def __init__(self, host, user, password, database, port='5439', safe_rule=True):
         self.host = host
         self.port = port
         self.user = user
         self.password = password
         self.database = database
         super(RedshiftDB, self).__init__()
-        self.auto_rules = REDSHIFT_AUTO_RULES
+        self.auto_rules = REDSHIFT_AUTO_RULES if safe_rule else None
 
     def get_conn(self):
         conn = psycopg2.connect(database=self.database, user=self.user, password=self.password, host=self.host, port=self.port)

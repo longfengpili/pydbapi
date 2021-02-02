@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-10-22 16:12:47
-# @Last Modified time: 2020-12-02 14:28:27
+# @Last Modified time: 2021-02-02 12:27:00
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -45,7 +45,7 @@ class SqlSnowflakeCompile(SqlCompile):
 
 class SnowflakeDB(DBCommon, DBFileExec):
 
-    def __init__(self, user, password, account, warehouse, database, schema):
+    def __init__(self, user, password, account, warehouse, database, schema, safe_rule=True):
         self.user = user
         self.password = password
         self.account = account
@@ -53,7 +53,7 @@ class SnowflakeDB(DBCommon, DBFileExec):
         self.database = database
         self.schema = schema
         super(SnowflakeDB, self).__init__()
-        self.auto_rules = AUTO_RULES
+        self.auto_rules = AUTO_RULES if safe_rule else None
 
     def get_conn(self):
         conn = snowflake.connector.connect(database=self.database, user=self.user, password=self.password,
