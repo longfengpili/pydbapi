@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2021-02-07 20:01:02
+# @Last Modified time: 2021-02-07 20:06:08
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -95,7 +95,7 @@ class SqlCompile(object):
                 raise TypeError('values must be a list !')
             j_values = [str(tuple(value)) for value in values]
             j_values = ',\n'.join(j_values)
-            j_values = j_values.replace('\'\'', 'null').replace('None', 'null')  # 空值替换为null
+            # j_values = j_values.replace('\'\'', 'null').replace('None', 'null')  # 空值替换为null
             return j_values
 
         values = deal_values(values)
@@ -104,6 +104,7 @@ class SqlCompile(object):
             raise TypeError("colums must be a ColumnsModel !")
 
         sql = f'insert into {self.tablename}\n({columns.new_cols})\nvalues\n{values};'
+        sql = sql.replace('\'\'', 'Null').replace('None', 'Null')  # 空值替换为null
         return sql
 
     def _insert_by_select(self, fromtable, columns, condition=None):
