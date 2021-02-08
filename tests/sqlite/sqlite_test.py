@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:58:41
-# @Last Modified time: 2021-02-01 19:25:10
+# @Last Modified time: 2021-02-08 13:37:22
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -88,3 +88,10 @@ class TestSqlite:
         dirpath = os.path.dirname(os.path.abspath(__file__))
         filepath = os.path.join(dirpath, 'sqlite.sql')
         self.sqlite.file_exec(filepath, name='pizza')
+
+    def test_get_instance(self):
+        sqlite1 = SqliteDB.get_instance('./test.db')
+        sqlite2 = SqliteDB.get_instance('./test.db')
+        sqlite3 = SqliteDB('./test.db')
+        sqlite4 = SqliteDB('./test.db')
+        print(id(sqlite1), id(sqlite2), id(sqlite3), id(sqlite4))

@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2020-12-02 14:52:18
+# @Last Modified time: 2021-02-08 13:34:07
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -47,12 +47,10 @@ class SqliteCompile(SqlCompile):
 class SqliteDB(DBCommon, DBFileExec):
 
     def __init__(self, database=None):
-        self.database = database
+        self.database = database if database else os.path.join(LOG_BASE_PATH, 'sqlite3_test.db')
         super(SqliteDB, self).__init__()
 
     def get_conn(self):
-        if not self.database:
-            self.database = os.path.join(LOG_BASE_PATH, 'sqlite3_test.db')
         conn = sqlite3.connect(database=self.database)
         if not conn:
             self.get_conn()

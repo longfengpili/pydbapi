@@ -1,13 +1,14 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2020-12-02 14:41:16
+# @Last Modified time: 2021-02-08 13:35:59
 # @github: https://github.com/longfengpili
 
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 import re
+import threading
 import pandas as pd
 from tqdm import tqdm
 
@@ -22,9 +23,19 @@ dblogger = logging.getLogger('db')
 
 
 class DBbase(object):
+    _instance_lock = threading.Lock()
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         pass
+
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        if not hasattr(DBbase, '_instance'):
+            with DBbase._instance_lock:
+                if not hasattr(DBbase, '_instance'):
+                    DBbase._instance = DBbase(*args, **kwargs)
+
+        return DBbase._instance
 
     def get_conn(self):
         pass
