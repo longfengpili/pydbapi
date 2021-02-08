@@ -2,7 +2,7 @@
 * @Author: chunyang.xu
 * @Date:   2020-06-04 17:57:10
 * @Email:  398745129@qq.com
-* @Last Modified time: 2020-08-11 12:10:54
+* @Last Modified time: 2021-02-08 13:53:48
 */
 
 ###
@@ -18,7 +18,7 @@ select * from temp_events_ev;
 ###
 
 ###
---【2user verbose】
+--【2user verbose1】
 --筛选
 create temporary table temp_events_ev as
 select *
@@ -32,4 +32,14 @@ create table temp_xu as
 select * from temp_events_ev;
 ###
 
+###
+--【1user_daily_info verbose2】
+--筛选
+create temporary table temp_events_ev as
+select *
+from test_xu
+;
 
+select * from temp_events_ev;
+
+###

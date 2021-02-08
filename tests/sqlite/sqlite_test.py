@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:58:41
-# @Last Modified time: 2021-02-08 13:37:22
+# @Last Modified time: 2021-02-08 14:08:20
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -90,8 +90,16 @@ class TestSqlite:
         self.sqlite.file_exec(filepath, name='pizza')
 
     def test_get_instance(self):
-        sqlite1 = SqliteDB.get_instance('./test.db')
-        sqlite2 = SqliteDB.get_instance('./test.db')
-        sqlite3 = SqliteDB('./test.db')
-        sqlite4 = SqliteDB('./test.db')
-        print(id(sqlite1), id(sqlite2), id(sqlite3), id(sqlite4))
+        sqlite1 = SqliteDB.get_instance()
+        sqlite2 = SqliteDB.get_instance()
+        sqlite3 = SqliteDB()
+        sqlite4 = SqliteDB()
+        print(sqlite1, sqlite2, sqlite3, sqlite4)
+
+    def test_verbose(self):
+        sqlite = SqliteDB.get_instance(database=None)
+        sql = 'select * from test_xu;'
+        sqlite.execute(sql, verbose=0)
+        # sqlite.execute(sql, verbose=1)
+        sqlite.execute(sql, verbose=2)
+        # sqlite.execute(sql, verbose=3)

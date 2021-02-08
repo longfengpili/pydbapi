@@ -1,14 +1,13 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2021-02-08 13:35:59
+# @Last Modified time: 2021-02-08 14:03:54
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 import re
-import threading
 import pandas as pd
 from tqdm import tqdm
 
@@ -23,19 +22,9 @@ dblogger = logging.getLogger('db')
 
 
 class DBbase(object):
-    _instance_lock = threading.Lock()
 
     def __init__(self, *args, **kwargs):
         pass
-
-    @classmethod
-    def get_instance(cls, *args, **kwargs):
-        if not hasattr(DBbase, '_instance'):
-            with DBbase._instance_lock:
-                if not hasattr(DBbase, '_instance'):
-                    DBbase._instance = DBbase(*args, **kwargs)
-
-        return DBbase._instance
 
     def get_conn(self):
         pass
@@ -59,7 +48,7 @@ class DBbase(object):
             dblogger.error(f"{e}{sql}")
             raise ValueError(f"【Error】:{e}【Sql】:{sql};")
 
-    def execute(self, sql, count=None, verbose=False):
+    def execute(self, sql, count=None, verbose=0):
         '''[summary]
 
         [description]
@@ -69,6 +58,7 @@ class DBbase(object):
 
         Keyword Arguments:
             count {[int]} -- [返回的结果数量] (default: {None})
+            verbose {[int]} -- [打印进程状态] （0：不打印， 1：文字进度， 2：进度条）
 
         Returns:
             rows {[int]} -- [影响的行数]
@@ -90,7 +80,7 @@ class DBbase(object):
         sqls = [sql.strip() for sql in sqls if sql]
         sqls_length = len(sqls)
         bar_format = '{l_bar}{bar:30}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
-        sqls = sqls if verbose else tqdm(sqls, ncols=100, postfix=['START'], bar_format=bar_format)  # 如果没有verbose显示进度条
+        sqls = sqls if verbose <= 1 else tqdm(sqls, ncols=100, postfix=['START'], bar_format=bar_format)  # 如果verbose>=2则显示进度条
         for sql in sqls:
             results = None
             idx += 1
@@ -98,11 +88,13 @@ class DBbase(object):
             parser = SqlParse(sql)
             comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
             step = f"【{idx:0>2d}_PROGRESS】({action}){tablename}::{comment}"
-            if verbose:
+            if verbose == 1:
                 dblogger.info(f"{step}")
-            else:
+            elif verbose >= 2:
                 sqls.postfix[0] = f"{step}"
                 sqls.update()
+            else:
+                pass
 
             self.__execute_step(cur, sql)
 
@@ -142,44 +134,44 @@ class DBCommon(DBbase):
                 return True
         return False
 
-    def drop(self, tablename):
+    def drop(self, tablename, verbose=0):
         if self.__check_isauto(tablename):
             sqlcompile = SqlCompile(tablename)
             sql_for_drop = sqlcompile.drop()
-            rows, action, result = self.execute(sql_for_drop)
+            rows, action, result = self.execute(sql_for_drop, verbose=verbose)
             dblogger.info(f'【{action}】{tablename} drop succeed !')
             return rows, action, result
         else:
             raise Exception(f"【drop】 please drop [{tablename}] on workbench! Or add rule into auto_rules !")
 
-    def delete(self, tablename, condition):
+    def delete(self, tablename, condition, verbose=0):
         if self.__check_isauto(tablename):
             sqlcompile = SqlCompile(tablename)
             sql_for_delete = sqlcompile.delete(condition)
-            rows, action, result = self.execute(sql_for_delete)
+            rows, action, result = self.execute(sql_for_delete, verbose=verbose)
             dblogger.info(f'【{action}】{tablename} delete succeed !')
             return rows, action, result
         else:
             raise Exception(f"【delete】 please delete [{tablename}] on workbench! Or add rule into auto_rules !")
 
-    def insert(self, tablename, columns, inserttype='value', values=None, fromtable=None, condition=None):
+    def insert(self, tablename, columns, inserttype='value', values=None, fromtable=None, condition=None, verbose=0):
         if self.__check_isauto(tablename):
             sqlcompile = SqlCompile(tablename)
             sql_for_insert = sqlcompile.insert(columns, inserttype=inserttype, values=values,
                                                fromtable=fromtable, condition=condition)
-            rows, action, result = self.execute(sql_for_insert)
+            rows, action, result = self.execute(sql_for_insert, verbose=verbose)
             return rows, action, result
         else:
             raise Exception(f"【insert】 please insert [{tablename}] on workbench! Or add rule into auto_rules !")
 
-    def get_columns(self, tablename):
+    def get_columns(self, tablename, verbose=0):
         sql = f"select * from {tablename} limit 1;"
-        rows, action, result = self.execute(sql)
+        rows, action, result = self.execute(sql, verbose=verbose)
         columns = result[0]
         columns = [c.lower() for c in columns]
         return columns
 
-    def select(self, tablename, columns, condition=None):
+    def select(self, tablename, columns, condition=None, verbose=0):
         '''[summary]
 
         [description]
@@ -198,10 +190,10 @@ class DBCommon(DBbase):
         '''
         sqlcompile = SqlCompile(tablename)
         sql_for_select = sqlcompile.select_base(columns, condition=condition)
-        rows, action, result = self.execute(sql_for_select)
+        rows, action, result = self.execute(sql_for_select, verbose=verbose)
         return rows, action, result
 
-    def add_columns(self, tablename, columns):
+    def add_columns(self, tablename, columns, verbose=0):
         old_columns = self.get_columns(tablename)
         old_columns = set(old_columns)
         new_columns = columns.new_cols
@@ -218,5 +210,5 @@ class DBCommon(DBbase):
             for col_name in add_columns:
                 column = columns.get_column_by_name(col_name)
                 sql = sqlcompile.add_column(column.newname, column.coltype)
-                self.execute(sql)
+                self.execute(sql, verbose=0)
             dblogger.info(f'【{tablename}】add columns succeeded !【{new_columns - old_columns}】')

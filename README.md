@@ -16,21 +16,29 @@ row, action, result = db.execute(sql)
 + Amazon Redshift
 ```python
 from pydbapi.api import RedshiftDB
-db = RedshiftDB(host, user, password, database, port='5439')
+db = RedshiftDB(host, user, password, database, port='5439', safe_rule=True)
 sql = 'select * from [schema].[table];'
 row, action, result = db.execute(sql)
 ```
 + Mysql
 ```python
 from pydbapi.api import MysqlDB
-db = MysqlDB(host, user, password, database, port='3306')
+db = MysqlDB(host, user, password, database, port=3306, safe_rule=True)
 sql = 'select * from [table];'
 row, action, result = db.execute(sql)
 ```
 + Snowflake
 ```python
 from pydbapi.api import SnowflakeDB
-db = SnowflakeDB(user, password, account, warehouse, database, schema)
+db = SnowflakeDB(user, password, account, warehouse, database, schema, safe_rule=True)
+sql = 'select * from [table];'
+row, action, result = db.execute(sql)
+```
+
++ instance模式
+```python
+from pydbapi.api import SqliteDB
+db = SqliteDB.get_instance(database=None)  # 或者传入路径
 sql = 'select * from [table];'
 row, action, result = db.execute(sql)
 ```

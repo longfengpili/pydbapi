@@ -1,12 +1,13 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-10-22 16:12:47
-# @Last Modified time: 2021-02-02 12:27:00
+# @Last Modified time: 2021-02-08 14:04:34
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
+import threading
 import snowflake.connector
 
 from pydbapi.db import DBCommon, DBFileExec
@@ -44,6 +45,7 @@ class SqlSnowflakeCompile(SqlCompile):
 
 
 class SnowflakeDB(DBCommon, DBFileExec):
+    _instance_lock = threading.Lock()
 
     def __init__(self, user, password, account, warehouse, database, schema, safe_rule=True):
         self.user = user
@@ -55,6 +57,15 @@ class SnowflakeDB(DBCommon, DBFileExec):
         super(SnowflakeDB, self).__init__()
         self.auto_rules = AUTO_RULES if safe_rule else None
 
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        if not hasattr(SnowflakeDB, '_instance'):
+            with SnowflakeDB._instance_lock:
+                if not hasattr(SnowflakeDB, '_instance'):
+                    SnowflakeDB._instance = SnowflakeDB(*args, **kwargs)
+
+        return SnowflakeDB._instance
+
     def get_conn(self):
         conn = snowflake.connector.connect(database=self.database, user=self.user, password=self.password,
                                            account=self.account, warehouse=self.warehouse, schema=self.schema)
@@ -62,9 +73,9 @@ class SnowflakeDB(DBCommon, DBFileExec):
             self.get_conn()
         return conn
 
-    def create(self, tablename, columns, indexes=None):
+    def create(self, tablename, columns, indexes=None, verbose=0):
         # tablename = f"{self.database}.{tablename}"
         sqlcompile = SqlSnowflakeCompile(tablename)
         sql_for_create = sqlcompile.create(columns, indexes)
-        rows, action, result = self.execute(sql_for_create)
+        rows, action, result = self.execute(sql_for_create, verbose=verbose)
         return rows, action, result

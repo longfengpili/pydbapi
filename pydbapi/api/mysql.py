@@ -1,13 +1,14 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-02-08 13:28:30
+# @Last Modified time: 2021-02-08 14:05:54
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 
+import threading
 import pymysql
 
 from pydbapi.db import DBCommon, DBFileExec
@@ -46,6 +47,7 @@ class SqlMysqlCompile(SqlCompile):
 
 
 class MysqlDB(DBCommon, DBFileExec):
+    _instance_lock = threading.Lock()
 
     def __init__(self, host, user, password, database, port=3306, charset="utf8", safe_rule=True):
         self.host = host
@@ -57,15 +59,24 @@ class MysqlDB(DBCommon, DBFileExec):
         super(MysqlDB, self).__init__()
         self.auto_rules = AUTO_RULES if safe_rule else None
 
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        if not hasattr(MysqlDB, '_instance'):
+            with MysqlDB._instance_lock:
+                if not hasattr(MysqlDB, '_instance'):
+                    MysqlDB._instance = MysqlDB(*args, **kwargs)
+
+        return MysqlDB._instance
+
     def get_conn(self):
         conn = pymysql.connect(database=self.database, user=self.user, password=self.password, host=self.host, port=self.port, charset=self.charset)
         if not conn:
             self.get_conn()
         return conn
 
-    def create(self, tablename, columns, indexes=None):
+    def create(self, tablename, columns, indexes=None, verbose=0):
         # tablename = f"{self.database}.{tablename}"
         sqlcompile = SqlMysqlCompile(tablename)
         sql_for_create = sqlcompile.create(columns, indexes)
-        rows, action, result = self.execute(sql_for_create)
+        rows, action, result = self.execute(sql_for_create, verbose=verbose)
         return rows, action, result

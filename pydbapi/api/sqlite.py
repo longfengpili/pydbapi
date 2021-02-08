@@ -1,14 +1,14 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2021-02-08 13:34:07
+# @Last Modified time: 2021-02-08 14:03:16
 # @github: https://github.com/longfengpili
 
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 import os
-import re
+import threading
 import sqlite3
 
 from pydbapi.db import DBCommon, DBFileExec
@@ -45,10 +45,20 @@ class SqliteCompile(SqlCompile):
 
 
 class SqliteDB(DBCommon, DBFileExec):
+    _instance_lock = threading.Lock()
 
     def __init__(self, database=None):
         self.database = database if database else os.path.join(LOG_BASE_PATH, 'sqlite3_test.db')
         super(SqliteDB, self).__init__()
+
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        if not hasattr(SqliteDB, '_instance'):
+            with SqliteDB._instance_lock:
+                if not hasattr(SqliteDB, '_instance'):
+                    SqliteDB._instance = SqliteDB(*args, **kwargs)
+
+        return SqliteDB._instance
 
     def get_conn(self):
         conn = sqlite3.connect(database=self.database)
@@ -56,9 +66,9 @@ class SqliteDB(DBCommon, DBFileExec):
             self.get_conn()
         return conn
 
-    def create(self, tablename, columns, indexes=None):
+    def create(self, tablename, columns, indexes=None, verbose=0):
         # tablename = f"{self.database}.{tablename}"
         sqlcompile = SqliteCompile(tablename)
         sql_for_create = sqlcompile.create(columns, indexes)
-        rows, action, result = self.execute(sql_for_create)
+        rows, action, result = self.execute(sql_for_create, verbose=verbose)
         return rows, action, result

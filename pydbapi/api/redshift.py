@@ -1,13 +1,14 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-02-02 12:26:46
+# @Last Modified time: 2021-02-08 14:05:21
 # @github: https://github.com/longfengpili
 
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 
+import threading
 import psycopg2
 
 from pydbapi.db import DBCommon, DBFileExec
@@ -45,6 +46,7 @@ class SqlRedshiftCompile(SqlCompile):
 
 
 class RedshiftDB(DBCommon, DBFileExec):
+    _instance_lock = threading.Lock()
 
     def __init__(self, host, user, password, database, port='5439', safe_rule=True):
         self.host = host
@@ -55,15 +57,24 @@ class RedshiftDB(DBCommon, DBFileExec):
         super(RedshiftDB, self).__init__()
         self.auto_rules = REDSHIFT_AUTO_RULES if safe_rule else None
 
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        if not hasattr(RedshiftDB, '_instance'):
+            with RedshiftDB._instance_lock:
+                if not hasattr(RedshiftDB, '_instance'):
+                    RedshiftDB._instance = RedshiftDB(*args, **kwargs)
+
+        return RedshiftDB._instance
+
     def get_conn(self):
         conn = psycopg2.connect(database=self.database, user=self.user, password=self.password, host=self.host, port=self.port)
         if not conn:
             self.get_conn()
         return conn
 
-    def create(self, tablename, columns, indexes=None):
+    def create(self, tablename, columns, indexes=None, verbose=0):
         # tablename = f"{self.database}.{tablename}"
         sqlcompile = SqlRedshiftCompile(tablename)
         sql_for_create = sqlcompile.create(columns, indexes)
-        rows, action, result = self.execute(sql_for_create)
+        rows, action, result = self.execute(sql_for_create, verbose=verbose)
         return rows, action, result
