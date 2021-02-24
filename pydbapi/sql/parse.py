@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2021-02-01 19:28:07
+# @Last Modified time: 2021-02-24 20:04:11
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -69,13 +69,8 @@ class SqlFileParse(object):
         return content
 
     def parse_argument(self, argument, arguments):
-        argument_map = {
-            'today': 'date.today()',
-            'now': 'datetime.now()',
-        }
         key, value = argument.split('=', 1)
         key, value = key.strip(), value.strip()
-        value = argument_map.get(value, value)
         try:
             value = eval(value, globals(), arguments)
         except NameError as e:
@@ -91,13 +86,16 @@ class SqlFileParse(object):
         Returns:
             [dict] -- [返回文件中的参数设置]
         '''
-        arguments = {}
+        arguments = {
+            'today': date.today(),
+            'now': datetime.now(),
+        }
         content = self.get_content()
         content = re.sub('--.*?\n', '\n', content)  # 去掉注释
-        arguments_temp = re.findall(r'(?<!--)\s+#【arguments】#\n(.*?)#【arguments】#', content, re.S)
-        arguments_temp = ';'.join(arguments_temp).replace('\n', ';')
-        arguments_temp = [argument.strip() for argument in arguments_temp.split(';') if argument]
-        for argument in arguments_temp:
+        arguments_infile = re.findall(r'(?<!--)\s+#【arguments】#\n(.*?)#【arguments】#', content, re.S)
+        arguments_infile = ';'.join(arguments_infile).replace('\n', ';')
+        arguments_infile = [argument.strip() for argument in arguments_infile.split(';') if argument]
+        for argument in arguments_infile:
             key, value = self.parse_argument(argument, arguments)
             arguments[key] = value
 

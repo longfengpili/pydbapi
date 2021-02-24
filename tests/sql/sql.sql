@@ -2,13 +2,13 @@
 * @Author: chunyang.xu
 * @Date:   2020-06-04 17:57:10
 * @Email:  398745129@qq.com
-* @Last Modified time: 2020-06-29 15:14:38
+* @Last Modified time: 2021-02-24 20:08:15
 */
 
 #【arguments】#
 level = 10
 fpid = ('301121904456', '30111300420')
-date_max = now
+date_max = now + timedelta(hours=-10)
 date_min = date_max + timedelta(days=-10)
 #【arguments】#
 
