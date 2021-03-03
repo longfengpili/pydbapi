@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2021-02-08 14:03:54
+# @Last Modified time: 2021-03-03 19:08:05
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -132,6 +132,8 @@ class DBCommon(DBbase):
         for rule in self.auto_rules:
             if rule in tablename:
                 return True
+        else:
+            raise Exception(f"【drop】 please drop [{tablename}] on workbench! Or add rule into auto_rules !")
         return False
 
     def drop(self, tablename, verbose=0):
@@ -141,18 +143,14 @@ class DBCommon(DBbase):
             rows, action, result = self.execute(sql_for_drop, verbose=verbose)
             dblogger.info(f'【{action}】{tablename} drop succeed !')
             return rows, action, result
-        else:
-            raise Exception(f"【drop】 please drop [{tablename}] on workbench! Or add rule into auto_rules !")
 
     def delete(self, tablename, condition, verbose=0):
         if self.__check_isauto(tablename):
             sqlcompile = SqlCompile(tablename)
             sql_for_delete = sqlcompile.delete(condition)
             rows, action, result = self.execute(sql_for_delete, verbose=verbose)
-            dblogger.info(f'【{action}】{tablename} delete succeed !')
+            dblogger.info(f'【{action}】{tablename} delete {rows} rows succeed !')
             return rows, action, result
-        else:
-            raise Exception(f"【delete】 please delete [{tablename}] on workbench! Or add rule into auto_rules !")
 
     def insert(self, tablename, columns, inserttype='value', values=None, fromtable=None, condition=None, verbose=0):
         if self.__check_isauto(tablename):
@@ -160,9 +158,8 @@ class DBCommon(DBbase):
             sql_for_insert = sqlcompile.insert(columns, inserttype=inserttype, values=values,
                                                fromtable=fromtable, condition=condition)
             rows, action, result = self.execute(sql_for_insert, verbose=verbose)
+            dblogger.info(f'【{action}】{tablename} insert {rows} rows succeed !')
             return rows, action, result
-        else:
-            raise Exception(f"【insert】 please insert [{tablename}] on workbench! Or add rule into auto_rules !")
 
     def get_columns(self, tablename, verbose=0):
         sql = f"select * from {tablename} limit 1;"
