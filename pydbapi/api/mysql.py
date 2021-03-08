@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-03-08 13:38:21
+# @Last Modified time: 2021-03-08 13:55:57
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -94,12 +94,12 @@ class MysqlDB(DBCommon, DBFileExec):
 
     def dumpdata(self, tablename, columns, dumpfile, condition=None, verbose=0):
         sqlcompile = SqlMysqlCompile(tablename)
-        sql_for_dump = sqlcompile.dumpdata(columns, dumpfile, condition=condition)
+        sql_for_dump = sqlcompile.dumpsql(columns, dumpfile, condition=condition)
         rows, action, result = self.execute(sql_for_dump, verbose=verbose)
         return rows, action, result
 
     def loaddata(self, tablename, columns, loadfile, verbose=0):
         sqlcompile = SqlMysqlCompile(tablename)
-        sql_for_load = sqlcompile.dumpdata(columns, loadfile)
+        sql_for_load = sqlcompile.loadsql(columns, loadfile)
         rows, action, result = self.execute(sql_for_load, verbose=verbose)
         return rows, action, result
