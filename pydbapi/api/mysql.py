@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-03-08 13:55:57
+# @Last Modified time: 2021-03-08 13:59:12
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -53,7 +53,7 @@ class SqlMysqlCompile(SqlCompile):
 
     def loadsql(self, columns, loadfile, intotable=None):
         intotable = intotable or self.tablename
-        loadsql = 'load data infile {loadfile} into table {intotable} ({columns.select_cols});'
+        loadsql = f'load data infile {loadfile} into table {intotable} ({columns.select_cols});'
         return loadsql
 
 
