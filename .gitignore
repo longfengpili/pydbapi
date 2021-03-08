@@ -4,11 +4,11 @@
 logs/
 mysetting.py
 
-tests/*
-!tests/sqlite/
-!tests/base/
-!tests/sql/
-!tests/__init__.py
+# tests/*
+# !tests/sqlite/
+# !tests/base/
+# !tests/sql/
+# !tests/__init__.py
 
 
 # Byte-compiled / optimized / DLL files
