@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2021-03-03 19:08:05
+# @Last Modified time: 2021-03-08 13:16:00
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -48,6 +48,19 @@ class DBbase(object):
             dblogger.error(f"{e}{sql}")
             raise ValueError(f"【Error】:{e}【Sql】:{sql};")
 
+    def cur_results(self, cursor, count):
+        results = cursor.fetchmany(count) if count else cursor.fetchall()
+        results = list(results) if results else []
+        return results
+
+    def cur_columns(self, cursor):
+        desc = cursor.description
+        columns = None
+        if desc:
+            columns = tuple(map(lambda x: x[0].lower(), desc))  # 列名
+
+        return desc, columns
+
     def execute(self, sql, count=None, verbose=0):
         '''[summary]
 
@@ -64,11 +77,11 @@ class DBbase(object):
             rows {[int]} -- [影响的行数]
             results {[list]} -- [返回的结果]
         '''
-        def cur_getresults(cur, count):
-            results = cur.fetchmany(count) if count else cur.fetchall()
-            results = list(results) if results else []
-            columns = tuple(map(lambda x: x[0].lower(), cur.description))  # 列名
-            return columns, results
+        # def cur_getresults(cur, count):
+        #     results = cur.fetchmany(count) if count else cur.fetchall()
+        #     results = list(results) if results else []
+        #     columns = tuple(map(lambda x: x[0].lower(), cur.description)) if cur.description  # 列名
+        #     return columns, results
 
         rows = 0
         idx = 0
@@ -99,10 +112,18 @@ class DBbase(object):
             self.__execute_step(cur, sql)
 
             if action == 'SELECT' and (verbose or idx == sqls_length):
-                columns, results = cur_getresults(cur, count)
-                if verbose:
+                # columns, results = cur_getresults(cur, count)
+                results = self.cur_results(cur, count)
+                desc, columns = self.cur_columns(cur)
+                if verbose and columns:
                     dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
-                results.insert(0, columns)
+                elif not columns:
+                    dblogger.warning(f"Not Columns, cursor description is {desc}")
+                else:
+                    pass
+
+                if columns and results:
+                    results.insert(0, columns)
         try:
             conn.commit()
         except Exception as e:
