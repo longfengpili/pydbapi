@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-11-30 16:28:21
-# @Last Modified time: 2021-02-01 19:24:13
+# @Last Modified time: 2021-03-08 13:49:23
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -48,7 +48,7 @@ class ColumnsModel(object):
         self.columns = columns
 
     def __repr__(self):
-        return f"{column for column in self.columns}"
+        return f"{[column for column in self.columns]}"
 
     @property
     def func_cols(self):
