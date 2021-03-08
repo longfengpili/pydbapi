@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-03-08 14:05:21
+# @Last Modified time: 2021-03-08 15:10:02
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -46,7 +46,7 @@ class SqlMysqlCompile(SqlCompile):
         return sql
 
     def dumpsql(self, columns, dumpfile, fromtable=None, condition=None):
-        selectsql = self.select_base(columns, fromtable=None, condition=None)
+        selectsql = self.select_base(columns, fromtable=fromtable, condition=condition)
         intosql = f'into outfile "{dumpfile}" fields terminated by ",";'
         dumpsql = selectsql.replace(";", intosql)
         return dumpsql

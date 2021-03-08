@@ -27,7 +27,7 @@ db = MysqlDB(host, user, password, database, port=3306, safe_rule=True)
 sql = 'select * from [table];'
 row, action, result = db.execute(sql)
 ```
-+ Snowflake
++ Snowflake(删除)
 ```python
 from pydbapi.api import SnowflakeDB
 db = SnowflakeDB(user, password, account, warehouse, database, schema, safe_rule=True)
