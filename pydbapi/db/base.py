@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2021-03-08 13:16:00
+# @Last Modified time: 2021-03-10 17:06:44
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -55,9 +55,7 @@ class DBbase(object):
 
     def cur_columns(self, cursor):
         desc = cursor.description
-        columns = None
-        if desc:
-            columns = tuple(map(lambda x: x[0].lower(), desc))  # 列名
+        columns = tuple(map(lambda x: x[0].lower(), desc)) if desc else None  # 列名
 
         return desc, columns
 
@@ -122,7 +120,7 @@ class DBbase(object):
                 else:
                     pass
 
-                if columns and results:
+                if columns:
                     results.insert(0, columns)
         try:
             conn.commit()
