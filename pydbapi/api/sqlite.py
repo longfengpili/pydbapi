@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2021-02-08 14:03:16
+# @Last Modified time: 2021-03-26 14:45:33
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -16,10 +16,7 @@ from pydbapi.sql import SqlCompile
 from pydbapi.conf import LOG_BASE_PATH
 
 import logging
-import logging.config
-from pydbapi.conf import LOGGING_CONFIG
-logging.config.dictConfig(LOGGING_CONFIG)
-sqlitelogger = logging.getLogger('sqlite')
+sqlitelogger = logging.getLogger(__name__)
 
 
 class SqliteCompile(SqlCompile):

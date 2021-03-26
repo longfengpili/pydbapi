@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-03-08 15:00:02
+# @Last Modified time: 2021-03-26 14:45:12
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -17,10 +17,7 @@ from pydbapi.conf import REDSHIFT_AUTO_RULES
 
 
 import logging
-import logging.config
-from pydbapi.conf import LOGGING_CONFIG
-logging.config.dictConfig(LOGGING_CONFIG)
-redlogger = logging.getLogger('redshift')
+redlogger = logging.getLogger(__name__)
 
 
 class SqlRedshiftCompile(SqlCompile):

@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2021-03-10 17:06:44
+# @Last Modified time: 2021-03-26 14:52:59
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -15,10 +15,7 @@ from pydbapi.sql import SqlParse, SqlCompile
 from pydbapi.conf import AUTO_RULES
 
 import logging
-import logging.config
-from pydbapi.conf import LOGGING_CONFIG
-logging.config.dictConfig(LOGGING_CONFIG)
-dblogger = logging.getLogger('db')
+dblogger = logging.getLogger(__name__)
 
 
 class DBbase(object):

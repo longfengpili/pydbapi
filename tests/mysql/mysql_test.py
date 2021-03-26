@@ -2,7 +2,7 @@
 # @Author: chunyang.xu
 # @Date:   2021-03-08 14:19:01
 # @Last Modified by:   chunyang.xu
-# @Last Modified time: 2021-03-10 17:12:02
+# @Last Modified time: 2021-03-26 14:51:46
 
 import os
 import pytest
@@ -53,7 +53,7 @@ class TestMysql:
         sql = sqlcompile.dumpsql(self.columns, '/tmp/pydbapitest.csv', condition='name="apple"')
         print(sql)
 
-    # @pytest.mark.skip()
+    @pytest.mark.skip()
     def test_dumpdata(self):
         rows, action, result = self.mysqldb.dumpdata(self.tablename, self.columns, '/tmp/pydbapitest.csv', condition='name="apple"')
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")

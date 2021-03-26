@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-08 11:55:54
-# @Last Modified time: 2021-03-03 19:16:38
+# @Last Modified time: 2021-03-26 14:45:59
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -14,10 +14,7 @@ from .base import DBbase
 from pydbapi.sql import SqlFileParse
 
 import logging
-import logging.config
-from pydbapi.conf import LOGGING_CONFIG
-logging.config.dictConfig(LOGGING_CONFIG)
-dblogger = logging.getLogger('db')
+dblogger = logging.getLogger(__name__)
 
 
 class DBFileExec(DBbase):
