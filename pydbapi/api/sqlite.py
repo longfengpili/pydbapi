@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2021-03-26 14:45:33
+# @Last Modified time: 2021-03-26 15:00:20
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -13,10 +13,12 @@ import sqlite3
 
 from pydbapi.db import DBCommon, DBFileExec
 from pydbapi.sql import SqlCompile
-from pydbapi.conf import LOG_BASE_PATH
 
 import logging
 sqlitelogger = logging.getLogger(__name__)
+
+
+USERPATH = os.environ['USERPROFILE'] if 'USERPROFILE' in os.environ else os.environ['HOME'] if 'HOME' in os.environ else ''
 
 
 class SqliteCompile(SqlCompile):
@@ -45,7 +47,7 @@ class SqliteDB(DBCommon, DBFileExec):
     _instance_lock = threading.Lock()
 
     def __init__(self, database=None):
-        self.database = database if database else os.path.join(LOG_BASE_PATH, 'sqlite3_test.db')
+        self.database = database if database else os.path.join(USERPATH, 'sqlite3_test.db')
         super(SqliteDB, self).__init__()
 
     @classmethod
