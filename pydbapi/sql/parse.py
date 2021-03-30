@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2021-03-26 14:46:17
+# @Last Modified time: 2021-03-30 11:08:00
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -122,14 +122,15 @@ class SqlFileParse(object):
         Raises:
             Exception -- [需要设置参数]
         '''
-        kwargs = {k: f"'{v}'" if isinstance(v, str) else v for k, v in kwargs.items()} # str加引号处理
+        kwargs = {k: f"'{v}'" if isinstance(v, str) else v for k, v in kwargs.items()}  # str加引号处理
         arguments = self.arguments
 
         arguments_same = set(arguments) & set(kwargs)
         if arguments_same:
             input_arg = {arg: kwargs.get(arg) for arg in arguments_same}
             file_arg = {arg: arguments.get(arg) for arg in arguments_same}
-            sqllogger.warning(f"{arguments_same} Use Input arguments {input_arg}, NotUse sqlfile setting {file_arg}!")
+            filename = os.path.basename(self.filepath)
+            sqllogger.warning(f"File 【{filename}】 {arguments_same} Use Input arguments {input_arg}, NotUse sqlfile setting {file_arg}!")
 
         arguments.update(kwargs)
         arguments_lack = self.parameters - set(arguments)
