@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-03-31 10:43:10
+# @Last Modified time: 2021-03-31 10:50:40
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -97,9 +97,9 @@ class MysqlDB(DBCommon, DBFileExec):
         mysqllogger.info(f"【{action}】{tablename} dumpdata {rows} rows succeed, outfile: {dumpfile} !")
         return rows, action, result
 
-    def loaddata(self, tablename, columns, loadfile, verbose=0):
+    def loaddata(self, tablename, columns, loadfile, fieldterminated=',', verbose=0):
         sqlcompile = SqlMysqlCompile(tablename)
-        sql_for_load = sqlcompile.loadsql(columns, loadfile)
+        sql_for_load = sqlcompile.loadsql(columns, loadfile, fieldterminated=fieldterminated)
         rows, action, result = self.execute(sql_for_load, verbose=verbose)
         mysqllogger.info(f"【{action}】{tablename} loaddata {rows} rows succeed, loadfile: {loadfile} !")
         return rows, action, result
