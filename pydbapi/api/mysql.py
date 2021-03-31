@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-03-26 14:44:42
+# @Last Modified time: 2021-03-31 10:43:10
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -48,9 +48,10 @@ class SqlMysqlCompile(SqlCompile):
         dumpsql = selectsql.replace(";", intosql)
         return dumpsql
 
-    def loadsql(self, columns, loadfile, intotable=None):
+    def loadsql(self, columns, loadfile, intotable=None, fieldterminated=','):
         intotable = intotable or self.tablename
-        loadsql = f'load data infile "{loadfile}" into table {intotable} fields terminated by "," ({columns.select_cols});'
+        loadsql = f'''load data infile "{loadfile}" into table {intotable}
+                      fields terminated by "{fieldterminated}" ({columns.select_cols});'''
         return loadsql
 
 
