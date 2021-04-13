@@ -1,23 +1,20 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-08 11:55:54
-# @Last Modified time: 2020-07-19 17:49:59
+# @Last Modified time: 2021-03-26 14:45:59
 # @github: https://github.com/longfengpili
 
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 import os
-import pandas as pd
+import time
 
 from .base import DBbase
 from pydbapi.sql import SqlFileParse
 
 import logging
-import logging.config
-from pydbapi.conf import LOGGING_CONFIG
-logging.config.dictConfig(LOGGING_CONFIG)
-dblogger = logging.getLogger('db')
+dblogger = logging.getLogger(__name__)
 
 
 class DBFileExec(DBbase):
@@ -27,20 +24,23 @@ class DBFileExec(DBbase):
 
     def get_filesqls(self, filepath, **kw):
         sqlfileparser = SqlFileParse(filepath)
-        sqls = sqlfileparser.get_filesqls(**kw)
-        return sqls
+        arguments, sqls = sqlfileparser.get_filesqls(**kw)
+        return arguments, sqls
 
     def file_exec(self, filepath, **kw):
+        st = time.time()
         results = {}
-        sqls = self.get_filesqls(filepath, **kw)
         filename = os.path.basename(filepath)
+        dblogger.info(f"Start Job 【{filename}】".center(80, '='))
+        arguments, sqls = self.get_filesqls(filepath, **kw)
+        dblogger.info(f"【Final Arguments】The file 【{filename}】 Use arguments {arguments}")
         for desc, sql in sqls.items():
-            dblogger.info(f"Start Job 【{filename}】{desc}".center(80, '='))
-            verbose = True if 'verbose' in desc or filename.startswith('test') \
-                        or filename.endswith('test.sql') else False
-            # dblogger.info(f"{os.path.basename(filepath)}=={progress}")
+            dblogger.info(f">>> START {desc}")
+            verbose = 1 if 'verbose1' in desc or filename.startswith('test') \
+                else 2 if 'verbose2' in desc else 0
             rows, action, result = self.execute(sql, verbose=verbose)
             results[desc] = result
-            dblogger.info(f"End Job 【{filename}】{desc}".center(80, '='))
+            # dblogger.info(f"End {desc}")
+        et = time.time()
+        dblogger.info(f"End Job 【{filename}】, cost {et - st:.2f} seconds".center(80, '='))
         return results
-

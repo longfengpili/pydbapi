@@ -1,10 +1,10 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:14:53
-# @Last Modified time: 2020-07-19 17:08:49
+# @Last Modified time: 2021-03-26 14:43:45
 # @github: https://github.com/longfengpili
 
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 import os
@@ -12,11 +12,12 @@ import sys
 import colorlog
 
 
-AUTO_RULES = ['test_xu'] # 可以自动执行表名（表名包含即可）
-REDSHIFT_AUTO_RULES = AUTO_RULES + ['_data_aniland'] # Amazon Redshift 可以自动执行表名（表名包含即可）
+AUTO_RULES = ['test_xu']  # 可以自动执行表名（表名包含即可）
+REDSHIFT_AUTO_RULES = AUTO_RULES + ['_data_aniland']  # Amazon Redshift 可以自动执行表名（表名包含即可）
 
+# logging settings
 USERPATH = os.environ['USERPROFILE'] if 'USERPROFILE' in os.environ else os.environ['HOME'] if 'HOME' in os.environ else ''
-LOG_BASE_PATH = os.path.join(USERPATH, 'pydbapilog') # 可以user目录下查看日志
+LOG_BASE_PATH = os.path.join(USERPATH, 'pydbapilog')  # 可以user目录下查看日志
 LOGGING_CONFIG = {
     'version': 1,  # 保留字
     'disable_existing_loggers': False,  # 禁用已经存在的logger实例
@@ -67,7 +68,7 @@ LOGGING_CONFIG = {
             'level': 'INFO',
             'class': 'pydbapi.conf.MakeFileHandler',  # 能够判断创建日持文件
             'filename': os.path.join(LOG_BASE_PATH, 'default.log'),  # 日志文件
-            'when': 'd', # 每天备份
+            'when': 'd',  # 每天备份
             'interval': 1,
             'backupCount': 30,  # 最多备份几个
             'formatter': 'standard',
@@ -77,7 +78,7 @@ LOGGING_CONFIG = {
             'level': 'INFO',
             'class': 'pydbapi.conf.MakeFileHandler',  # 保存到文件，自动切
             'filename': os.path.join(LOG_BASE_PATH, 'db.log'),  # 日志文件
-            'when': 'd', # 每小时备份
+            'when': 'd',  # 每小时备份
             'interval': 1,
             'backupCount': 30,
             'formatter': 'simple',
@@ -87,7 +88,7 @@ LOGGING_CONFIG = {
             'level': 'INFO',
             'class': 'logging.handlers.TimedRotatingFileHandler',  # 保存到文件，自动切
             'filename': os.path.join(LOG_BASE_PATH, 'sql.log'),  # 日志文件
-            'when': 'd', # 每小时备份
+            'when': 'd',  # 每小时备份
             'interval': 1,
             'backupCount': 30,
             'formatter': 'simple',
@@ -95,10 +96,10 @@ LOGGING_CONFIG = {
         },
     },
     'loggers': {
-       # 默认的logger应用如下配置
+        # 默认的logger应用如下配置
         '': {
             'handlers': ['console', 'default'],
-            'level': 'INFO',
+            'level': 'WARNING',
             'propagate': True,  # 向不向更高级别的logger传递
         },
         'db': {
@@ -126,6 +127,10 @@ LOGGING_CONFIG = {
             'level': 'INFO',
             'propagate': False,  # 向不向更高级别的logger传递
         },
+        'snowflake': {
+            'handlers': ['console', 'db'],
+            'level': 'INFO',
+            'propagate': False,  # 向不向更高级别的logger传递
+        },
     },
 }
-
