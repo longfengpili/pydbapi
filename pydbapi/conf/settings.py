@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:14:53
-# @Last Modified time: 2021-03-26 14:43:45
+# @Last Modified time: 2021-04-19 20:08:37
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -99,7 +99,7 @@ LOGGING_CONFIG = {
         # 默认的logger应用如下配置
         '': {
             'handlers': ['console', 'default'],
-            'level': 'WARNING',
+            'level': 'INFO',
             'propagate': True,  # 向不向更高级别的logger传递
         },
         'db': {

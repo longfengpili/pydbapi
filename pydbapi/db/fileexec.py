@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-08 11:55:54
-# @Last Modified time: 2021-03-26 14:45:59
+# @Last Modified time: 2021-04-19 20:05:14
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -33,7 +33,6 @@ class DBFileExec(DBbase):
         filename = os.path.basename(filepath)
         dblogger.info(f"Start Job 【{filename}】".center(80, '='))
         arguments, sqls = self.get_filesqls(filepath, **kw)
-        dblogger.info(f"【Final Arguments】The file 【{filename}】 Use arguments {arguments}")
         for desc, sql in sqls.items():
             dblogger.info(f">>> START {desc}")
             verbose = 1 if 'verbose1' in desc or filename.startswith('test') \
