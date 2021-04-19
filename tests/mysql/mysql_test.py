@@ -2,7 +2,7 @@
 # @Author: chunyang.xu
 # @Date:   2021-03-08 14:19:01
 # @Last Modified by:   chunyang.xu
-# @Last Modified time: 2021-03-26 14:51:46
+# @Last Modified time: 2021-04-19 17:03:41
 
 import os
 import pytest
@@ -58,6 +58,7 @@ class TestMysql:
         rows, action, result = self.mysqldb.dumpdata(self.tablename, self.columns, '/tmp/pydbapitest.csv', condition='name="apple"')
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
+    @pytest.mark.skip()
     def test_loaddata(self):
         rows, action, result = self.mysqldb.loaddata(self.tablename, self.columns, '/tmp/pydbapitest.csv')
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")

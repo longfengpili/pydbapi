@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2021-03-30 11:08:00
+# @Last Modified time: 2021-04-19 10:35:04
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -122,15 +122,18 @@ class SqlFileParse(object):
         Raises:
             Exception -- [需要设置参数]
         '''
+        filename = os.path.basename(self.filepath)
         kwargs = {k: f"'{v}'" if isinstance(v, str) else v for k, v in kwargs.items()}  # str加引号处理
         arguments = self.arguments
 
         arguments_same = set(arguments) & set(kwargs)
+        argsamelog = None
         if arguments_same:
+            arguments_same = sorted(arguments_same)
             input_arg = {arg: kwargs.get(arg) for arg in arguments_same}
             file_arg = {arg: arguments.get(arg) for arg in arguments_same}
-            filename = os.path.basename(self.filepath)
-            sqllogger.warning(f"File 【{filename}】 {arguments_same} Use Input arguments {input_arg}, NotUse sqlfile setting {file_arg}!")
+            argsamelog = f"Input {input_arg} replace filesetting {file_arg}"
+            # sqllogger.warning(f"File 【{filename}】 {arguments_same} Use Input arguments {input_arg}, NotUse sqlfile setting {file_arg}!")
 
         arguments.update(kwargs)
         arguments_lack = self.parameters - set(arguments)
@@ -141,7 +144,11 @@ class SqlFileParse(object):
         for key, value in arguments.items():
             content = re.sub(rf"\${key}{self.reg_behind}", f"{value}", content)
         arguments = {k: arguments.get(k) for k in self.parameters}
-        # sqllogger.info(f"【Final Arguments】The file 【{os.path.basename(self.filepath)}】 Use arguments {arguments}")
+
+        arglog = f"【Final Arguments】The file 【{filename}】 Use arguments {arguments}"
+        arglog = arglog + f", {argsamelog}" if argsamelog else arglog
+        sqllogger.warning(arglog)
+
         return arguments, content
 
     def get_filesqls(self, **kwargs):
