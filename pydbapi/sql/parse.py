@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2021-04-19 10:35:04
+# @Last Modified time: 2021-04-19 19:53:05
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -145,7 +145,7 @@ class SqlFileParse(object):
             content = re.sub(rf"\${key}{self.reg_behind}", f"{value}", content)
         arguments = {k: arguments.get(k) for k in self.parameters}
 
-        arglog = f"【Final Arguments】The file 【{filename}】 Use arguments {arguments}"
+        arglog = f"【Final Arguments】【{filename}】 Use arguments {arguments}"
         arglog = arglog + f", {argsamelog}" if argsamelog else arglog
         sqllogger.warning(arglog)
 
