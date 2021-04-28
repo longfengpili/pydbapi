@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2021-04-19 20:09:53
+# @Last Modified time: 2021-04-28 13:32:20
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -130,9 +130,9 @@ class SqlFileParse(object):
         argsamelog = None
         if arguments_same:
             arguments_same = sorted(arguments_same)
-            input_arg = {arg: kwargs.get(arg) for arg in arguments_same}
+            # input_arg = {arg: kwargs.get(arg) for arg in arguments_same}
             file_arg = {arg: arguments.get(arg) for arg in arguments_same}
-            argsamelog = f"Input {input_arg} replace filesetting {file_arg}"
+            argsamelog = f"Replace FileSetting {file_arg}"
             # sqllogger.warning(f"File 【{filename}】 {arguments_same} Use Input arguments {input_arg}, NotUse sqlfile setting {file_arg}!")
 
         arguments.update(kwargs)
