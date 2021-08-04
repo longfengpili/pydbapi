@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2021-03-26 14:52:59
+# @Last Modified time: 2021-08-04 16:15:05
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -89,12 +89,16 @@ class DBbase(object):
         sqls_length = len(sqls)
         bar_format = '{l_bar}{bar:30}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
         sqls = sqls if verbose <= 1 else tqdm(sqls, ncols=100, postfix=['START'], bar_format=bar_format)  # 如果verbose>=2则显示进度条
-        for sql in sqls:
+        for _sql in sqls:
             results = None
             idx += 1
             # dblogger.info(sql)
-            parser = SqlParse(sql)
+            parser = SqlParse(_sql)
             comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
+            if not sql:
+                dblogger.warning(f'【{idx:0>2d}_PROGRESS】 no run !!!\n{_sql}')
+                continue
+
             step = f"【{idx:0>2d}_PROGRESS】({action}){tablename}::{comment}"
             if verbose == 1:
                 dblogger.info(f"{step}")

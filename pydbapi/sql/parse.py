@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2021-04-28 13:32:20
+# @Last Modified time: 2021-08-04 16:19:29
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -24,18 +24,18 @@ class SqlParse(object):
 
     @property
     def comment(self):
-        comment = re.match('(?:--)(.*?)\n', self.orisql.strip())
-        comment = comment.group(1) if comment else ''
-        return comment
+        comment = re.findall('(?:--)(.*?)\n', self.orisql.strip() + '\n')
+        comment = comment[-1] if comment else ''
+        return comment.strip()
 
     @property
     def sql(self):
-        sql = self.orisql.replace(f"--{self.comment}", '')
+        sql = re.sub('--.*?\n', '', self.orisql.strip() + '\n')
         return sql.strip()
 
     @property
     def action(self):
-        sql = re.sub('--.*?\n', '', self.orisql.strip())
+        sql = re.sub('--.*?\n', '', self.orisql.strip() + '\n')
         action = sql.strip().split(' ')[0]
         return action.upper()
 
@@ -157,7 +157,7 @@ class SqlFileParse(object):
         arguments, content = self.replace_params(**kwargs)
         sqls_tmp = re.findall(r'(?<!--)\s+###\n(.*?)###', content, re.S)
         for idx, sql in enumerate(sqls_tmp):
-            purpose = re.match('--(【.*?】)\n', sql.strip())
+            purpose = re.match('-- *(【.*?】)\n', sql.strip())
             purpose = f"【{idx+1:0>3d}】{purpose.group(1)}" if purpose else f'【{idx+1:0>3d}】【No description】'
             sql = re.sub('--【.*?\n', '', sql.strip())
             sqls[purpose] = sql
