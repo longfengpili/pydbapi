@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2021-08-04 16:19:29
+# @Last Modified time: 2021-08-05 11:44:44
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -23,31 +23,32 @@ class SqlParse(object):
         self.reg_behind = r'(?=[,);:\s])'
 
     @property
-    def comment(self):
-        comment = re.findall('(?:--)(.*?)\n', self.orisql.strip() + '\n')
-        comment = comment[-1] if comment else ''
-        return comment.strip()
-
-    @property
     def sql(self):
-        sql = re.sub('--.*?\n', '', self.orisql.strip() + '\n')
+        sql = re.sub('^(--.*?\n){0,}', '', self.orisql.strip() + '\n')
         return sql.strip()
 
     @property
+    def comment(self):
+        comment = self.orisql.replace(self.sql, '')
+        comment = re.search('-- *(.*?)$', comment.strip())
+        comment = comment.group(1) if comment else ''
+        return comment.strip()
+
+    @property
     def action(self):
-        sql = re.sub('--.*?\n', '', self.orisql.strip() + '\n')
-        action = sql.strip().split(' ')[0]
+        action = self.sql.split(' ')[0]
         return action.upper()
 
     @property
     def tablename(self):
-        create = re.search(r'table (?:if exists |if not exists )?(.*?)(?:\s|;|$)', self.orisql)
-        update = re.search(r'update (.*?)(?:\s|;|$)', self.orisql)
-        insert = re.search(r'insert into (.*?)(?:\s|;|$)', self.orisql)
-        delete = re.search(r'delete (?:from )?(.*?)(?:\s|;|$)', self.orisql)
-        select = re.search(r'select.*?from (.*?)(?:\s|;|$)', self.orisql, re.S)
+        sql = self.sql
+        create = re.search(r'table (?:if exists |if not exists )?(.*?)(?:\s|;|$)', sql)
+        update = re.search(r'update (.*?)(?:\s|;|$)', sql)
+        insert = re.search(r'insert into (.*?)(?:\s|;|$)', sql)
+        delete = re.search(r'delete (?:from )?(.*?)(?:\s|;|$)', sql)
+        select = re.search(r'select.*?from (.*?)(?:\s|;|$)', sql, re.S)
         tablename = create or update or insert or delete or select
-        tablename = tablename.group(1) if tablename else self.orisql.strip()
+        tablename = tablename.group(1) if tablename else sql
         return tablename
 
 
