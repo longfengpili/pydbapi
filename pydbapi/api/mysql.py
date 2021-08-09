@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-08-09 15:33:48
+# @Last Modified time: 2021-08-09 15:45:21
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -39,10 +39,11 @@ class SqlMysqlCompile(SqlCompile):
         if indexes and not isinstance(indexes, list):
             raise TypeError(f"indexes must be a list, but got {indexes} !")
 
-        for index in indexes:
-            index_sqlexpr = f"index {index}_index ({index}({index_part}))"
-            sql = sql.replace(');', f",\n{index_sqlexpr});")
-            continue
+        if indexes:
+            for index in indexes:
+                index_sqlexpr = f"index {index}_index ({index}({index_part}))"
+                sql = sql.replace(');', f",\n{index_sqlexpr});")
+                continue
 
         return sql
 
