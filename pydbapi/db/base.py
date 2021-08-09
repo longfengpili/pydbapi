@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2021-08-04 16:15:05
+# @Last Modified time: 2021-08-09 15:36:28
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -96,7 +96,7 @@ class DBbase(object):
             parser = SqlParse(_sql)
             comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
             if not sql:
-                dblogger.warning(f'【{idx:0>2d}_PROGRESS】 no run !!!\n{_sql}')
+                # dblogger.info(f'【{idx:0>2d}_PROGRESS】 no run !!!\n{_sql}')
                 continue
 
             step = f"【{idx:0>2d}_PROGRESS】({action}){tablename}::{comment}"

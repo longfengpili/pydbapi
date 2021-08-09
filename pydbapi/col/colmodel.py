@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-11-30 16:28:21
-# @Last Modified time: 2021-03-08 13:49:23
+# @Last Modified time: 2021-08-09 13:46:27
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -19,6 +19,9 @@ class ColumnModel(object):
 
     def __repr__(self):
         return f"{self.newname}({self.coltype})"
+
+    def __contains__(self, newname):
+        return newname == self.newname
 
     def __check_func(self, func):
         if func and func not in ['min', 'max', 'sum', 'count']:

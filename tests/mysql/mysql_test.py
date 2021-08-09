@@ -2,7 +2,7 @@
 # @Author: chunyang.xu
 # @Date:   2021-03-08 14:19:01
 # @Last Modified by:   chunyang.xu
-# @Last Modified time: 2021-08-04 16:27:49
+# @Last Modified time: 2021-08-09 11:30:55
 
 import os
 import pytest
@@ -28,6 +28,12 @@ class TestMysql:
 
     def teardown_method(self, method):
         pass
+
+    def test_createsql(self):
+        indexes = ['id', 'name']
+        sqlcompile = SqlMysqlCompile(self.tablename)
+        sql = sqlcompile.create(self.columns, indexes)
+        print(sql)
 
     def test_create(self):
         indexes = ['id', 'name']
