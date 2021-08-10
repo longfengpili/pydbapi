@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-08-10 12:02:46
+# @Last Modified time: 2021-08-10 17:23:02
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -51,7 +51,14 @@ class SqlMysqlCompile(SqlCompile):
 
         return indexes
 
-    def create(self, columns, indexes, index_part=128, ismultiple_index=True):
+    def create_partition(self, partition):
+        coltype = partition.coltype
+        if coltype != 'date':
+            raise TypeError(f"{partition} only support date type !")
+        partition = f"partition by hash (to_days({partition.newname}))"
+        return partition
+
+    def create(self, columns, indexes, index_part=128, ismultiple_index=True, partition=None):
         'mysql 暂不考虑索引'
         sql = self.create_nonindex(columns)
 
@@ -61,6 +68,11 @@ class SqlMysqlCompile(SqlCompile):
         if indexes:
             indexes = self.create_indexes(columns, indexes, index_part=index_part, ismultiple=ismultiple_index)
             sql = sql.replace(');', f",\n{indexes});")
+
+        if partition:
+            partition = columns.get_column_by_name(partition)
+            partition = self.create_partition(partition)
+            sql = sql.replace(';', f'\n{partition};')
 
         return sql
 
@@ -105,10 +117,11 @@ class MysqlDB(DBCommon, DBFileExec):
             self.get_conn()
         return conn
 
-    def create(self, tablename, columns, indexes=None, verbose=0):
+    def create(self, tablename, columns, indexes=None, index_part=128, ismultiple_index=True, partition=None, verbose=0):
         # tablename = f"{self.database}.{tablename}"
         sqlcompile = SqlMysqlCompile(tablename)
-        sql_for_create = sqlcompile.create(columns, indexes)
+        sql_for_create = sqlcompile.create(columns, indexes, index_part=index_part,
+                                           ismultiple_index=ismultiple_index, partition=partition)
         rows, action, result = self.execute(sql_for_create, verbose=verbose)
         return rows, action, result
 

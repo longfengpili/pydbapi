@@ -2,7 +2,7 @@
 # @Author: chunyang.xu
 # @Date:   2021-03-08 14:19:01
 # @Last Modified by:   chunyang.xu
-# @Last Modified time: 2021-08-10 12:06:05
+# @Last Modified time: 2021-08-10 17:20:50
 
 import os
 import pytest
@@ -22,7 +22,7 @@ class TestMysql:
         self.id = ColumnModel('id', 'varchar(1024)')
         self.name = ColumnModel('name', 'varchar(1024)')
         self.address = ColumnModel('address', 'varchar(1024)')
-        self.birthday = ColumnModel('birthday', 'varchar(1024)')
+        self.birthday = ColumnModel('birthday', 'date')
         self.score = ColumnModel('score', 'varchar(1024)')
         self.columns = ColumnsModel(self.id, self.name, self.address, self.birthday, self.score)
 
@@ -36,12 +36,12 @@ class TestMysql:
     def test_createsql(self):
         indexes = ['id', 'name']
         sqlcompile = SqlMysqlCompile(self.tablename)
-        sql = sqlcompile.create(self.columns, indexes)
+        sql = sqlcompile.create(self.columns, indexes, partition='birthday')
         print(sql)
 
     def test_create(self):
         indexes = ['id', 'name']
-        rows, action, result = self.mysqldb.create(self.tablename, self.columns, indexes)
+        rows, action, result = self.mysqldb.create(self.tablename, self.columns, indexes, partition='birthday')
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_insert(self):
