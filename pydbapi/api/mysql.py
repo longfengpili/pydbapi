@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-08-09 15:45:21
+# @Last Modified time: 2021-08-10 10:31:57
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -41,7 +41,11 @@ class SqlMysqlCompile(SqlCompile):
 
         if indexes:
             for index in indexes:
-                index_sqlexpr = f"index {index}_index ({index}({index_part}))"
+                column = columns.get_column_by_name(index)
+                if column.coltype.startswith('varchar'):
+                    index_sqlexpr = f"index {index}_index ({index}({index_part}))"
+                else:
+                    index_sqlexpr = f"index {index}_index ({index})"
                 sql = sql.replace(');', f",\n{index_sqlexpr});")
                 continue
 
