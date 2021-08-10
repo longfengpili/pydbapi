@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-08-10 10:31:57
+# @Last Modified time: 2021-08-10 12:02:46
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -32,7 +32,26 @@ class SqlMysqlCompile(SqlCompile):
     def __init__(self, tablename):
         super(SqlMysqlCompile, self).__init__(tablename)
 
-    def create(self, columns, indexes, index_part=128):
+    def create_indexes(self, columns, indexes, index_part=128, ismultiple=True):
+        if indexes and not isinstance(indexes, list):
+            raise TypeError(f"indexes must be a list, but got {indexes} !")
+        _indexes = []
+        for index in indexes:
+            column = columns.get_column_by_name(index)
+            coltype = column.coltype
+            index = f"{index}({index_part})" if coltype.startswith('varchar') else index
+            _indexes.append(index)
+
+        if ismultiple:
+            indexes = ', '.join(_indexes)
+            indexes = f"index multiple_index({indexes})"
+        else:
+            indexes = [f"index {_index}_index({_index})" for _index in indexes]
+            indexes = ',\n'.join(indexes)
+
+        return indexes
+
+    def create(self, columns, indexes, index_part=128, ismultiple_index=True):
         'mysql 暂不考虑索引'
         sql = self.create_nonindex(columns)
 
@@ -40,14 +59,8 @@ class SqlMysqlCompile(SqlCompile):
             raise TypeError(f"indexes must be a list, but got {indexes} !")
 
         if indexes:
-            for index in indexes:
-                column = columns.get_column_by_name(index)
-                if column.coltype.startswith('varchar'):
-                    index_sqlexpr = f"index {index}_index ({index}({index_part}))"
-                else:
-                    index_sqlexpr = f"index {index}_index ({index})"
-                sql = sql.replace(');', f",\n{index_sqlexpr});")
-                continue
+            indexes = self.create_indexes(columns, indexes, index_part=index_part, ismultiple=ismultiple_index)
+            sql = sql.replace(');', f",\n{indexes});")
 
         return sql
 

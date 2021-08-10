@@ -2,7 +2,7 @@
 # @Author: chunyang.xu
 # @Date:   2021-03-08 14:19:01
 # @Last Modified by:   chunyang.xu
-# @Last Modified time: 2021-08-09 11:30:55
+# @Last Modified time: 2021-08-10 12:06:05
 
 import os
 import pytest
@@ -28,6 +28,10 @@ class TestMysql:
 
     def teardown_method(self, method):
         pass
+
+    def test_drop(self):
+        rows, action, result = self.mysqldb.drop(self.tablename)
+        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_createsql(self):
         indexes = ['id', 'name']
