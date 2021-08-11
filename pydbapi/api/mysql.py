@@ -1,13 +1,13 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-08-10 17:23:02
+# @Last Modified time: 2021-08-11 11:10:48
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-
+import re
 import threading
 import pymysql
 
@@ -39,6 +39,9 @@ class SqlMysqlCompile(SqlCompile):
         for index in indexes:
             column = columns.get_column_by_name(index)
             coltype = column.coltype
+            varlength = re.search('varchar\((\d+)\)', coltype)
+            varlength = int(varlength.group(1)) if varlength else 128
+            index_part = varlength if varlength < index_part else index_part
             index = f"{index}({index_part})" if coltype.startswith('varchar') else index
             _indexes.append(index)
 
