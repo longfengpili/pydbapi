@@ -93,12 +93,13 @@ row, action, result = db.execute(sql)
         * `indexes`: 索引，sqlite暂不支持索引
 + insert[【db/base.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/base.py)
     + 代码  
-        `db.insert(tablename, columns, inserttype='value', values=None, fromtable=None, condition=None)`
+        `db.insert(tablename, columns, inserttype='value', values=None, chunksize=1000, fromtable=None, condition=None)`
     + params
         * `tablename`: 表名;
         * `columns`： 列内容;
         * `inserttype`: 插入数据类型，支持value、select
         * `values`: inserttype='value',插入的数值; 
+        * `chunksize`: inserttype='value', 每个批次插入的量级; 
         * `fromtable`: inserttype='select',数据来源表;
         * `condition`:  inserttype='select',数据来源条件;
 + drop[【db/base.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/base.py)
