@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-08-25 14:46:54
+# @Last Modified time: 2021-08-25 15:36:37
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -131,7 +131,8 @@ class MysqlDB(DBCommon, DBFileExec):
         # tablename = f"{self.database}.{tablename}"
         sqlcompile = SqlMysqlCompile(tablename)
         sql_for_create = sqlcompile.create(columns, indexes, index_part=index_part,
-                                           ismultiple_index=ismultiple_index, partition=partition)
+                                           ismultiple_index=ismultiple_index, partition=partition,
+                                           isdoris=self.isdoris)
         rows, action, result = self.execute(sql_for_create, verbose=verbose)
         return rows, action, result
 
