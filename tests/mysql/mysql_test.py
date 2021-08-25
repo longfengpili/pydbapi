@@ -2,7 +2,7 @@
 # @Author: chunyang.xu
 # @Date:   2021-03-08 14:19:01
 # @Last Modified by:   chunyang.xu
-# @Last Modified time: 2021-08-10 17:20:50
+# @Last Modified time: 2021-08-25 14:59:13
 
 import os
 import pytest
@@ -15,8 +15,8 @@ from pydbapi.api.mysql import SqlMysqlCompile
 class TestMysql:
 
     def setup_method(self, method):
-        AdLocal = os.environ.get('ADLOCAL')
-        AdLocal = json.loads(AdLocal)
+        AdLocal = os.environ.get('ADLOCAL').lower()
+        AdLocal = json.loads(AdLocal.replace("'", '"'))
         self.mysqldb = MysqlDB(safe_rule=False, **AdLocal)
         self.tablename = 'test_xu'
         self.id = ColumnModel('id', 'varchar(1024)')

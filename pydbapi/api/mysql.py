@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-08-11 11:10:48
+# @Last Modified time: 2021-08-25 14:46:54
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -61,7 +61,7 @@ class SqlMysqlCompile(SqlCompile):
         partition = f"partition by hash (to_days({partition.newname}))"
         return partition
 
-    def create(self, columns, indexes, index_part=128, ismultiple_index=True, partition=None):
+    def create(self, columns, indexes, index_part=128, ismultiple_index=True, partition=None, isdoris=False):
         'mysql 暂不考虑索引'
         sql = self.create_nonindex(columns)
 
@@ -76,6 +76,11 @@ class SqlMysqlCompile(SqlCompile):
             partition = columns.get_column_by_name(partition)
             partition = self.create_partition(partition)
             sql = sql.replace(';', f'\n{partition};')
+
+        if isdoris:
+            distributed_col = columns[0].newname
+            distributed = f"distributed by hash({distributed_col})"
+            sql = sql.replace(';', f'\n{distributed};')
 
         return sql
 
@@ -95,13 +100,14 @@ class SqlMysqlCompile(SqlCompile):
 class MysqlDB(DBCommon, DBFileExec):
     _instance_lock = threading.Lock()
 
-    def __init__(self, host, user, password, database, port=3306, charset="utf8", safe_rule=True):
+    def __init__(self, host, user, password, database, port=3306, charset="utf8", safe_rule=True, isdoris=False):
         self.host = host
         self.port = port
         self.user = user
         self.password = password
         self.database = database
         self.charset = charset
+        self.isdoris = isdoris
         super(MysqlDB, self).__init__()
         self.auto_rules = AUTO_RULES if safe_rule else None
 
@@ -115,7 +121,8 @@ class MysqlDB(DBCommon, DBFileExec):
         return MysqlDB._instance
 
     def get_conn(self):
-        conn = pymysql.connect(database=self.database, user=self.user, password=self.password, host=self.host, port=self.port, charset=self.charset)
+        conn = pymysql.connect(database=self.database, user=self.user, password=self.password,
+                               host=self.host, port=self.port, charset=self.charset)
         if not conn:
             self.get_conn()
         return conn
