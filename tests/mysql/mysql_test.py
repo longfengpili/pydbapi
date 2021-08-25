@@ -2,7 +2,7 @@
 # @Author: chunyang.xu
 # @Date:   2021-03-08 14:19:01
 # @Last Modified by:   chunyang.xu
-# @Last Modified time: 2021-08-25 14:59:13
+# @Last Modified time: 2021-08-25 16:21:07
 
 import os
 import pytest
@@ -10,6 +10,11 @@ import json
 from pydbapi.col import ColumnModel, ColumnsModel
 from pydbapi.api import MysqlDB
 from pydbapi.api.mysql import SqlMysqlCompile
+
+from pydbapi.conf.settings import LOGGING_CONFIG
+import logging.config
+
+logging.config.dictConfig(LOGGING_CONFIG)
 
 
 class TestMysql:
@@ -50,7 +55,7 @@ class TestMysql:
                   [3, 'chocolate', 'yunnan', '2020-06-14 23:00:05', '{"yuwen": 90, "shuxue": 90}'],
                   [4, 'pizza', 'taiwan', '2020-05-15 23:08:25', '{"yuwen": 10, "shuxue": 21}'],
                   [5, 'pizza', 'hebei', '2020-08-12 14:05:36', '{"yuwen": 30, "shuxue": 23}']]
-        rows, action, result = self.mysqldb.insert(self.tablename, self.columns, values=values)
+        rows, action, result = self.mysqldb.insert(self.tablename, self.columns, values=values, chunksize=2, verbose=1)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_selectsql(self):

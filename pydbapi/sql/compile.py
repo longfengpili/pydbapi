@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2021-03-08 14:45:43
+# @Last Modified time: 2021-08-25 16:22:36
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -77,7 +77,7 @@ class SqlCompile(object):
         sql = f'drop table if exists {self.tablename};'
         return sql
 
-    def _insert_by_value(self, columns, values):
+    def _insert_value(self, columns, values):
         '''[summary]
 
         [description]
@@ -107,17 +107,33 @@ class SqlCompile(object):
         sql = sql.replace('\'\'', 'Null').replace('None', 'Null')  # 空值替换为null
         return sql
 
+    def _insert_by_value(self, columns, values, chunksize=1000):
+        sql = []
+        vlength = len(values)
+        for i in range(0, vlength, chunksize):
+            maxi = i+chunksize
+            maxi = maxi if maxi < vlength else vlength
+            chvalues = values[i: maxi]
+            _sql = self._insert_value(columns, chvalues)
+            _sql = f"--insert rows, From [{i+1}] to [{maxi}]\n{_sql}"
+            sql.append(_sql)
+
+        sql = ''.join(sql)
+        # print(sql)
+        return sql
+
     def _insert_by_select(self, fromtable, columns, condition=None):
         selectsql = self.select_base(columns, fromtable, condition=condition)
 
         sql = f'''insert into {self.tablename}\n({columns.new_cols})\n{selectsql}'''
         return sql
 
-    def insert(self, columns, inserttype='value', values=None, fromtable=None, condition=None):
+    def insert(self, columns, inserttype='value', values=None, chunksize=1000, fromtable=None, condition=None):
         if inserttype == 'value':
             if not values:
                 raise Exception(f"InsertType is {inserttype}, values must be not None")
-            sql = self._insert_by_value(columns, values)
+            sql = self._insert_by_value(columns, values, chunksize=chunksize)
+            # print(sql)
         elif inserttype == 'select':
             if not fromtable:
                 raise Exception(f"InsertType is {inserttype}, fromtable must be not None")

@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2021-08-09 15:36:28
+# @Last Modified time: 2021-08-25 16:29:18
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -172,12 +172,18 @@ class DBCommon(DBbase):
             dblogger.info(f'【{action}】{tablename} delete {rows} rows succeed !')
             return rows, action, result
 
-    def insert(self, tablename, columns, inserttype='value', values=None, fromtable=None, condition=None, verbose=0):
+    def insert(self, tablename, columns, inserttype='value', values=None, chunksize=1000, 
+               fromtable=None, condition=None, verbose=0):
+        vlength = len(values)
         if self.__check_isauto(tablename):
             sqlcompile = SqlCompile(tablename)
             sql_for_insert = sqlcompile.insert(columns, inserttype=inserttype, values=values,
-                                               fromtable=fromtable, condition=condition)
+                                               chunksize=chunksize, fromtable=fromtable, condition=condition)
             rows, action, result = self.execute(sql_for_insert, verbose=verbose)
+            if rows != vlength % chunksize:
+                raise Exception(f'Insert Error !!!')
+
+            rows = vlength
             dblogger.info(f'【{action}】{tablename} insert {rows} rows succeed !')
             return rows, action, result
 
