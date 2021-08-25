@@ -2,7 +2,7 @@
 # @Author: chunyang.xu
 # @Date:   2021-03-08 14:19:01
 # @Last Modified by:   chunyang.xu
-# @Last Modified time: 2021-08-25 16:21:07
+# @Last Modified time: 2021-08-25 16:35:50
 
 import os
 import pytest
@@ -13,7 +13,6 @@ from pydbapi.api.mysql import SqlMysqlCompile
 
 from pydbapi.conf.settings import LOGGING_CONFIG
 import logging.config
-
 logging.config.dictConfig(LOGGING_CONFIG)
 
 

@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2021-08-25 16:22:36
+# @Last Modified time: 2021-08-25 16:46:12
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -110,12 +110,14 @@ class SqlCompile(object):
     def _insert_by_value(self, columns, values, chunksize=1000):
         sql = []
         vlength = len(values)
+        step = 0
         for i in range(0, vlength, chunksize):
+            step += 1
             maxi = i+chunksize
             maxi = maxi if maxi < vlength else vlength
             chvalues = values[i: maxi]
             _sql = self._insert_value(columns, chvalues)
-            _sql = f"--insert rows, From [{i+1}] to [{maxi}]\n{_sql}"
+            _sql = f"--[NO.{step}]insert {maxi-i} rows, From [{i+1}] to [{maxi}]\n{_sql}"
             sql.append(_sql)
 
         sql = ''.join(sql)
