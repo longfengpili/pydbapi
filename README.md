@@ -23,7 +23,7 @@ row, action, result = db.execute(sql)
 + Mysql
 ```python
 from pydbapi.api import MysqlDB
-db = MysqlDB(host, user, password, database, port=3306, safe_rule=True)
+db = MysqlDB(host, user, password, database, port=3306, safe_rule=True, isdoris=False)
 sql = 'select * from [table];'
 row, action, result = db.execute(sql)
 ```
@@ -73,24 +73,37 @@ row, action, result = db.execute(sql)
 ## 支持的操作
 + execute[【db/base.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/base.py)
     + 代码  
-        `db.execute(sql, count=None, verbose=None)`
+        `db.execute(sql, count=None, verbose=0)`
     + params
         * `count`: 返回结果的数量;
         * `verbose`： 是否打印执行进度。
 + select
     + 代码  
-        `db.select(tablename, columns, condition=None)`
+        `db.select(tablename, columns, condition=None, verbose=0)`
     + params
         * `tablename`: 表名;
         * `columns`： 列内容; 
         * `condition`: sql where 中的条件
 + create
-    + 代码  
-        `db.create(tablename, columns, indexes=None)`
-    + params
-        * `tablename`: 表名;
-        * `columns`： 列内容;
-        * `indexes`: 索引，sqlite暂不支持索引
+    + sqlite/redshift
+        + 代码  
+        `db.create(tablename, columns, indexes=None, verbose=0)`
+        + params
+            - `tablename`: 表名;
+            - `columns`： 列内容;
+            - `indexes`: 索引，sqlite暂不支持索引
+            - `verbose`： 是否打印执行进度。
+    + mysql
+        + 代码  
+        `db.create(tablename, columns, indexes=None, index_part=128, ismultiple_index=True, partition=None, verbose=0)`
+        + params
+            - `tablename`: 表名;
+            - `columns`： 列内容;
+            - `indexes`: 索引
+            - `index_part`: 索引part
+            - `ismultiple_index`: 多重索引
+            - `partition`: 分区
+            - `verbose`： 是否打印执行进度。
 + insert[【db/base.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/base.py)
     + 代码  
         `db.insert(tablename, columns, inserttype='value', values=None, chunksize=1000, fromtable=None, condition=None)`
