@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-04 17:45:04
-# @Last Modified time: 2021-02-24 20:07:58
+# @Last Modified time: 2021-08-29 13:57:06
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -10,7 +10,7 @@
 import os
 
 import pytest
-from pydbapi.sql import SqlFileParse
+from pydbapi.sql import SqlFileParse, SqlParse
 import pandas as pd
 
 files = os.listdir('./')
@@ -25,6 +25,43 @@ class TestSqlFileParse:
 
     def teardown_method(self, method):
         pass
+
+    def test_sqlparse(self):
+        sql = '''
+                select * 
+                from table1
+                ;
+                '''
+        sparser = SqlParse(sql)
+        print(sparser.tablename)
+
+        sql = 'create table table2 (id integer);'
+        sparser = SqlParse(sql)
+        print(sparser.tablename)
+
+        sql = 'update table3 set id = 1;'
+        sparser = SqlParse(sql)
+        print(sparser.tablename)
+
+        sql = 'insert into table4 values (1);'
+        sparser = SqlParse(sql)
+        print(sparser.tablename)
+
+        sql = 'select * from table5 a left join table 6 on a.date = b.date;'
+        sparser = SqlParse(sql)
+        print(sparser.tablename)
+
+        sql = 'drop index multiple_index on opm_tw_r_ad_report_reattributed_day;'
+        sparser = SqlParse(sql)
+        print(sparser.tablename)
+
+        sql = 'create index multiple_index on opm_tw_r_ad_report_reattributed_day($report_multiple_index);'
+        sparser = SqlParse(sql)
+        print(sparser.tablename)
+
+        sql = 'show index from opm_tw_r_ad_report_reattributed_day;'
+        sparser = SqlParse(sql)
+        print(sparser.tablename)
 
     # @pytest.mark.skip()
     def test_params(self):

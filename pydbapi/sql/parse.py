@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2021-08-29 12:27:05
+# @Last Modified time: 2021-08-29 14:51:13
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -20,12 +20,14 @@ class SqlParse(object):
 
     def __init__(self, orisql):
         self.orisql = orisql
-        self.reg_behind = r'(?=[,);:\s])'
+        self.reg_behind = r'(?=[,();:\s])'
 
     @property
     def sql(self):
         sql = re.sub('^(--.*?\n){0,}', '', self.orisql.strip() + '\n')
-        return sql.strip()
+        sql = sql.strip()
+        sql = sql if sql and sql.endswith(';') else sql + ';' if sql else ''
+        return sql
 
     @property
     def comment(self):
@@ -36,20 +38,24 @@ class SqlParse(object):
 
     @property
     def action(self):
-        action = self.sql.split(' ')[0]
+        if not self.sql:
+            return 'NoSql'
+
+        splits = self.sql.split(' ')
+        action = splits[0]
+        if splits[1].lower() == 'index':
+            action += splits[1]
         return action.upper()
 
     @property
     def tablename(self):
         sql = self.sql
-        reg_part = r'(?:\s|;|$)'
-        create = re.search(rf'table (?:if exists |if not exists )?(.*?){reg_part}', sql)
-        update = re.search(rf'update (.*?){reg_part}', sql)
-        insert = re.search(rf'insert into (.*?){reg_part}', sql)
-        delete = re.search(rf'delete (?:from )?(.*?){reg_part}', sql)
-        select = re.search(rf'select.*?from (.*?){reg_part}', sql, re.S)
-        on = re.search(rf'on (.*?){reg_part}', sql)
-        tablename = create or update or insert or delete or select or on
+        fromt = re.search(rf'(?<=from )(.*?){self.reg_behind}', sql)
+        createt = re.search(rf'table (?:if exists |if not exists )?(.*?){self.reg_behind}', sql)
+        updatet = re.search(rf'update (.*?){self.reg_behind}', sql)
+        insertt = re.search(rf'insert into (.*?){self.reg_behind}', sql)
+        ont = re.search(rf'(?<=on )(.*?){self.reg_behind}', sql)
+        tablename = fromt or ont or createt or updatet or insertt
         tablename = tablename.group(1) if tablename else sql
         return tablename
 
@@ -58,7 +64,7 @@ class SqlFileParse(object):
 
     def __init__(self, filepath):
         self.filepath = filepath
-        self.reg_behind = r'(?=[,);:\s])'
+        self.reg_behind = r'(?=[,();:\s])'
 
     def get_content(self):
         if not os.path.isfile(self.filepath):

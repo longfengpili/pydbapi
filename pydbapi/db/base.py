@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2021-08-29 13:09:26
+# @Last Modified time: 2021-08-29 14:46:25
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -45,7 +45,7 @@ class DBbase(object):
             dblogger.error(f"【Error】{e}, 【error Sql】: {sql}")
 
             if ehandling == 'raise':
-                raise ValueError(f"【Error】:{e}【Sql】:{sql};")
+                raise ValueError(f"【Error】:{e}【Sql】:{sql}")
 
     def cur_results(self, cursor, count):
         results = cursor.fetchmany(count) if count else cursor.fetchall()

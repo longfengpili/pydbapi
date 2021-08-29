@@ -2,8 +2,14 @@
 * @Author: chunyang.xu
 * @Date:   2020-06-04 17:57:10
 * @Email:  398745129@qq.com
-* @Last Modified time: 2021-08-29 13:16:27
+* @Last Modified time: 2021-08-29 14:18:29
 */
+
+#【arguments】#
+end_date = today
+start_date = end_date - timedelta(days=30)
+report_multiple_index = 'date, source(128), country(128), os(128)'
+#【arguments】#
 
 ###
 --【1user_daily_info】
@@ -57,4 +63,15 @@ create temporary table temp_events_ev_3 as
 select *
 from test_xu
 ;
+###
+
+
+### 
+--【bmsn jp index verbose1 epass】
+-- drop
+drop index multiple_index on temp_xu;
+-- create
+create index multiple_index on temp_xu($report_multiple_index);
+-- show
+show index from temp_xu;
 ###
