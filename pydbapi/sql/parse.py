@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2021-08-29 12:18:10
+# @Last Modified time: 2021-08-29 12:27:05
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -42,12 +42,14 @@ class SqlParse(object):
     @property
     def tablename(self):
         sql = self.sql
-        create = re.search(r'table (?:if exists |if not exists )?(.*?)(?:\s|;|$)', sql)
-        update = re.search(r'update (.*?)(?:\s|;|$)', sql)
-        insert = re.search(r'insert into (.*?)(?:\s|;|$)', sql)
-        delete = re.search(r'delete (?:from )?(.*?)(?:\s|;|$)', sql)
-        select = re.search(r'select.*?from (.*?)(?:\s|;|$)', sql, re.S)
-        tablename = create or update or insert or delete or select
+        reg_part = r'(?:\s|;|$)'
+        create = re.search(rf'table (?:if exists |if not exists )?(.*?){reg_part}', sql)
+        update = re.search(rf'update (.*?){reg_part}', sql)
+        insert = re.search(rf'insert into (.*?){reg_part}', sql)
+        delete = re.search(rf'delete (?:from )?(.*?){reg_part}', sql)
+        select = re.search(rf'select.*?from (.*?){reg_part}', sql, re.S)
+        on = re.search(rf'on (.*?){reg_part}', sql)
+        tablename = create or update or insert or delete or select or on
         tablename = tablename.group(1) if tablename else sql
         return tablename
 
