@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2021-08-05 11:44:44
+# @Last Modified time: 2021-08-29 12:18:10
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -90,7 +90,7 @@ class SqlFileParse(object):
         }
         content = self.get_content()
         content = re.sub('--.*?\n', '\n', content)  # 去掉注释
-        arguments_infile = re.findall(r'(?<!--)\s+#【arguments】#\n(.*?)#【arguments】#', content, re.S)
+        arguments_infile = re.findall(r'(?<!--)\s*#【arguments】#\s*\n(.*?)#【arguments】#', content, re.S)
         arguments_infile = ';'.join(arguments_infile).replace('\n', ';')
         arguments_infile = [argument.strip() for argument in arguments_infile.split(';') if argument]
         for argument in arguments_infile:
@@ -156,7 +156,7 @@ class SqlFileParse(object):
     def get_filesqls(self, **kwargs):
         sqls = {}
         arguments, content = self.replace_params(**kwargs)
-        sqls_tmp = re.findall(r'(?<!--)\s+###\n(.*?)###', content, re.S)
+        sqls_tmp = re.findall(r'(?<!--)\s*###\s*\n(.*?)###', content, re.S)
         for idx, sql in enumerate(sqls_tmp):
             purpose = re.match('-- *(【.*?】)\n', sql.strip())
             purpose = f"【{idx+1:0>3d}】{purpose.group(1)}" if purpose else f'【{idx+1:0>3d}】【No description】'
