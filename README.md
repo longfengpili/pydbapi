@@ -73,10 +73,10 @@ row, action, result = db.execute(sql)
 ## 支持的操作
 + execute[【db/base.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/base.py)
     + 代码  
-        `db.execute(sql, count=None, ehandling='eraise', verbose=0)`
+        `db.execute(sql, count=None, ehandling=None, verbose=0)`
     + params
         * `count`: 返回结果的数量;
-        * `ehandling`: sql执行出错的时候处理方式, default: raise
+        * `ehandling`: sql执行出错的时候处理方式, default: None
         * `verbose`: 执行的进度展示方式（0：不打印， 1：文字进度， 2：进度条）
 + select
     + 代码  
@@ -146,10 +146,10 @@ row, action, result = db.execute(sql)
         * `kw`： sql文件中需要替换的参数，会替换sqlfile中的arguments;
 + file_exec[【db/fileexec.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/fileexec.py)
     + 代码  
-        `db.file_exec(filepath, ehandling='raise', verbose=0, **kw)`
+        `db.file_exec(filepath, ehandling=None, verbose=0, **kw)`
     + params
         * `filepath`: sql文件路径; 文件名以<font color=red>`test`</font>开始或者结尾会打印sql执行的步骤;
-        * `ehandling`: sql执行出错的时候处理方式, default: raise
+        * `ehandling`: sql执行出错的时候处理方式, default: None
         * `verbose`: 执行的进度展示方式（0：不打印， 1：文字进度， 2：进度条）
         * `kw`： sql文件中需要替换的参数 在sql文件中用`$param`, 会替换sqlfile中的arguments;
     + sql文件格式(在desc中增加<font color=red>`verbose`</font>会打印sql执行的步骤;)

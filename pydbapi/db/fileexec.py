@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-08 11:55:54
-# @Last Modified time: 2021-08-29 13:18:21
+# @Last Modified time: 2021-08-29 13:30:07
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -27,7 +27,7 @@ class DBFileExec(DBbase):
         arguments, sqls = sqlfileparser.get_filesqls(**kw)
         return arguments, sqls
 
-    def file_exec(self, filepath, ehandling='raise', verbose=0, **kw):
+    def file_exec(self, filepath, ehandling=None, verbose=0, **kw):
         st = time.time()
         results = {}
         filename = os.path.basename(filepath)
