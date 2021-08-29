@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2021-08-25 16:29:18
+# @Last Modified time: 2021-08-29 13:09:26
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -26,7 +26,7 @@ class DBbase(object):
     def get_conn(self):
         pass
 
-    def __execute_step(self, cursor, sql):
+    def __execute_step(self, cursor, sql, ehandling='raise'):
         '''[summary]
 
         [description]
@@ -42,8 +42,10 @@ class DBbase(object):
         try:
             cursor.execute(sql)
         except Exception as e:
-            dblogger.error(f"{e}{sql}")
-            raise ValueError(f"【Error】:{e}【Sql】:{sql};")
+            dblogger.error(f"【Error】{e}, 【error Sql】: {sql}")
+
+            if ehandling == 'raise':
+                raise ValueError(f"【Error】:{e}【Sql】:{sql};")
 
     def cur_results(self, cursor, count):
         results = cursor.fetchmany(count) if count else cursor.fetchall()
@@ -56,7 +58,7 @@ class DBbase(object):
 
         return desc, columns
 
-    def execute(self, sql, count=None, verbose=0):
+    def execute(self, sql, count=None, ehandling='raise', verbose=0):
         '''[summary]
 
         [description]
@@ -66,6 +68,7 @@ class DBbase(object):
 
         Keyword Arguments:
             count {[int]} -- [返回的结果数量] (default: {None})
+            ehandling {[str]} -- [错误处理] （raise: 错误弹出异常）
             verbose {[int]} -- [打印进程状态] （0：不打印， 1：文字进度， 2：进度条）
 
         Returns:
@@ -92,7 +95,7 @@ class DBbase(object):
         for _sql in sqls:
             results = None
             idx += 1
-            # dblogger.info(sql)
+            # dblogger.info(_sql)
             parser = SqlParse(_sql)
             comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
             if not sql:
@@ -108,7 +111,7 @@ class DBbase(object):
             else:
                 pass
 
-            self.__execute_step(cur, sql)
+            self.__execute_step(cur, sql, ehandling=ehandling)
 
             if action == 'SELECT' and (verbose or idx == sqls_length):
                 # columns, results = cur_getresults(cur, count)

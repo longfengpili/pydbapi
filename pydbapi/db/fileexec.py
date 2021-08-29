@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-08 11:55:54
-# @Last Modified time: 2021-04-19 20:05:14
+# @Last Modified time: 2021-08-29 13:18:21
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -27,7 +27,7 @@ class DBFileExec(DBbase):
         arguments, sqls = sqlfileparser.get_filesqls(**kw)
         return arguments, sqls
 
-    def file_exec(self, filepath, **kw):
+    def file_exec(self, filepath, ehandling='raise', verbose=0, **kw):
         st = time.time()
         results = {}
         filename = os.path.basename(filepath)
@@ -35,9 +35,11 @@ class DBFileExec(DBbase):
         arguments, sqls = self.get_filesqls(filepath, **kw)
         for desc, sql in sqls.items():
             dblogger.info(f">>> START {desc}")
-            verbose = 1 if 'verbose1' in desc or filename.startswith('test') \
-                else 2 if 'verbose2' in desc else 0
-            rows, action, result = self.execute(sql, verbose=verbose)
+            sqlverbose = verbose or (2 if 'verbose2' in desc else 1
+                                     if 'verbose1' in desc or filename.startswith('test')
+                                     else 0)
+            sqlehandling = ehandling or ('pass' if 'epass' in desc else 'raise')
+            rows, action, result = self.execute(sql, ehandling=sqlehandling, verbose=sqlverbose)
             results[desc] = result
             # dblogger.info(f"End {desc}")
         et = time.time()

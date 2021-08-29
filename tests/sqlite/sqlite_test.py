@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:58:41
-# @Last Modified time: 2021-04-19 20:08:07
+# @Last Modified time: 2021-08-29 13:10:25
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -92,7 +92,7 @@ class TestSqlite:
     def test_execfile(self):
         dirpath = os.path.dirname(os.path.abspath(__file__))
         filepath = os.path.join(dirpath, 'sqlite.sql')
-        self.sqlite.file_exec(filepath, name='pizza')
+        self.sqlite.file_exec(filepath, name='pizza', ehandling='raises', verbose=0)
 
     def test_get_instance(self):
         sqlite1 = SqliteDB.get_instance()
