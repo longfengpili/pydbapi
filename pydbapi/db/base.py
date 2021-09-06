@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2021-08-29 14:46:25
+# @Last Modified time: 2021-09-06 11:58:47
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -177,16 +177,19 @@ class DBCommon(DBbase):
 
     def insert(self, tablename, columns, inserttype='value', values=None, chunksize=1000, 
                fromtable=None, condition=None, verbose=0):
-        vlength = len(values)
+        if values:
+            vlength = len(values)
+
         if self.__check_isauto(tablename):
             sqlcompile = SqlCompile(tablename)
             sql_for_insert = sqlcompile.insert(columns, inserttype=inserttype, values=values,
                                                chunksize=chunksize, fromtable=fromtable, condition=condition)
             rows, action, result = self.execute(sql_for_insert, verbose=verbose)
-            if rows != vlength % chunksize:
+
+            if values and rows != vlength % chunksize:
                 raise Exception(f'Insert Error !!!')
 
-            rows = vlength
+            rows = vlength if values else rows
             dblogger.info(f'【{action}】{tablename} insert {rows} rows succeed !')
             return rows, action, result
 
