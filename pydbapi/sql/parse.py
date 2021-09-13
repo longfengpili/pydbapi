@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2021-09-12 16:15:07
+# @Last Modified time: 2021-09-13 16:45:47
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -51,12 +51,12 @@ class SqlParse(object):
     @property
     def tablename(self):
         sql = self.sql
-        fromt = re.search(rf'(?<=from )(.*?){self.reg_behind}', sql)
         createt = re.search(rf'table (?:if exists |if not exists )?(.*?){self.reg_behind}', sql)
         updatet = re.search(rf'update (.*?){self.reg_behind}', sql)
         insertt = re.search(rf'insert into (.*?){self.reg_behind}', sql)
         ont = re.search(rf'(?<=on )(.*?){self.reg_behind}', sql)
-        tablename = fromt or ont or createt or updatet or insertt
+        fromt = re.search(rf'(?<=from )(.*?){self.reg_behind}', sql)
+        tablename = ont or createt or updatet or insertt or fromt
         tablename = tablename.group(1) if tablename else sql
         return tablename
 
