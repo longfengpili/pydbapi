@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2021-09-23 10:50:26
+# @Last Modified time: 2021-09-23 11:37:11
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -62,11 +62,12 @@ class SqlParse(object):
         sql = self.sql
         createt = re.search(rf'create table (?:if exists |if not exists )?(.*?){REG_BEHIND}', sql)
         updatet = re.search(rf'update (.*?){REG_BEHIND}', sql)
+        deletet = re.search(rf'delete (?:from )?(.*?){REG_BEHIND}', sql)
         insertt = re.search(rf'insert into (.*?){REG_BEHIND}', sql)
         ont = re.search(rf'(?<=on )(.*?){REG_BEHIND}', sql)
         fromt = re.search(rf'select .*? (?<=from )(.*?){REG_BEHIND}', sql, re.S)
         # print(createt, updatet, insertt, ont, fromt)
-        tablename = createt or updatet or insertt or fromt or ont
+        tablename = createt or updatet or deletet or insertt or fromt or ont
         tablename = tablename.group(1) if tablename else sql
         return tablename
 

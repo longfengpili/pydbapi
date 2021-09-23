@@ -2,7 +2,7 @@
 * @Author: chunyang.xu
 * @Date:   2020-06-04 17:57:10
 * @Email:  398745129@qq.com
-* @Last Modified time: 2021-08-29 12:19:22
+* @Last Modified time: 2021-09-23 11:47:54
 */
 
 #【arguments】# 
@@ -10,6 +10,7 @@ level = 10
 fpid = ('301121904456', '30111300420')
 date_max = now + timedelta(hours=-10)
 date_min = date_max + timedelta(days=-10)
+test_date = "'2020-02-12'"
 #【arguments】# 
 
 ### 
@@ -22,6 +23,8 @@ where trunc(sts_data) >= $date_min and trunc(sts_data) <= $date_max::datetime
 and level = $level
 limit 1000
 ;
+
+delete from temp_events_ev where sts_data = $test_date;
 
 select fpid, sts_data, msg_type, name, level from temp_events_ev;
 

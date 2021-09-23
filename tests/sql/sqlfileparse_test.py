@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-04 17:45:04
-# @Last Modified time: 2021-09-23 10:46:50
+# @Last Modified time: 2021-09-23 11:32:38
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -37,6 +37,10 @@ class TestSqlFileParse:
         print(sparser.action, sparser.tablename, sparser.purpose)
 
         sql = 'create table table2 (id integer);'
+        sparser = SqlParse(sql)
+        print(sparser.action, sparser.tablename, sparser.purpose)
+
+        sql = 'delete from table2 where 1 = 1;'
         sparser = SqlParse(sql)
         print(sparser.action, sparser.tablename, sparser.purpose)
 
