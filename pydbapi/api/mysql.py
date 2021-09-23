@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-08-25 15:36:37
+# @Last Modified time: 2021-09-23 18:02:13
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -61,7 +61,8 @@ class SqlMysqlCompile(SqlCompile):
         partition = f"partition by hash (to_days({partition.newname}))"
         return partition
 
-    def create(self, columns, indexes, index_part=128, ismultiple_index=True, partition=None, isdoris=False):
+    def create(self, columns, indexes, index_part=128, ismultiple_index=True, 
+               partition=None, distribution=None, isdoris=False):
         'mysql 暂不考虑索引'
         sql = self.create_nonindex(columns)
 
@@ -78,7 +79,7 @@ class SqlMysqlCompile(SqlCompile):
             sql = sql.replace(';', f'\n{partition};')
 
         if isdoris:
-            distributed_col = columns[0].newname
+            distributed_col = distribution or columns[0].newname
             distributed = f"distributed by hash({distributed_col})"
             sql = sql.replace(';', f'\n{distributed};')
 
