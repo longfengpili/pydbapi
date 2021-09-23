@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-04 17:45:04
-# @Last Modified time: 2021-08-29 13:57:06
+# @Last Modified time: 2021-09-23 10:46:50
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -28,40 +28,41 @@ class TestSqlFileParse:
 
     def test_sqlparse(self):
         sql = '''
-                select * 
+                select 
+                * 
                 from table1
                 ;
                 '''
         sparser = SqlParse(sql)
-        print(sparser.tablename)
+        print(sparser.action, sparser.tablename, sparser.purpose)
 
         sql = 'create table table2 (id integer);'
         sparser = SqlParse(sql)
-        print(sparser.tablename)
+        print(sparser.action, sparser.tablename, sparser.purpose)
 
         sql = 'update table3 set id = 1;'
         sparser = SqlParse(sql)
-        print(sparser.tablename)
+        print(sparser.action, sparser.tablename, sparser.purpose)
 
         sql = 'insert into table4 values (1);'
         sparser = SqlParse(sql)
-        print(sparser.tablename)
+        print(sparser.action, sparser.tablename, sparser.purpose)
 
         sql = 'select * from table5 a left join table 6 on a.date = b.date;'
         sparser = SqlParse(sql)
-        print(sparser.tablename)
+        print(sparser.action, sparser.tablename, sparser.purpose)
 
         sql = 'drop index multiple_index on opm_tw_r_ad_report_reattributed_day;'
         sparser = SqlParse(sql)
-        print(sparser.tablename)
+        print(sparser.action, sparser.tablename, sparser.purpose)
 
         sql = 'create index multiple_index on opm_tw_r_ad_report_reattributed_day($report_multiple_index);'
         sparser = SqlParse(sql)
-        print(sparser.tablename)
+        print(sparser.action, sparser.tablename, sparser.purpose)
 
         sql = 'show index from opm_tw_r_ad_report_reattributed_day;'
         sparser = SqlParse(sql)
-        print(sparser.tablename)
+        print(sparser.action, sparser.tablename, sparser.purpose)
 
     # @pytest.mark.skip()
     def test_params(self):

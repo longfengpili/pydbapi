@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2021-09-13 16:45:47
+# @Last Modified time: 2021-09-23 10:50:26
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -16,11 +16,19 @@ import logging
 sqllogger = logging.getLogger(__name__)
 
 
+REG_BEHIND = r'(?=[,();:\s])'
+
+
 class SqlParse(object):
 
     def __init__(self, orisql):
         self.orisql = orisql
-        self.reg_behind = r'(?=[,();:\s])'
+
+    @property
+    def purpose(self):
+        purpose = re.match('-- *(【.*?】)\n', self.orisql.strip())
+        purpose = f"{purpose.group(1)}" if purpose else 'No Description'
+        return purpose
 
     @property
     def sql(self):
@@ -42,7 +50,8 @@ class SqlParse(object):
         if not self.sql:
             return 'NoSql'
 
-        splits = self.sql.split(' ')
+        sql = self.sql.replace('\n', '')
+        splits = sql.split(' ')
         action = splits[0]
         if splits[1].lower() == 'index':
             action += splits[1]
@@ -51,12 +60,13 @@ class SqlParse(object):
     @property
     def tablename(self):
         sql = self.sql
-        createt = re.search(rf'table (?:if exists |if not exists )?(.*?){self.reg_behind}', sql)
-        updatet = re.search(rf'update (.*?){self.reg_behind}', sql)
-        insertt = re.search(rf'insert into (.*?){self.reg_behind}', sql)
-        ont = re.search(rf'(?<=on )(.*?){self.reg_behind}', sql)
-        fromt = re.search(rf'(?<=from )(.*?){self.reg_behind}', sql)
-        tablename = ont or createt or updatet or insertt or fromt
+        createt = re.search(rf'create table (?:if exists |if not exists )?(.*?){REG_BEHIND}', sql)
+        updatet = re.search(rf'update (.*?){REG_BEHIND}', sql)
+        insertt = re.search(rf'insert into (.*?){REG_BEHIND}', sql)
+        ont = re.search(rf'(?<=on )(.*?){REG_BEHIND}', sql)
+        fromt = re.search(rf'select .*? (?<=from )(.*?){REG_BEHIND}', sql, re.S)
+        # print(createt, updatet, insertt, ont, fromt)
+        tablename = createt or updatet or insertt or fromt or ont
         tablename = tablename.group(1) if tablename else sql
         return tablename
 
@@ -65,7 +75,6 @@ class SqlFileParse(object):
 
     def __init__(self, filepath):
         self.filepath = filepath
-        self.reg_behind = r'(?=[,();:\s])'
 
     def get_content(self):
         if not os.path.isfile(self.filepath):
@@ -83,6 +92,13 @@ class SqlFileParse(object):
         except NameError as e:
             raise NameError(f"{e}, please set it before '{key}' !!!")
         return key, value
+
+    @property
+    def parameters(self):
+        content = self.get_content()
+        content = re.sub('--.*?\n', '\n', content)  # 去掉注释
+        parameters = re.findall(rf"\$(\w+){REG_BEHIND}", content)
+        return set(parameters)
 
     @property
     def arguments(self):
@@ -111,13 +127,6 @@ class SqlFileParse(object):
                         else v for k, v in arguments.items()}  # 处理时间
         return arguments
 
-    @property
-    def parameters(self):
-        content = self.get_content()
-        content = re.sub('--.*?\n', '\n', content)  # 去掉注释
-        parameters = re.findall(rf"\$(\w+){self.reg_behind}", content)
-        return set(parameters)
-
     def replace_params(self, **kwargs):
         '''[summary]
 
@@ -140,10 +149,8 @@ class SqlFileParse(object):
         argsamelog = None
         if arguments_same:
             arguments_same = sorted(arguments_same)
-            # input_arg = {arg: kwargs.get(arg) for arg in arguments_same}
             file_arg = {arg: arguments.get(arg) for arg in arguments_same}
             argsamelog = f"Replace FileSetting {file_arg}"
-            # sqllogger.warning(f"File 【{filename}】 {arguments_same} Use Input arguments {input_arg}, NotUse sqlfile setting {file_arg}!")
 
         arguments.update(kwargs)
         arguments_lack = self.parameters - set(arguments)
@@ -152,7 +159,7 @@ class SqlFileParse(object):
 
         content = self.get_content()
         for key, value in arguments.items():
-            content = re.sub(rf"\${key}{self.reg_behind}", f"{value}", content)
+            content = re.sub(rf"\${key}{REG_BEHIND}", f"{value}", content)
         arguments = {k: arguments.get(k) for k in self.parameters}
 
         arglog = f"【Final Arguments】【{filename}】 Use arguments {arguments}" \
@@ -167,8 +174,8 @@ class SqlFileParse(object):
         arguments, content = self.replace_params(**kwargs)
         sqls_tmp = re.findall(r'(?<!--)\s*###\s*\n(.*?)###', content, re.S)
         for idx, sql in enumerate(sqls_tmp):
-            purpose = re.match('-- *(【.*?】)\n', sql.strip())
-            purpose = f"【{idx+1:0>3d}】{purpose.group(1)}" if purpose else f'【{idx+1:0>3d}】【No description】'
+            sqlparser = SqlParse(sql)
+            purpose = f"【{idx+1:0>3d}】{sqlparser.purpose}"
             sql = re.sub('--【.*?\n', '', sql.strip())
             sqls[purpose] = sql
         return arguments, sqls
