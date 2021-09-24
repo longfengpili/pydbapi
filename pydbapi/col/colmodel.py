@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-11-30 16:28:21
-# @Last Modified time: 2021-08-25 14:46:00
+# @Last Modified time: 2021-09-24 12:09:03
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -53,8 +53,15 @@ class ColumnsModel(object):
     def __repr__(self):
         return f"{[column for column in self.columns]}"
 
-    def __getitem__(self, key):
-        return self.columns[key]
+    def __getitem__(self, name):
+        for col in self.columns:
+            if col.newname == name:
+                return col
+
+    def __contains__(self, name):
+        col = self.get_column_by_name(name)
+        isin = True if col else False
+        return isin
 
     @property
     def func_cols(self):
