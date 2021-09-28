@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-11-30 16:28:21
-# @Last Modified time: 2021-09-24 12:09:03
+# @Last Modified time: 2021-09-28 09:46:25
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -10,18 +10,18 @@
 
 class ColumnModel(object):
 
-    def __init__(self, newname, coltype='varchar', sqlexpr=None, func=None, order=0):
-        self.newname = newname
+    def __init__(self, colname, coltype='varchar', sqlexpr=None, func=None, order=0):
+        self.colname = colname
         self.coltype = coltype
-        self.sqlexpr = sqlexpr or newname
+        self.sqlexpr = sqlexpr or colname
         self.func = self.__check_func(func)
         self.order = order
 
     def __repr__(self):
-        return f"{self.newname}({self.coltype})"
+        return f"{self.colname}({self.coltype})"
 
-    def __contains__(self, newname):
-        return newname == self.newname
+    def __contains__(self, colname):
+        return colname == self.colname
 
     def __check_func(self, func):
         if func and func not in ['min', 'max', 'sum', 'count']:
@@ -31,17 +31,17 @@ class ColumnModel(object):
     @property
     def final_sqlexpr(self):
         if self.func:
-            final_sqlexpr = f"{self.func}({self.sqlexpr}) as {self.newname}"
-        elif self.newname != self.sqlexpr:
-            final_sqlexpr = f"{self.sqlexpr} as {self.newname}"
+            final_sqlexpr = f"{self.func}({self.sqlexpr}) as {self.colname}"
+        elif self.colname != self.sqlexpr:
+            final_sqlexpr = f"{self.sqlexpr} as {self.colname}"
         else:
-            final_sqlexpr = self.newname
+            final_sqlexpr = self.colname
 
         return final_sqlexpr
 
     @property
     def create_sqlexpr(self):
-        create_sqlexpr = f"{self.newname} {self.coltype}"
+        create_sqlexpr = f"{self.colname} {self.coltype}"
         return create_sqlexpr
 
 
@@ -55,7 +55,7 @@ class ColumnsModel(object):
 
     def __getitem__(self, name):
         for col in self.columns:
-            if col.newname == name:
+            if col.colname == name:
                 return col
 
     def __contains__(self, name):
@@ -76,7 +76,7 @@ class ColumnsModel(object):
     @property
     def new_cols(self):
         all_cols = self.nonfunc_cols + self.func_cols
-        new_cols = [col.newname for col in all_cols]
+        new_cols = [col.colname for col in all_cols]
         new_cols = ', '.join(new_cols)
         return new_cols
 
@@ -96,7 +96,7 @@ class ColumnsModel(object):
     @property
     def group_cols(self):
         if self.func_cols:
-            group_cols = [col.newname for col in self.nonfunc_cols]
+            group_cols = [col.colname for col in self.nonfunc_cols]
             group_cols = ', '.join(group_cols)
             return group_cols
 
@@ -104,12 +104,12 @@ class ColumnsModel(object):
     def order_cols(self):
         all_cols = self.nonfunc_cols + self.func_cols
         order_cols = [(idx+1, col) for idx, col in enumerate(all_cols) if col.order > 0]
-        order_cols_sorted = sorted(order_cols, key=lambda x: [x[1].order, x[1].newname])
+        order_cols_sorted = sorted(order_cols, key=lambda x: [x[1].order, x[1].colname])
         order_cols = [f"{col[0]}" for col in order_cols_sorted]
         order_cols = ', '.join(order_cols)
         return order_cols
 
     def get_column_by_name(self, name):
         for col in self.columns:
-            if col.newname == name:
+            if col.colname == name:
                 return col

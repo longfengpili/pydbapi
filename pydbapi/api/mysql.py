@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-09-23 18:02:13
+# @Last Modified time: 2021-09-28 09:45:00
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -13,6 +13,7 @@ import pymysql
 
 from pydbapi.db import DBCommon, DBFileExec
 from pydbapi.sql import SqlCompile
+from pydbapi.col import ColumnModel, ColumnsModel
 from pydbapi.conf import AUTO_RULES
 
 
@@ -127,6 +128,34 @@ class MysqlDB(DBCommon, DBFileExec):
         if not conn:
             self.get_conn()
         return conn
+
+    def cur_columns(self, cursor):
+        # desc_name = 'name', 'type_code', 'display_size', 'internal_size', 'precision', 'scale', 'null_ok'
+        columns = []
+        desc = list(cursor.description)
+        filed_type = pymysql.constants.FIELD_TYPE
+        filed_type = {getattr(filed_type, k): k for k in dir(filed_type) if not k.startswith('_')}
+        
+        for col in desc:
+            colname, type_code, precision, scale = col[0], col[1], col[4], col[5]
+            coltype = filed_type.get(type_code)
+            precision_scale = f"{precision - scale}, {scale}" if scale else precision
+
+            if coltype == 'VAR_STRING':
+                coltype = f"VARACHR({precision_scale})"
+            elif coltype == 'NEWDECIMAL':
+                coltype = F"DECIMAL({precision_scale})"
+            else:
+                pass
+
+            col = ColumnModel(colname, coltype)
+            columns.append(col)
+
+        columnsmodel = ColumnsModel(*columns)
+        print(columnsmodel)
+        columns = [col.colname for col in columns]
+
+        return desc, columns
 
     def create(self, tablename, columns, indexes=None, index_part=128, ismultiple_index=True, partition=None, verbose=0):
         # tablename = f"{self.database}.{tablename}"
