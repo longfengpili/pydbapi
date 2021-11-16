@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:36:14
-# @Last Modified time: 2020-06-10 11:57:21
+# @Last Modified time: 2021-11-16 17:06:12
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -10,6 +10,12 @@
 import pytest
 
 from pydbapi.sql import SqlParse
+from pydbapi.conf.settings import LOGGING_CONFIG
+import logging.config
+logging.config.dictConfig(LOGGING_CONFIG)
+
+dblogger = logging.getLogger(__name__)
+
 
 @pytest.mark.skip()
 class TestDB:
@@ -43,6 +49,7 @@ class TestSql:
 
     def test_get_action(self):
         parser = SqlParse(self.sql)
+        dblogger.warning(parser.action)
         print(parser.action)
 
     def test_get_tablename(self):
