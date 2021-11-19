@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2021-08-26 13:53:54
+# @Last Modified time: 2021-11-16 18:09:36
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -49,6 +49,14 @@ class SqliteDB(DBCommon, DBFileExec):
     def __init__(self, database=None):
         self.database = database if database else os.path.join(USERPATH, 'sqlite3_test.db')
         super(SqliteDB, self).__init__()
+
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(SqliteDB, '_instance'):
+            with SqliteDB._instance_lock:
+                if not hasattr(SqliteDB, '_instance'):
+                    SqliteDB._instance = super().__new__(cls)
+
+        return SqliteDB._instance
 
     @classmethod
     def get_instance(cls, *args, **kwargs):

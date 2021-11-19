@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-03-26 14:45:12
+# @Last Modified time: 2021-11-16 18:09:27
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -53,6 +53,14 @@ class RedshiftDB(DBCommon, DBFileExec):
         self.database = database
         super(RedshiftDB, self).__init__()
         self.auto_rules = REDSHIFT_AUTO_RULES if safe_rule else None
+
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(RedshiftDB, '_instance'):
+            with RedshiftDB._instance_lock:
+                if not hasattr(RedshiftDB, '_instance'):
+                    RedshiftDB._instance = super().__new__(cls)
+
+        return RedshiftDB._instance
 
     @classmethod
     def get_instance(cls, *args, **kwargs):

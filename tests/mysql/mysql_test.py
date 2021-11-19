@@ -2,7 +2,7 @@
 # @Author: chunyang.xu
 # @Date:   2021-03-08 14:19:01
 # @Last Modified by:   chunyang.xu
-# @Last Modified time: 2021-08-25 16:35:50
+# @Last Modified time: 2021-11-16 18:41:11
 
 import os
 import pytest
@@ -20,8 +20,8 @@ class TestMysql:
 
     def setup_method(self, method):
         AdLocal = os.environ.get('ADLOCAL').lower()
-        AdLocal = json.loads(AdLocal.replace("'", '"'))
-        self.mysqldb = MysqlDB(safe_rule=False, **AdLocal)
+        self.AdLocal = json.loads(AdLocal.replace("'", '"'))
+        self.mysqldb = MysqlDB(safe_rule=False, **self.AdLocal)
         self.tablename = 'test_xu'
         self.id = ColumnModel('id', 'varchar(1024)')
         self.name = ColumnModel('name', 'varchar(1024)')
@@ -32,6 +32,16 @@ class TestMysql:
 
     def teardown_method(self, method):
         pass
+
+    def test_get_instance(self):
+        mysql1 = MysqlDB.get_instance(safe_rule=False, **self.AdLocal)
+        mysql2 = MysqlDB.get_instance(safe_rule=False, **self.AdLocal)
+        mysql3 = MysqlDB(safe_rule=False, **self.AdLocal)
+        mysql4 = MysqlDB(safe_rule=False, **self.AdLocal)
+        print(mysql1, mysql2, mysql3, mysql4)
+        for i in dir(mysql4):
+            result = eval(f"mysql4.{i}")
+            print(f"【{i}】: {result}")
 
     def test_drop(self):
         rows, action, result = self.mysqldb.drop(self.tablename)

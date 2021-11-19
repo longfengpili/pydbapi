@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:58:41
-# @Last Modified time: 2021-08-29 13:10:25
+# @Last Modified time: 2021-11-16 18:11:13
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -38,7 +38,6 @@ class TestSqlite:
     def test_get_conn(self):
         conn1 = self.sqlite.get_conn()
         conn2 = self.sqlite.get_conn()
-        conn1.close()
         print(conn1, conn2)
 
     @pytest.mark.skip()
@@ -100,6 +99,7 @@ class TestSqlite:
         sqlite3 = SqliteDB()
         sqlite4 = SqliteDB()
         print(sqlite1, sqlite2, sqlite3, sqlite4)
+        print(sqlite4.database)
 
     def test_verbose(self):
         sqlite = SqliteDB.get_instance(database=None)

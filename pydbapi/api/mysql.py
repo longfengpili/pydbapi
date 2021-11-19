@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-09-23 18:02:13
+# @Last Modified time: 2021-11-16 18:42:55
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -111,6 +111,14 @@ class MysqlDB(DBCommon, DBFileExec):
         self.isdoris = isdoris
         super(MysqlDB, self).__init__()
         self.auto_rules = AUTO_RULES if safe_rule else None
+
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(MysqlDB, '_instance'):
+            with MysqlDB._instance_lock:
+                if not hasattr(MysqlDB, '_instance'):
+                    MysqlDB._instance = super().__new__(cls)
+
+        return MysqlDB._instance
 
     @classmethod
     def get_instance(cls, *args, **kwargs):
