@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-11-16 18:09:27
+# @Last Modified time: 2021-11-20 12:24:07
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -62,14 +62,14 @@ class RedshiftDB(DBCommon, DBFileExec):
 
         return RedshiftDB._instance
 
-    @classmethod
-    def get_instance(cls, *args, **kwargs):
-        if not hasattr(RedshiftDB, '_instance'):
-            with RedshiftDB._instance_lock:
-                if not hasattr(RedshiftDB, '_instance'):
-                    RedshiftDB._instance = RedshiftDB(*args, **kwargs)
+    # @classmethod
+    # def get_instance(cls, *args, **kwargs):
+    #     if not hasattr(RedshiftDB, '_instance'):
+    #         with RedshiftDB._instance_lock:
+    #             if not hasattr(RedshiftDB, '_instance'):
+    #                 RedshiftDB._instance = RedshiftDB(*args, **kwargs)
 
-        return RedshiftDB._instance
+    #     return RedshiftDB._instance
 
     def get_conn(self):
         conn = psycopg2.connect(database=self.database, user=self.user, password=self.password, host=self.host, port=self.port)

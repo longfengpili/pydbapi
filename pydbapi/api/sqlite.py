@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2021-11-16 18:09:36
+# @Last Modified time: 2021-11-20 12:24:14
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -58,14 +58,14 @@ class SqliteDB(DBCommon, DBFileExec):
 
         return SqliteDB._instance
 
-    @classmethod
-    def get_instance(cls, *args, **kwargs):
-        if not hasattr(SqliteDB, '_instance'):
-            with SqliteDB._instance_lock:
-                if not hasattr(SqliteDB, '_instance'):
-                    SqliteDB._instance = SqliteDB(*args, **kwargs)
+    # @classmethod
+    # def get_instance(cls, *args, **kwargs):
+    #     if not hasattr(SqliteDB, '_instance'):
+    #         with SqliteDB._instance_lock:
+    #             if not hasattr(SqliteDB, '_instance'):
+    #                 SqliteDB._instance = SqliteDB(*args, **kwargs)
 
-        return SqliteDB._instance
+    #     return SqliteDB._instance
 
     def get_conn(self):
         conn = sqlite3.connect(database=self.database)

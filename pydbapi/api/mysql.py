@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-11-20 10:22:21
+# @Last Modified time: 2021-11-20 12:23:59
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -122,16 +122,16 @@ class MysqlDB(DBCommon, DBFileExec):
 
         return MysqlDB._instance
 
-    @classmethod
-    def get_instance(cls, *args, **kwargs):
-        mysqllogger.info('1')
-        if not hasattr(MysqlDB, '_instance'):
-            mysqllogger.info(MysqlDB._instance_lock)
-            with MysqlDB._instance_lock:
-                if not hasattr(MysqlDB, '_instance'):
-                    MysqlDB._instance = super().__new__(cls)
+    # @classmethod
+    # def get_instance(cls, *args, **kwargs):
+    #     mysqllogger.info('1')
+    #     if not hasattr(MysqlDB, '_instance'):
+    #         mysqllogger.info(MysqlDB._instance_lock)
+    #         with MysqlDB._instance_lock:
+    #             if not hasattr(MysqlDB, '_instance'):
+    #                 MysqlDB._instance = MysqlDB(*args, kwargs)
 
-        return MysqlDB._instance
+    #     return MysqlDB._instance
 
     def get_conn(self):
         conn = pymysql.connect(database=self.database, user=self.user, password=self.password,
