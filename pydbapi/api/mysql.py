@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-11-20 12:23:59
+# @Last Modified time: 2021-11-20 14:59:07
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -114,9 +114,7 @@ class MysqlDB(DBCommon, DBFileExec):
 
     def __new__(cls, *args, **kwargs):
         if not hasattr(MysqlDB, '_instance'):
-            mysqllogger.info(MysqlDB._instance_lock)
             with MysqlDB._instance_lock:
-                mysqllogger.info(MysqlDB._instance_lock)
                 if not hasattr(MysqlDB, '_instance'):
                     MysqlDB._instance = super().__new__(cls)
 
