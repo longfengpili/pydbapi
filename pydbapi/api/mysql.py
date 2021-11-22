@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-11-22 14:31:01
+# @Last Modified time: 2021-11-22 16:19:04
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -138,12 +138,13 @@ class MysqlDB(DBCommon, DBFileExec):
             self.get_conn()
         return conn
 
-    def create(self, tablename, columns, indexes=None, index_part=128, ismultiple_index=True, partition=None, verbose=0):
+    def create(self, tablename, columns, indexes=None, index_part=128, ismultiple_index=True,
+               partition=None, distribution=None, verbose=0):
         # tablename = f"{self.database}.{tablename}"
         sqlcompile = SqlMysqlCompile(tablename)
         sql_for_create = sqlcompile.create(columns, indexes, index_part=index_part,
                                            ismultiple_index=ismultiple_index, partition=partition,
-                                           isdoris=self.isdoris)
+                                           distribution=distribution, isdoris=self.isdoris)
         rows, action, result = self.execute(sql_for_create, verbose=verbose)
         return rows, action, result
 
