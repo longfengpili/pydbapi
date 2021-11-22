@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2021-11-20 12:24:14
+# @Last Modified time: 2021-11-22 14:30:21
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -63,7 +63,7 @@ class SqliteDB(DBCommon, DBFileExec):
     #     if not hasattr(SqliteDB, '_instance'):
     #         with SqliteDB._instance_lock:
     #             if not hasattr(SqliteDB, '_instance'):
-    #                 SqliteDB._instance = SqliteDB(*args, **kwargs)
+    #                 SqliteDB._instance = cls(*args, **kwargs)
 
     #     return SqliteDB._instance
 

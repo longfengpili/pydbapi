@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-11-20 12:24:07
+# @Last Modified time: 2021-11-22 14:30:29
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -67,7 +67,7 @@ class RedshiftDB(DBCommon, DBFileExec):
     #     if not hasattr(RedshiftDB, '_instance'):
     #         with RedshiftDB._instance_lock:
     #             if not hasattr(RedshiftDB, '_instance'):
-    #                 RedshiftDB._instance = RedshiftDB(*args, **kwargs)
+    #                 RedshiftDB._instance = cls(*args, **kwargs)
 
     #     return RedshiftDB._instance
 

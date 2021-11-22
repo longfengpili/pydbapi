@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-11-20 14:59:07
+# @Last Modified time: 2021-11-22 14:31:01
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -122,12 +122,12 @@ class MysqlDB(DBCommon, DBFileExec):
 
     # @classmethod
     # def get_instance(cls, *args, **kwargs):
-    #     mysqllogger.info('1')
+    #     mysqllogger.info(MysqlDB._instance_lock)
     #     if not hasattr(MysqlDB, '_instance'):
     #         mysqllogger.info(MysqlDB._instance_lock)
     #         with MysqlDB._instance_lock:
     #             if not hasattr(MysqlDB, '_instance'):
-    #                 MysqlDB._instance = MysqlDB(*args, kwargs)
+    #                 MysqlDB._instance = cls(*args, **kwargs)
 
     #     return MysqlDB._instance
 
