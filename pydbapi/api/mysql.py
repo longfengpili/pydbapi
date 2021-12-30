@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-11-22 16:19:04
+# @Last Modified time: 2021-12-30 19:19:36
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -79,7 +79,7 @@ class SqlMysqlCompile(SqlCompile):
             sql = sql.replace(';', f'\n{partition};')
 
         if isdoris:
-            distributed_col = distribution or columns[0].newname
+            distributed_col = distribution or columns.index(0)
             distributed = f"distributed by hash({distributed_col})"
             sql = sql.replace(';', f'\n{distributed};')
 

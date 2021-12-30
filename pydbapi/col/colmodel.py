@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-11-30 16:28:21
-# @Last Modified time: 2021-09-24 12:09:03
+# @Last Modified time: 2021-12-30 19:18:03
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -57,6 +57,9 @@ class ColumnsModel(object):
         for col in self.columns:
             if col.newname == name:
                 return col
+
+    def index(self, key):
+        return self.columns[key]
 
     def __contains__(self, name):
         col = self.get_column_by_name(name)
