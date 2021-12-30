@@ -2,7 +2,7 @@
 # @Author: chunyang.xu
 # @Date:   2021-09-24 12:10:12
 # @Last Modified by:   chunyang.xu
-# @Last Modified time: 2021-12-30 19:18:13
+# @Last Modified time: 2021-12-30 19:46:13
 
 
 from pydbapi.col import ColumnModel, ColumnsModel
@@ -26,6 +26,8 @@ class TestColModel:
         col = self.columns.index(0)
         print(col)
         col = self.columns.get_column_by_name(colname)
+        print(col)
+        col = self.columns[0]
         print(col)
 
     def test_column_contain(self):
