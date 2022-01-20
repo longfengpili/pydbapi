@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:58:41
-# @Last Modified time: 2021-11-22 14:34:29
+# @Last Modified time: 2022-01-20 10:14:43
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -91,7 +91,7 @@ class TestSqlite:
     def test_execfile(self):
         dirpath = os.path.dirname(os.path.abspath(__file__))
         filepath = os.path.join(dirpath, 'sqlite.sql')
-        self.sqlite.file_exec(filepath, name='pizza', ehandling='raises', verbose=0)
+        self.sqlite.file_exec(filepath, name='pizza', ehandling='raises', verbose=0)  # raise的时候才会报错
 
     def test_get_instance(self):
         # sqlite1 = SqliteDB.get_instance()
@@ -104,7 +104,6 @@ class TestSqlite:
         # for i in dir(sqlite4):
         #     result = eval(f"sqlite4.{i}")
         #     print(f"【{i}】: {result}")
-
 
     def test_verbose(self):
         sqlite = SqliteDB(database=None)

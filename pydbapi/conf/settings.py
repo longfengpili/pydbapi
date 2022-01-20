@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:14:53
-# @Last Modified time: 2021-11-16 17:34:45
+# @Last Modified time: 2022-01-20 09:47:50
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -26,12 +26,12 @@ LOGGING_CONFIG = {
     'formatters': {
         # 详细的日志格式
         'standard': {
-            'format': '%(asctime)s - %(threadName)s:%(thread)d - %(name)s - %(levelname)s - %(pathname)s - %(lineno)d - %(message)s',
+            'format': '%(asctime)s.%(msecs)03d - %(threadName)s:%(thread)d - %(name)s - %(levelname)s - %(pathname)s - %(lineno)d - %(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S',
         },
         # 简单的日志格式
         'simple': {
-            'format': '%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s',
+            'format': '%(asctime)s.%(msecs)03d - %(threadName)s - %(name)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S',
         },
         # 定义一个特殊的日志格式
@@ -41,7 +41,7 @@ LOGGING_CONFIG = {
         # color
         'color': {
             '()': colorlog.ColoredFormatter,
-            'format': '%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(filename)s - %(lineno)d - %(log_color)s%(message)s',
+            'format': '%(asctime)s.%(msecs)03d - %(threadName)s - %(name)s - %(levelname)s - %(filename)s - %(lineno)d - %(log_color)s%(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S',
             'log_colors': {
                 'CRITICAL': 'bold_red',

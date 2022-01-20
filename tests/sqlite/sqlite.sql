@@ -2,7 +2,7 @@
 * @Author: chunyang.xu
 * @Date:   2020-06-04 17:57:10
 * @Email:  398745129@qq.com
-* @Last Modified time: 2021-09-23 11:45:59
+* @Last Modified time: 2022-01-20 09:55:34
 */
 
 #【arguments】#
@@ -41,6 +41,7 @@ select * from table;
 drop table if exists temp_xu;
 
 --create测试我的测试
+create table if not exists temp_xu as
 select * from temp_events_ev;
 ###
 
@@ -67,7 +68,7 @@ from test_xu
 
 
 ### 
---【bmsn jp index verbose1 epass】
+--【bmsn jp index verbose1】
 -- drop
 drop index multiple_index on temp_xu;
 -- create
