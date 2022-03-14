@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2022-01-20 10:00:10
+# @Last Modified time: 2022-03-14 19:53:11
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -86,8 +86,9 @@ class DBbase(object):
         conn = self.get_conn()
         # dblogger.info(conn)
         cur = conn.cursor()
-        sql = sql if sql.strip().endswith(';') else sql.strip() + ';'
-        sqls = sql.split(";")[:-1]
+        sql = sql.strip() + '\n' if sql.strip().endswith(';') else sql.strip() + ';\n'
+        sqls = sql.split(";\n")[:-1]
+        print(sqls)
         sqls = [sql.strip() for sql in sqls if sql]
         sqls_length = len(sqls)
         bar_format = '{l_bar}{bar:30}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
