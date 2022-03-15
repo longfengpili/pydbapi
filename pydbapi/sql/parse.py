@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2021-09-23 11:37:11
+# @Last Modified time: 2022-03-15 10:12:20
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -36,6 +36,14 @@ class SqlParse(object):
         sql = sql.strip()
         sql = sql if sql and sql.endswith(';') else sql + ';' if sql else ''
         return sql
+
+    @staticmethod
+    def split_sqls(sql):
+        sql = sql if sql.endswith(';') else sql + ';'
+        sql_r1 = re.sub('; *\n', ';\n', sql)  # 处理多余的；
+        sql_r2 = re.sub(';$', ';\n', sql_r1)  # 末尾增加'\n'
+        sqls = sql_r2.split(";\n")[:-1]
+        return sqls
 
     @property
     def comment(self):

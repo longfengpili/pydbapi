@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 14:04:33
-# @Last Modified time: 2021-08-25 16:46:12
+# @Last Modified time: 2022-03-15 10:20:52
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -117,7 +117,7 @@ class SqlCompile(object):
             maxi = maxi if maxi < vlength else vlength
             chvalues = values[i: maxi]
             _sql = self._insert_value(columns, chvalues)
-            _sql = f"--[NO.{step}]insert {maxi-i} rows, From [{i+1}] to [{maxi}]\n{_sql}"
+            _sql = f"\n--[NO.{step}]insert {maxi-i} rows, From [{i+1}] to [{maxi}]\n{_sql}"
             sql.append(_sql)
 
         sql = ''.join(sql)

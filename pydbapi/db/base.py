@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2022-03-14 19:58:34
+# @Last Modified time: 2022-03-15 10:11:49
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -86,8 +86,7 @@ class DBbase(object):
         conn = self.get_conn()
         # dblogger.info(conn)
         cur = conn.cursor()
-        sql = sql.strip() + '\n' if sql.strip().endswith(';') else sql.strip() + ';\n'
-        sqls = sql.split(";\n")[:-1]
+        sqls = SqlParse.split_sqls(sql)
         # print(sqls)
         sqls = [sql.strip() for sql in sqls if sql]
         sqls_length = len(sqls)
