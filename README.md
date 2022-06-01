@@ -185,3 +185,11 @@ row, action, result = db.execute(sql)
     可以自动执行表名（表名包含即可）
 + REDSHIFT_AUTO_RULES   
     Amazon Redshift 可以自动执行表名（表名包含即可）
+
+## jupyter notebook 调用日志格式
+```python
+import logging
+from pydbapi.conf.settings import LOGGING_CONFIG
+import logging.config
+logging.config.dictConfig(LOGGING_CONFIG)
+```
