@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2022-03-15 10:11:49
+# @Last Modified time: 2022-06-01 13:57:39
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -113,7 +113,8 @@ class DBbase(object):
 
             self.__execute_step(cur, sql, ehandling=ehandling)
 
-            if action == 'SELECT' and (verbose or idx == sqls_length):
+            if (action == 'SELECT' and (verbose or idx == sqls_length)) \
+                    or (action == 'WITH' and idx == sqls_length):
                 # columns, results = cur_getresults(cur, count)
                 results = self.cur_results(cur, count)
                 desc, columns = self.cur_columns(cur)
