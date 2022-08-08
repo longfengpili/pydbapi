@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-11-22 14:30:29
+# @Last Modified time: 2022-08-08 18:54:02
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -54,22 +54,22 @@ class RedshiftDB(DBCommon, DBFileExec):
         super(RedshiftDB, self).__init__()
         self.auto_rules = REDSHIFT_AUTO_RULES if safe_rule else None
 
-    def __new__(cls, *args, **kwargs):
-        if not hasattr(RedshiftDB, '_instance'):
-            with RedshiftDB._instance_lock:
-                if not hasattr(RedshiftDB, '_instance'):
-                    RedshiftDB._instance = super().__new__(cls)
-
-        return RedshiftDB._instance
-
-    # @classmethod
-    # def get_instance(cls, *args, **kwargs):
+    # def __new__(cls, *args, **kwargs):
     #     if not hasattr(RedshiftDB, '_instance'):
     #         with RedshiftDB._instance_lock:
     #             if not hasattr(RedshiftDB, '_instance'):
-    #                 RedshiftDB._instance = cls(*args, **kwargs)
+    #                 RedshiftDB._instance = super().__new__(cls)
 
     #     return RedshiftDB._instance
+
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        if not hasattr(RedshiftDB, '_instance'):
+            with RedshiftDB._instance_lock:
+                if not hasattr(RedshiftDB, '_instance'):
+                    RedshiftDB._instance = cls(*args, **kwargs)
+
+        return RedshiftDB._instance
 
     def get_conn(self):
         conn = psycopg2.connect(database=self.database, user=self.user, password=self.password, host=self.host, port=self.port)

@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2021-12-30 19:36:17
+# @Last Modified time: 2022-08-08 18:53:51
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -112,24 +112,24 @@ class MysqlDB(DBCommon, DBFileExec):
         super(MysqlDB, self).__init__()
         self.auto_rules = AUTO_RULES if safe_rule else None
 
-    def __new__(cls, *args, **kwargs):
-        if not hasattr(MysqlDB, '_instance'):
-            with MysqlDB._instance_lock:
-                if not hasattr(MysqlDB, '_instance'):
-                    MysqlDB._instance = super().__new__(cls)
-
-        return MysqlDB._instance
-
-    # @classmethod
-    # def get_instance(cls, *args, **kwargs):
-    #     mysqllogger.info(MysqlDB._instance_lock)
+    # def __new__(cls, *args, **kwargs):
     #     if not hasattr(MysqlDB, '_instance'):
-    #         mysqllogger.info(MysqlDB._instance_lock)
     #         with MysqlDB._instance_lock:
     #             if not hasattr(MysqlDB, '_instance'):
-    #                 MysqlDB._instance = cls(*args, **kwargs)
+    #                 MysqlDB._instance = super().__new__(cls)
 
     #     return MysqlDB._instance
+
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        mysqllogger.info(MysqlDB._instance_lock)
+        if not hasattr(MysqlDB, '_instance'):
+            mysqllogger.info(MysqlDB._instance_lock)
+            with MysqlDB._instance_lock:
+                if not hasattr(MysqlDB, '_instance'):
+                    MysqlDB._instance = cls(*args, **kwargs)
+
+        return MysqlDB._instance
 
     def get_conn(self):
         conn = pymysql.connect(database=self.database, user=self.user, password=self.password,

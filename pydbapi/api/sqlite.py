@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2021-11-22 14:30:21
+# @Last Modified time: 2022-08-08 18:54:28
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -50,22 +50,22 @@ class SqliteDB(DBCommon, DBFileExec):
         self.database = database if database else os.path.join(USERPATH, 'sqlite3_test.db')
         super(SqliteDB, self).__init__()
 
-    def __new__(cls, *args, **kwargs):
-        if not hasattr(SqliteDB, '_instance'):
-            with SqliteDB._instance_lock:
-                if not hasattr(SqliteDB, '_instance'):
-                    SqliteDB._instance = super().__new__(cls)
-
-        return SqliteDB._instance
-
-    # @classmethod
-    # def get_instance(cls, *args, **kwargs):
+    # def __new__(cls, *args, **kwargs):
     #     if not hasattr(SqliteDB, '_instance'):
     #         with SqliteDB._instance_lock:
     #             if not hasattr(SqliteDB, '_instance'):
-    #                 SqliteDB._instance = cls(*args, **kwargs)
+    #                 SqliteDB._instance = super().__new__(cls)
 
     #     return SqliteDB._instance
+
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        if not hasattr(SqliteDB, '_instance'):
+            with SqliteDB._instance_lock:
+                if not hasattr(SqliteDB, '_instance'):
+                    SqliteDB._instance = cls(*args, **kwargs)
+
+        return SqliteDB._instance
 
     def get_conn(self):
         conn = sqlite3.connect(database=self.database)
