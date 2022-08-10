@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2022-08-08 18:54:02
+# @Last Modified time: 2022-08-10 14:55:52
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -15,8 +15,10 @@ from pydbapi.db import DBCommon, DBFileExec
 from pydbapi.sql import SqlCompile
 from pydbapi.conf import REDSHIFT_AUTO_RULES
 
-
 import logging
+import logging.config
+from pydbapi.conf.settings import LOGGING_CONFIG
+logging.config.dictConfig(LOGGING_CONFIG)
 redlogger = logging.getLogger(__name__)
 
 

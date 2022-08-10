@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:58:41
-# @Last Modified time: 2022-01-20 10:14:43
+# @Last Modified time: 2022-08-10 14:57:25
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -12,11 +12,6 @@ import pytest
 from pydbapi.col import ColumnModel, ColumnsModel
 from pydbapi.api import SqliteDB
 import pandas as pd
-
-from pydbapi.conf.settings import LOGGING_CONFIG
-import logging.config
-
-logging.config.dictConfig(LOGGING_CONFIG)
 
 
 class TestSqlite:

@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2022-03-15 10:12:20
+# @Last Modified time: 2022-08-10 14:56:40
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -13,6 +13,9 @@ import os
 from datetime import datetime, date, timedelta
 
 import logging
+import logging.config
+from pydbapi.conf.settings import LOGGING_CONFIG
+logging.config.dictConfig(LOGGING_CONFIG)
 sqllogger = logging.getLogger(__name__)
 
 

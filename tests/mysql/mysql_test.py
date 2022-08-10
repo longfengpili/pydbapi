@@ -3,7 +3,7 @@
 # @Author: chunyang.xu
 # @Date:   2021-03-08 14:19:01
 # @Last Modified by:   chunyang.xu
-# @Last Modified time: 2022-03-15 10:15:31
+# @Last Modified time: 2022-08-10 14:57:11
 
 import os
 import pytest
@@ -11,10 +11,6 @@ import json
 from pydbapi.col import ColumnModel, ColumnsModel
 from pydbapi.api import MysqlDB
 from pydbapi.api.mysql import SqlMysqlCompile
-
-from pydbapi.conf.settings import LOGGING_CONFIG
-import logging.config
-logging.config.dictConfig(LOGGING_CONFIG)
 
 
 class TestMysql:

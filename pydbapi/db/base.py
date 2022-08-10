@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2022-06-01 13:57:39
+# @Last Modified time: 2022-08-10 14:54:53
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -15,6 +15,9 @@ from pydbapi.sql import SqlParse, SqlCompile
 from pydbapi.conf import AUTO_RULES
 
 import logging
+import logging.config
+from pydbapi.conf.settings import LOGGING_CONFIG
+logging.config.dictConfig(LOGGING_CONFIG)
 dblogger = logging.getLogger(__name__)
 
 

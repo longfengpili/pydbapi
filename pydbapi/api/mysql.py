@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2022-08-08 18:53:51
+# @Last Modified time: 2022-08-10 14:55:49
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -15,8 +15,10 @@ from pydbapi.db import DBCommon, DBFileExec
 from pydbapi.sql import SqlCompile
 from pydbapi.conf import AUTO_RULES
 
-
 import logging
+import logging.config
+from pydbapi.conf.settings import LOGGING_CONFIG
+logging.config.dictConfig(LOGGING_CONFIG)
 mysqllogger = logging.getLogger(__name__)
 
 

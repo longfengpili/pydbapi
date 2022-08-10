@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2022-08-08 18:54:28
+# @Last Modified time: 2022-08-10 14:56:02
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -15,6 +15,9 @@ from pydbapi.db import DBCommon, DBFileExec
 from pydbapi.sql import SqlCompile
 
 import logging
+import logging.config
+from pydbapi.conf.settings import LOGGING_CONFIG
+logging.config.dictConfig(LOGGING_CONFIG)
 sqlitelogger = logging.getLogger(__name__)
 
 
