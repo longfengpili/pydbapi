@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2022-06-01 13:57:39
+# @Last Modified time: 2022-08-10 15:34:18
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -187,7 +187,7 @@ class DBCommon(DBbase):
                                                chunksize=chunksize, fromtable=fromtable, condition=condition)
             rows, action, result = self.execute(sql_for_insert, verbose=verbose)
 
-            if values and rows != vlength % chunksize:
+            if values and rows != (vlength % chunksize or chunksize):
                 raise Exception(f'Insert Error !!!')
 
             rows = vlength if values else rows
