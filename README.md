@@ -187,21 +187,17 @@ row, action, result = db.execute(sql)
     Amazon Redshift 可以自动执行表名（表名包含即可）
 
 ## 调用日志格式
-1. 调用基础日志格式
+1. 调用基础日志格式(已添加至工程init)
 ```python
-import logging
 import logging.config
 from pydbapi.conf.settings import LOGGING_CONFIG
 logging.config.dictConfig(LOGGING_CONFIG)
 ```
 
 
-2. 查看每步sql可以使用如下日志格式
+2. 查看每步sql可以使用如下日志格式（如果还出错，同时加上上面的内容）
 ```python
 import logging
-import logging.config
-from pydbapi.conf.settings import LOGGING_CONFIG
-logging.config.dictConfig(LOGGING_CONFIG)
 dblogger = logging.getLogger('pydbapi.db.base')
 dblogger.setLevel(logging.DEBUG)
 ```
