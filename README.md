@@ -187,6 +187,7 @@ row, action, result = db.execute(sql)
     Amazon Redshift 可以自动执行表名（表名包含即可）
 
 ## jupyter notebook 调用日志格式
+1. 调用日志格式
 ```python
 import logging
 from pydbapi.conf.settings import LOGGING_CONFIG
@@ -194,10 +195,10 @@ import logging.config
 logging.config.dictConfig(LOGGING_CONFIG)
 ```
 
-## 单独文件日志调用
-可以在单独文件中添加如下内容
+
+2. 查看每步sql可以使用如下日志格式
 ```python
 import logging
 dmlogger = logging.getLogger('pydbapi.db.base')
-dmlogger.setLevel(logging.INFO)
+dmlogger.setLevel(logging.DEBUG)
 ```
