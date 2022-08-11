@@ -193,3 +193,11 @@ from pydbapi.conf.settings import LOGGING_CONFIG
 import logging.config
 logging.config.dictConfig(LOGGING_CONFIG)
 ```
+
+## 单独文件日志调用
+可以在单独文件中添加如下内容
+```python
+import logging
+dmlogger = logging.getLogger('pydbapi.db.base')
+dmlogger.setLevel(logging.INFO)
+```

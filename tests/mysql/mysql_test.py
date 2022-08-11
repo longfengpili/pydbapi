@@ -3,7 +3,7 @@
 # @Author: chunyang.xu
 # @Date:   2021-03-08 14:19:01
 # @Last Modified by:   chunyang.xu
-# @Last Modified time: 2022-03-15 10:15:31
+# @Last Modified time: 2022-08-11 11:25:41
 
 import os
 import pytest
@@ -12,9 +12,10 @@ from pydbapi.col import ColumnModel, ColumnsModel
 from pydbapi.api import MysqlDB
 from pydbapi.api.mysql import SqlMysqlCompile
 
-from pydbapi.conf.settings import LOGGING_CONFIG
-import logging.config
-logging.config.dictConfig(LOGGING_CONFIG)
+# 如果需要日期，请打开
+# from pydbapi.conf.settings import LOGGING_CONFIG
+# import logging.config
+# logging.config.dictConfig(LOGGING_CONFIG)
 
 
 class TestMysql:

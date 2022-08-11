@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2022-08-11 10:05:16
+# @Last Modified time: 2022-08-11 10:10:27
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -95,7 +95,7 @@ class DBbase(object):
         for _sql in sqls:
             results = None
             idx += 1
-            # dblogger.info(_sql)
+            dblogger.debug(_sql)
             parser = SqlParse(_sql)
             comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
             if not sql:
