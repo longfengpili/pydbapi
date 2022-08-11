@@ -1,7 +1,7 @@
 # # @Author: chunyang.xu
 # # @Email:  398745129@qq.com
 # # @Date:   2020-10-22 16:12:47
-# # @Last Modified time: 2021-03-08 15:09:12
+# # @Last Modified time: 2022-08-11 10:05:28
 # # @github: https://github.com/longfengpili
 
 # # !/usr/bin/env python3
@@ -10,7 +10,7 @@
 # import threading
 # import snowflake.connector
 
-# from pydbapi.db import DBCommon, DBFileExec
+# from pydbapi.db import DBMixin, DBFileExec
 # from pydbapi.sql import SqlCompile
 # from pydbapi.conf import AUTO_RULES
 
@@ -44,7 +44,7 @@
 #         return sql
 
 
-# class SnowflakeDB(DBCommon, DBFileExec):
+# class SnowflakeDB(DBMixin, DBFileExec):
 #     _instance_lock = threading.Lock()
 
 #     def __init__(self, user, password, account, warehouse, database, schema, safe_rule=True):

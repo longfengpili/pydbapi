@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2022-08-10 15:34:18
+# @Last Modified time: 2022-08-11 10:05:16
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -137,11 +137,11 @@ class DBbase(object):
         return rows, action, results
 
 
-class DBCommon(DBbase):
+class DBMixin(DBbase):
 
     def __init__(self):
         self.auto_rules = AUTO_RULES
-        super(DBCommon, self).__init__()
+        super(DBMixin, self).__init__()
 
     def __check_isauto(self, tablename):
         '''[summary]

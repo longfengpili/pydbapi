@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2022-08-08 18:54:28
+# @Last Modified time: 2022-08-11 10:05:25
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -11,7 +11,7 @@ import os
 import threading
 import sqlite3
 
-from pydbapi.db import DBCommon, DBFileExec
+from pydbapi.db import DBMixin, DBFileExec
 from pydbapi.sql import SqlCompile
 
 import logging
@@ -43,7 +43,7 @@ class SqliteCompile(SqlCompile):
         return sql
 
 
-class SqliteDB(DBCommon, DBFileExec):
+class SqliteDB(DBMixin, DBFileExec):
     _instance_lock = threading.Lock()
 
     def __init__(self, database=None):

@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2022-08-08 18:53:51
+# @Last Modified time: 2022-08-11 10:05:16
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -11,7 +11,7 @@ import re
 import threading
 import pymysql
 
-from pydbapi.db import DBCommon, DBFileExec
+from pydbapi.db import DBMixin, DBFileExec
 from pydbapi.sql import SqlCompile
 from pydbapi.conf import AUTO_RULES
 
@@ -98,7 +98,7 @@ class SqlMysqlCompile(SqlCompile):
         return loadsql
 
 
-class MysqlDB(DBCommon, DBFileExec):
+class MysqlDB(DBMixin, DBFileExec):
     _instance_lock = threading.Lock()
 
     def __init__(self, host, user, password, database, port=3306, charset="utf8", safe_rule=True, isdoris=False):
