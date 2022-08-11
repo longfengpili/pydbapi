@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:58:41
-# @Last Modified time: 2022-08-11 12:04:24
+# @Last Modified time: 2022-08-11 15:00:42
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -18,8 +18,9 @@ import logging
 import logging.config
 from pydbapi.conf.settings import LOGGING_CONFIG
 logging.config.dictConfig(LOGGING_CONFIG)
-dblogger = logging.getLogger('pydbapi.db.base')
-dblogger.setLevel(logging.DEBUG)
+# 是否打印sql
+# dblogger = logging.getLogger('pydbapi.db.base')
+# dblogger.setLevel(logging.DEBUG)
 
 
 class TestSqlite:
@@ -72,7 +73,8 @@ class TestSqlite:
                   [3, 'chocolate', 'yunnan', '2020-06-14 23:00:05', '{"yuwen": 90, "shuxue": 90}'],
                   [4, 'pizza', 'taiwan', '2020-05-15 23:08:25', '{"yuwen": 10, "shuxue": 21}'],
                   [5, 'pizza', 'hebei', '2020-08-12 14:05:36', '{"yuwen": 30, "shuxue": 23}']]
-        rows, action, result = self.sqlite.insert(self.tablename, self.columns, values=values)
+        values *= 20
+        rows, action, result = self.sqlite.insert(self.tablename, self.columns, values=values, verbose=1, chunksize=10)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_select(self):

@@ -186,12 +186,12 @@ row, action, result = db.execute(sql)
 + REDSHIFT_AUTO_RULES   
     Amazon Redshift 可以自动执行表名（表名包含即可）
 
-## jupyter notebook 调用日志格式
-1. 调用日志格式
+## 调用日志格式
+1. 调用基础日志格式
 ```python
 import logging
-from pydbapi.conf.settings import LOGGING_CONFIG
 import logging.config
+from pydbapi.conf.settings import LOGGING_CONFIG
 logging.config.dictConfig(LOGGING_CONFIG)
 ```
 
@@ -199,6 +199,9 @@ logging.config.dictConfig(LOGGING_CONFIG)
 2. 查看每步sql可以使用如下日志格式
 ```python
 import logging
-dmlogger = logging.getLogger('pydbapi.db.base')
-dmlogger.setLevel(logging.DEBUG)
+import logging.config
+from pydbapi.conf.settings import LOGGING_CONFIG
+logging.config.dictConfig(LOGGING_CONFIG)
+dblogger = logging.getLogger('pydbapi.db.base')
+dblogger.setLevel(logging.DEBUG)
 ```
