@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2022-08-11 10:10:27
+# @Last Modified time: 2022-08-11 12:10:21
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -95,7 +95,6 @@ class DBbase(object):
         for _sql in sqls:
             results = None
             idx += 1
-            dblogger.debug(_sql)
             parser = SqlParse(_sql)
             comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
             if not sql:
@@ -103,14 +102,16 @@ class DBbase(object):
                 continue
 
             step = f"【{idx:0>2d}_PROGRESS】({action}){tablename}::{comment}"
+
             if verbose == 1:
                 dblogger.info(f"{step}")
+                dblogger.debug(sql)
             elif verbose >= 2:
                 sqls.postfix[0] = f"{step}"
                 sqls.update()
             else:
                 pass
-
+                
             self.__execute_step(cur, sql, ehandling=ehandling)
 
             if (action == 'SELECT' and (verbose or idx == sqls_length)) \

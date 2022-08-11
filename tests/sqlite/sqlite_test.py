@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:58:41
-# @Last Modified time: 2022-08-11 11:25:59
+# @Last Modified time: 2022-08-11 12:04:24
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -14,9 +14,12 @@ from pydbapi.api import SqliteDB
 import pandas as pd
 
 # 如果需要日期，请打开
-from pydbapi.conf.settings import LOGGING_CONFIG
+import logging
 import logging.config
+from pydbapi.conf.settings import LOGGING_CONFIG
 logging.config.dictConfig(LOGGING_CONFIG)
+dblogger = logging.getLogger('pydbapi.db.base')
+dblogger.setLevel(logging.DEBUG)
 
 
 class TestSqlite:
