@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2022-08-11 12:10:21
+# @Last Modified time: 2022-10-12 11:37:47
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -42,6 +42,7 @@ class DBbase(object):
         try:
             cursor.execute(sql)
         except Exception as e:
+            sql = sql.replace('\n', '')  # sql转换成一行
             dblogger.error(f"【Error】{e}, 【error Sql】: {sql}")
 
             if ehandling == 'raise':
