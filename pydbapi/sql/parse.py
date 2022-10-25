@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2022-03-15 10:12:20
+# @Last Modified time: 2022-10-25 17:34:02
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -68,6 +68,7 @@ class SqlParse(object):
     @property
     def tablename(self):
         sql = self.sql
+        tmpcreatet = re.search(rf'create(?: temp| temporary) table (.*?) as', sql)
         createt = re.search(rf'create table (?:if exists |if not exists )?(.*?){REG_BEHIND}', sql)
         updatet = re.search(rf'update (.*?){REG_BEHIND}', sql)
         deletet = re.search(rf'delete (?:from )?(.*?){REG_BEHIND}', sql)
@@ -75,7 +76,7 @@ class SqlParse(object):
         ont = re.search(rf'(?<=on )(.*?){REG_BEHIND}', sql)
         fromt = re.search(rf'select .*? (?<=from )(.*?){REG_BEHIND}', sql, re.S)
         # print(createt, updatet, insertt, ont, fromt)
-        tablename = createt or updatet or deletet or insertt or fromt or ont
+        tablename = tmpcreatet or createt or updatet or deletet or insertt or fromt or ont
         tablename = tablename.group(1) if tablename else sql
         return tablename
 
