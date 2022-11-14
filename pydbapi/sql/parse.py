@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2022-10-25 17:34:02
+# @Last Modified time: 2022-11-14 15:50:41
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -34,7 +34,8 @@ class SqlParse(object):
     def sql(self):
         sql = re.sub('^(--.*?\n){0,}', '', self.orisql.strip() + '\n')
         sql = sql.strip()
-        sql = sql if sql and sql.endswith(';') else sql + ';' if sql else ''
+        # sql = sql if sql and sql.endswith(';') else sql + ';' if sql else ''
+        sql = sql[:-1] if sql and sql.endswith(';') else sql if sql else ''
         return sql
 
     @staticmethod
