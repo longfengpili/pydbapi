@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2022-10-12 11:37:47
+# @Last Modified time: 2022-11-14 19:22:45
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -26,7 +26,7 @@ class DBbase(object):
     def get_conn(self):
         pass
 
-    def __execute_step(self, cursor, sql, ehandling='raise'):
+    def _execute_step(self, cursor, sql, ehandling='raise'):
         '''[summary]
 
         [description]
@@ -113,7 +113,7 @@ class DBbase(object):
             else:
                 pass
                 
-            self.__execute_step(cur, sql, ehandling=ehandling)
+            self._execute_step(cur, sql, ehandling=ehandling)
 
             if (action == 'SELECT' and (verbose or idx == sqls_length)) \
                     or (action == 'WITH' and idx == sqls_length):
@@ -145,7 +145,7 @@ class DBMixin(DBbase):
         self.auto_rules = AUTO_RULES
         super(DBMixin, self).__init__()
 
-    def __check_isauto(self, tablename):
+    def _check_isauto(self, tablename):
         '''[summary]
 
         [description]
@@ -163,7 +163,7 @@ class DBMixin(DBbase):
         return False
 
     def drop(self, tablename, verbose=0):
-        if self.__check_isauto(tablename):
+        if self._check_isauto(tablename):
             sqlcompile = SqlCompile(tablename)
             sql_for_drop = sqlcompile.drop()
             rows, action, result = self.execute(sql_for_drop, verbose=verbose)
@@ -171,7 +171,7 @@ class DBMixin(DBbase):
             return rows, action, result
 
     def delete(self, tablename, condition, verbose=0):
-        if self.__check_isauto(tablename):
+        if self._check_isauto(tablename):
             sqlcompile = SqlCompile(tablename)
             sql_for_delete = sqlcompile.delete(condition)
             rows, action, result = self.execute(sql_for_delete, verbose=verbose)
@@ -183,7 +183,7 @@ class DBMixin(DBbase):
         if values:
             vlength = len(values)
 
-        if self.__check_isauto(tablename):
+        if self._check_isauto(tablename):
             sqlcompile = SqlCompile(tablename)
             sql_for_insert = sqlcompile.insert(columns, inserttype=inserttype, values=values,
                                                chunksize=chunksize, fromtable=fromtable, condition=condition)
