@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-11-30 16:28:21
-# @Last Modified time: 2021-12-30 19:45:56
+# @Last Modified time: 2022-11-14 19:08:24
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -63,6 +63,11 @@ class ColumnsModel(object):
         col = self.get_column_by_name(name)
         isin = True if col else False
         return isin
+
+    def append(self, column):
+        columns = list(self.columns)
+        columns.append(column)
+        return ColumnsModel(*columns)
 
     @property
     def func_cols(self):
