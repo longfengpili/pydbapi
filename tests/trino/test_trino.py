@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2022-11-14 14:25:01
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2022-11-14 19:40:09
+# @Last Modified time: 2022-11-15 09:51:24
 
 
 import sys
@@ -20,16 +20,13 @@ from pydbapi.api.trino import SqlTrinoCompile
 # import logging.config
 # logging.config.dictConfig(LOGGING_CONFIG)
 
-HOST = '127.0.0.1'
-USER = ''
-PASSWORD = ''
-DATABASE = 'report_20000073_11'
-
 
 class TestTrino:
 
     def setup_method(self, method):
-        self.trinodb = TrinoDB(host=HOST, user=USER, password=PASSWORD, database=DATABASE, safe_rule=False)
+        GAME = os.environ.get('NEWGAME').lower()
+        self.game = json.loads(GAME.replace("'", '"'))
+        self.trinodb = TrinoDB(**self.game, safe_rule=False)
         self.tablename = 'report_20000073_11.test_xu'
         self.id = ColumnModel('id', 'integer')
         self.name = ColumnModel('name', 'varchar(1024)')
