@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2022-11-14 14:17:02
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2022-11-14 19:31:14
+# @Last Modified time: 2022-11-15 16:42:32
 
 
 import re
@@ -56,11 +56,33 @@ class SqlTrinoCompile(SqlCompile):
 class TrinoDB(DBMixin, DBFileExec):
     _instance_lock = threading.Lock()
 
-    def __init__(self, host, user, password, database, catalog='hive', port=9090, safe_rule=True):
+    def __init__(self, host, user, password, database, isolation_level=None, catalog='hive', port=9090, safe_rule=True):
+        '''[summary]
+        
+        [init]
+        
+        Args:
+            host ([str]): [host]
+            user ([str]): [username]
+            password ([str]): [password]
+            database ([str]): [database]
+            isolation_level (number): [isolation_level] (default: `2`)
+                AUTOCOMMIT = 0  # 每个事务单独执行
+                READ_UNCOMMITTED = 1  # 脏读（dirty read），一个事务可以读取到另一个事务未提交的事务记录
+                READ_COMMITTED = 2 # 不可重复读（non-repeatable read），一个事务只能读取到已经提交的记录，不能读取到未提交的记录
+                REPEATABLE_READ = 3 # 幻读（phantom read），一个事务可以多次从数据库读取某条记录，而且多次读取的那条记录都是一致的，相同的
+                SERIALIZABLE = 4 # 事务执行时，会在所有级别上加锁，比如read和write时都会加锁，仿佛事务是以串行的方式进行的，而不是一起发生的。这会防止脏读、不可重复读和幻读的出现，但是，会带来性能的下降
+                数据库默认的隔离级别：mysql为可重复读，oracle为提交后读
+            catalog (str): [cataglog] (default: `'hive'`)
+            port (number): [port] (default: `9090`)
+            safe_rule (bool): [safe rule] (default: `True`)
+        '''
+
         self.host = host
         self.port = port
         self.user = user
         self.password = password
+        self.isolation_level = isolation_level
         self.catalog = catalog
         self.database = database
         super(TrinoDB, self).__init__()
@@ -92,7 +114,9 @@ class TrinoDB(DBMixin, DBFileExec):
             mytrinologger.error(f"please add [trino] path in sys.path, error: {e}")
             raise
         conn = connect(schema=self.database, user=self.user, password=self.password,
-                       host=self.host, port=self.port, catalog=self.catalog)
+                       host=self.host, port=self.port, catalog=self.catalog, 
+                       # isolation_level=self.isolation_level  # 如果使用事务模式，则不能（drop、select、create）混合使用
+                       )
         if not conn:
             self.get_conn()
         return conn
@@ -157,6 +181,7 @@ class TrinoDB(DBMixin, DBFileExec):
             if (action == 'SELECT' and (verbose or idx == sqls_length)) \
                     or (action == 'WITH' and idx == sqls_length):
                 # columns, results = cur_getresults(cur, count)
+                # results = self.cur_results(cur, count)
                 desc, columns = self.cur_columns(cur)
                 if verbose and columns:
                     mytrinologger.info(f"\n{pd.DataFrame(results, columns=columns)}")
@@ -174,7 +199,7 @@ class TrinoDB(DBMixin, DBFileExec):
             mytrinologger.error(e)
             conn.rollback()
 
-        rows = len(results)
+        rows = len(results) if results else rows
         conn.close()
         return rows, action, results
 

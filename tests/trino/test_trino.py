@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2022-11-14 14:25:01
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2022-11-15 09:51:24
+# @Last Modified time: 2022-11-15 16:40:29
 
 
 import sys
@@ -27,7 +27,7 @@ class TestTrino:
         GAME = os.environ.get('NEWGAME').lower()
         self.game = json.loads(GAME.replace("'", '"'))
         self.trinodb = TrinoDB(**self.game, safe_rule=False)
-        self.tablename = 'report_20000073_11.test_xu'
+        self.tablename = 'report_20000073_11.test_friuts'
         self.id = ColumnModel('id', 'integer')
         self.name = ColumnModel('name', 'varchar(1024)')
         self.address = ColumnModel('address', 'varchar(1024)')
@@ -44,19 +44,20 @@ class TestTrino:
 
     def test_create_by_sql(self):
         sql = '''
-        drop table report_20000073_11.test_xu;
-        create table report_20000073_11.test_xu as 
+        drop table if exists report_20000073_11.test_xu;
+        create table if not exists report_20000073_11.test_xu as 
         with test as
         (select * 
         from logs_thirdparty.adjust_callback 
         limit 10),
 
         test1 as
-        (select time, adid
+        (select time, adid, substring(time, 1, 10) as dt
         from test
         )
 
         select * from test1
+        ;
         '''
         rows, action, result = self.trinodb.execute(sql, verbose=1)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
@@ -76,7 +77,7 @@ class TestTrino:
         limit 10),
 
         test1 as
-        (select time, adid
+        (select time, adid, substring(time, 1, 10) as dt
         from test
         )
 
