@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2022-11-14 14:25:01
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2022-11-15 16:40:29
+# @Last Modified time: 2022-11-16 10:34:42
 
 
 import sys
@@ -42,9 +42,19 @@ class TestTrino:
         print(self.trinodb)
         print(dir(self.trinodb))
 
-    def test_create_by_sql(self):
+    def test_create_by_sql1(self):
         sql = '''
-        drop table if exists report_20000073_11.test_xu;
+        create table report_20000073_11.test_xu
+        (time varchar,
+        adid varchar,
+        dt varchar)
+        with (partitioned_by = ARRAY['dt']);
+        '''
+        rows, action, result = self.trinodb.execute(sql, verbose=1)
+        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+
+    def test_create_by_sql2(self):
+        sql = '''
         create table if not exists report_20000073_11.test_xu as 
         with test as
         (select * 
@@ -58,6 +68,38 @@ class TestTrino:
 
         select * from test1
         ;
+        '''
+        rows, action, result = self.trinodb.execute(sql, verbose=1)
+        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+
+    def test_insert_by_sql(self):
+        sql = '''
+            delete from report_20000073_11.test_xu;
+            with test as
+            (select * 
+            from logs_thirdparty.adjust_callback 
+            limit 10),
+
+            test1 as
+            (select time, adid, substring(time, 1, 10) as dt
+            from test
+            )
+
+            select * from test1
+            ;
+            insert into report_20000073_11.test_xu
+            with test as
+            (select * 
+            from logs_thirdparty.adjust_callback 
+            limit 10),
+
+            test1 as
+            (select time, adid, substring(time, 1, 10) as dt
+            from test
+            )
+
+            select * from test1
+            ;
         '''
         rows, action, result = self.trinodb.execute(sql, verbose=1)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")

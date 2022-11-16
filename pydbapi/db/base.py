@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2022-11-14 19:22:45
+# @Last Modified time: 2022-11-16 10:36:26
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -113,7 +113,11 @@ class DBbase(object):
             else:
                 pass
                 
-            self._execute_step(cur, sql, ehandling=ehandling)
+            try:
+                self._execute_step(cur, sql, ehandling=ehandling)
+            except Exception:
+                conn.rollback()
+                break
 
             if (action == 'SELECT' and (verbose or idx == sqls_length)) \
                     or (action == 'WITH' and idx == sqls_length):

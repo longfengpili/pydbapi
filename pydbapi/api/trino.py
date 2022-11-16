@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2022-11-14 14:17:02
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2022-11-15 16:42:32
+# @Last Modified time: 2022-11-16 10:38:30
 
 
 import re
@@ -56,7 +56,7 @@ class SqlTrinoCompile(SqlCompile):
 class TrinoDB(DBMixin, DBFileExec):
     _instance_lock = threading.Lock()
 
-    def __init__(self, host, user, password, database, isolation_level=None, catalog='hive', port=9090, safe_rule=True):
+    def __init__(self, host, user, password, database, isolation_level=2, catalog='hive', port=9090, safe_rule=True):
         '''[summary]
         
         [init]
@@ -115,7 +115,7 @@ class TrinoDB(DBMixin, DBFileExec):
             raise
         conn = connect(schema=self.database, user=self.user, password=self.password,
                        host=self.host, port=self.port, catalog=self.catalog, 
-                       # isolation_level=self.isolation_level  # 如果使用事务模式，则不能（drop、select、create）混合使用
+                       isolation_level=self.isolation_level  # 如果使用事务模式，则不能（drop、select、create）混合使用
                        )
         if not conn:
             self.get_conn()
@@ -175,8 +175,12 @@ class TrinoDB(DBMixin, DBFileExec):
             else:
                 pass
                 
-            self._execute_step(cur, sql, ehandling=ehandling)
-            results = self.cur_results(cur, count)
+            try:
+                self._execute_step(cur, sql, ehandling=ehandling)
+                results = self.cur_results(cur, count)
+            except Exception:
+                conn.rollback()
+                break
 
             if (action == 'SELECT' and (verbose or idx == sqls_length)) \
                     or (action == 'WITH' and idx == sqls_length):
