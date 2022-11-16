@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2022-11-14 14:17:02
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2022-11-16 10:38:30
+# @Last Modified time: 2022-11-16 11:13:46
 
 
 import re
@@ -115,7 +115,7 @@ class TrinoDB(DBMixin, DBFileExec):
             raise
         conn = connect(schema=self.database, user=self.user, password=self.password,
                        host=self.host, port=self.port, catalog=self.catalog, 
-                       isolation_level=self.isolation_level  # 如果使用事务模式，则不能（drop、select、create）混合使用
+                       # isolation_level=self.isolation_level  # 如果使用事务模式，则不能（drop、select、create）混合使用
                        )
         if not conn:
             self.get_conn()
@@ -178,7 +178,9 @@ class TrinoDB(DBMixin, DBFileExec):
             try:
                 self._execute_step(cur, sql, ehandling=ehandling)
                 results = self.cur_results(cur, count)
-            except Exception:
+            except Exception as e:
+                sql = sql.replace('\n', '')  # sql转换成一行
+                mytrinologger.error(f"【Error】{e}, 【error Sql】: {sql}")
                 conn.rollback()
                 break
 
