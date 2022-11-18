@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-11-30 16:28:21
-# @Last Modified time: 2022-11-14 19:08:24
+# @Last Modified time: 2022-11-18 15:40:35
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -64,10 +64,18 @@ class ColumnsModel(object):
         isin = True if col else False
         return isin
 
-    def append(self, column):
+    def append(self, column: ColumnModel):
         columns = list(self.columns)
         columns.append(column)
         return ColumnsModel(*columns)
+
+    def remove(self, remove_column: str):
+        new_columns = []
+        columns = list(self.columns)
+        for column in columns:
+            if column.newname != remove_column:
+                new_columns.append(column)
+        return ColumnsModel(*new_columns)
 
     @property
     def func_cols(self):

@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2022-11-14 14:17:02
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2022-11-18 15:06:03
+# @Last Modified time: 2022-11-18 15:44:22
 
 
 import re
@@ -40,12 +40,16 @@ class SqlTrinoCompile(SqlCompile):
         return partition
 
     def create(self, columns, partition=None):
-        sql = self.create_nonindex(columns)
-
         if partition:
             partition_key = columns.get_column_by_name(partition)
-            partition = self.create_partition(partition_key)
-            sql = sql.replace(';', f'\n{partition};')
+            columns = columns.remove(partition)
+            columns = columns.append(partition_key)
+            partition_sql = self.create_partition(partition_key)
+
+        sql = self.create_nonindex(columns)
+
+        if partition_sql:
+            sql = sql.replace(';', f'\n{partition_sql};')
 
         return sql
 
