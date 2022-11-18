@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2022-11-14 14:25:01
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2022-11-16 11:14:15
+# @Last Modified time: 2022-11-18 15:15:50
 
 
 import sys
@@ -44,7 +44,7 @@ class TestTrino:
 
     def test_create_by_sql1(self):
         sql = '''
-        create table report_20000073_11.test_xu
+        create table if not exists report_20000073_11.test_xu
         (time varchar,
         adid varchar,
         dt varchar)
@@ -128,12 +128,12 @@ class TestTrino:
         rows, action, result = self.trinodb.execute(sql, verbose=1)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
-    def test_create(self):
-        rows, action, result = self.trinodb.create(self.tablename, self.columns, partition='birthday')
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
-
     def test_drop(self):
         rows, action, result = self.trinodb.drop(self.tablename)
+        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+
+    def test_create(self):
+        rows, action, result = self.trinodb.create(self.tablename, self.columns, partition='score')
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_insertsql(self):
@@ -165,3 +165,8 @@ class TestTrino:
     def test_select(self):
         rows, action, result = self.trinodb.select(self.tablename, self.columns, condition="name='pizza'", verbose=1)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+
+    def test_createsql(self):
+        sqlcompile = SqlTrinoCompile(self.tablename)
+        sql = sqlcompile.create(self.columns, partition='name')
+        print(sql)

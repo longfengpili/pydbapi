@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2022-11-14 14:17:02
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2022-11-16 11:13:46
+# @Last Modified time: 2022-11-18 15:06:03
 
 
 import re
@@ -34,20 +34,17 @@ class SqlTrinoCompile(SqlCompile):
 
     def create_partition(self, partition):
         coltype = partition.coltype
-        if coltype != 'date':
-            raise TypeError(f"{partition} only support date type !")
+        if not coltype.startswith('varchar'):
+            raise TypeError(f"{partition} only support varchar !")
         partition = f"with (partitioned_by = ARRAY['{partition.newname}'])"
         return partition
 
     def create(self, columns, partition=None):
-        if partition:
-            dt = ColumnModel('dt', 'date')
-            columns = columns.append(dt)
-
         sql = self.create_nonindex(columns)
 
-        if dt:
-            partition = self.create_partition(dt)
+        if partition:
+            partition_key = columns.get_column_by_name(partition)
+            partition = self.create_partition(partition_key)
             sql = sql.replace(';', f'\n{partition};')
 
         return sql
