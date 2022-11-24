@@ -3,4 +3,3 @@ pandas
 pymysql
 colorlog
 tqdm
-
