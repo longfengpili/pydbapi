@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2022-11-24 14:37:08
+# @Last Modified time: 2022-11-24 14:59:18
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -48,9 +48,9 @@ class SqlParse(object):
 
     @property
     def comment(self):
-        orisql = self.orisql if self.orisql.endswith(';') else self.orisql + ';'
-        comment = orisql.replace(self.sql, '')
-        comment = re.search('-- *(.*?)$', comment.strip())
+        orisql = self.orisql.strip()
+        orisql = orisql if orisql.endswith(';') else orisql + ';'
+        comment = re.search('^-- *(.*?)\n', orisql)
         comment = comment.group(1) if comment else ''
         return comment.strip()
 
