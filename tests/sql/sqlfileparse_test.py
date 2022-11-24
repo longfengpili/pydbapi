@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-04 17:45:04
-# @Last Modified time: 2021-09-23 11:32:38
+# @Last Modified time: 2022-11-24 13:08:42
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -22,6 +22,7 @@ class TestSqlFileParse:
     def setup_method(self, method):
         self.dirpath = os.path.dirname(os.path.abspath(__file__))
         self.filepath = os.path.join(self.dirpath, 'sql.sql')
+        self.withfilepath = os.path.join(self.dirpath, 'withsql.sql')
 
     def teardown_method(self, method):
         pass
@@ -89,3 +90,11 @@ class TestSqlFileParse:
         for sql in sqls:
             print('='*50)
             print(f"{sql}\n{sqls.get(sql)}")
+
+    def test_withsql(self):
+        filepparser = SqlFileParse(self.withfilepath)
+        arguments, sqls = filepparser.get_filesqls(iscombination_test=True)
+        for sql in sqls:
+            print('='*50)
+            print(sql)
+            print(sqls.get(sql))

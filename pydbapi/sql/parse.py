@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2022-11-24 11:54:17
+# @Last Modified time: 2022-11-24 13:08:38
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -80,6 +80,40 @@ class SqlParse(object):
         tablename = tmpcreatet or createt or updatet or deletet or insertt or fromt or ont
         tablename = tablename.group(1) if tablename else sql
         return tablename
+
+    @property
+    def split_withsqls(self):
+        sql = self.sql
+        sqls = re.split('(?<=\)),?\n+.*?\n*(?=.*?as)', sql)
+        if sqls[-1].startswith('select'):
+            sql_last = sqls[-2] + sqls[-1]
+            sqls = sqls[:-2] + [sql_last]
+        return sqls
+
+    @property
+    def combination_sqls(self):
+        combination_sqls = []
+        sqls = self.split_withsqls
+        length = len(sqls)
+        for i in range(length):
+            _sql = sqls[i]
+            tablename = re.search(r'(?:with )?(.*?)(?: as)', _sql)
+            tablename = tablename.group(1) if tablename else ''
+            content = f"-- {i:03d}_{tablename}"
+
+            if i + 1 < length:
+                _sqls = sqls[:i + 1]
+                _sqls = ',\n'.join(_sqls)
+                ssql = f'select * from {tablename}'
+                _sqls += f"\n{ssql}"
+            else:
+                _sqls = sqls
+                _sqls = ',\n'.join(_sqls)
+
+            _sqls = f'{content}\n' + f'{_sqls}\n'
+            combination_sqls.append(_sqls)
+
+        return combination_sqls
 
 
 class SqlFileParse(object):
@@ -180,7 +214,7 @@ class SqlFileParse(object):
 
         return arguments, content
 
-    def get_filesqls(self, **kwargs):
+    def get_filesqls(self, iscombination_test: bool = False, **kwargs):
         sqls = {}
         arguments, content = self.replace_params(**kwargs)
         sqls_tmp = re.findall(r'(?<!--)\s*###\s*\n(.*?)###', content, re.S)
@@ -188,5 +222,11 @@ class SqlFileParse(object):
             sqlparser = SqlParse(sql)
             purpose = f"【{idx+1:0>3d}】{sqlparser.purpose}"
             sql = re.sub('--【.*?\n', '', sql.strip())
-            sqls[purpose] = sql
+
+            if iscombination_test:
+                combination_sqls = sqlparser.combination_sqls
+                for idx, sql in enumerate(combination_sqls):
+                    sqls[f"{purpose}_{idx} verbose1"] = sql
+            else:
+                sqls[purpose] = sql
         return arguments, sqls
