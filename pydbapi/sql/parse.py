@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2022-11-24 13:08:38
+# @Last Modified time: 2022-11-24 14:30:14
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -84,7 +84,7 @@ class SqlParse(object):
     @property
     def split_withsqls(self):
         sql = self.sql
-        sqls = re.split('(?<=\)),?\n+.*?\n*(?=.*?as)', sql)
+        sqls = re.split('(?<=\)),\n+.*?\n*(?=.*?as)', sql)
         if sqls[-1].startswith('select'):
             sql_last = sqls[-2] + sqls[-1]
             sqls = sqls[:-2] + [sql_last]
