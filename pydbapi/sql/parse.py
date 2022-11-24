@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2022-11-24 15:17:00
+# @Last Modified time: 2022-11-24 17:17:37
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -43,7 +43,7 @@ class SqlParse(object):
         sql = sql if sql.endswith(';') else sql + ';'
         sql_r1 = re.sub('; *\n', ';\n', sql)  # 处理多余的；
         sql_r2 = re.sub(';$', ';\n', sql_r1)  # 末尾增加'\n'
-        sqls = sql_r2.split(";")[:-1]
+        sqls = re.split(';\n', sql_r2)[:-1]
         return sqls
 
     @property
