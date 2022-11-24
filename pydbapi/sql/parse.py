@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2022-11-24 14:30:14
+# @Last Modified time: 2022-11-24 14:37:08
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -104,7 +104,7 @@ class SqlParse(object):
             if i + 1 < length:
                 _sqls = sqls[:i + 1]
                 _sqls = ',\n'.join(_sqls)
-                ssql = f'select * from {tablename}'
+                ssql = f'select * from {tablename} limit 10'
                 _sqls += f"\n{ssql}"
             else:
                 _sqls = sqls
