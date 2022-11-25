@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2022-11-25 14:49:00
+# @Last Modified time: 2022-11-25 15:26:48
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -83,6 +83,9 @@ class SqlParse(object):
     @property
     def split_withsqls(self):
         sql = self.sql
+        if not sql.lower().startswith('with'):
+            raise Exception(f"Sql should startswith [with], but startswith [{sql[:4]}] !!!")
+
         sqls = re.split('(?<=\)),\n+.*?\n*(?=.*?as)', sql)
         if sqls[-1].startswith('select'):
             sql_last = sqls[-2] + sqls[-1]
@@ -95,22 +98,20 @@ class SqlParse(object):
         sqls = self.split_withsqls
         length = len(sqls)
         for i in range(length):
-            _sql = sqls[i]
-            tablename = re.search(r'(?:with )?(.*?)(?: as)', _sql)
+            sql = sqls[i]
+            tablename = re.search(r'(?:with )?(.*?)(?: as)', sql)
             tablename = tablename.group(1) if tablename else ''
-            content = f"-- {i:03d}_{tablename}"
+            content = f"-- {tablename}_{i:03d}"
 
-            if i + 1 < length:
-                _sqls = sqls[:i + 1]
-                _sqls = ',\n'.join(_sqls)
-                ssql = f'select * from {tablename}'
-                _sqls += f"\n{ssql}"
-            else:
-                _sqls = sqls
-                _sqls = ',\n'.join(_sqls)
+            i += 1
+            sqls_front = sqls[:i]
+            sqls_front = ',\n'.join(sqls_front)
+            if i < length:
+                sql_select = f'select * from {tablename}'
+                sqls_front += f"\n{sql_select}"
 
-            _sqls = f'{content}\n' + f'{_sqls} limit 10\n'
-            combination_sqls.append(_sqls)
+            sqls_front = f'{content}\n' + f'{sqls_front} limit 10\n'
+            combination_sqls.append(sqls_front)
 
         return combination_sqls
 
@@ -213,19 +214,20 @@ class SqlFileParse(object):
 
         return arguments, content
 
-    def get_filesqls(self, iscombination_test: bool = False, **kwargs):
+    def get_filesqls(self, with_test: bool = False, with_snum: int = 0, **kwargs):
         sqls = {}
         arguments, content = self.replace_params(**kwargs)
         sqls_tmp = re.findall(r'(?<!--)\s*###\s*\n(.*?)###', content, re.S)
         for idx, sql in enumerate(sqls_tmp):
             sqlparser = SqlParse(sql)
-            purpose = f"【{idx+1:0>3d}】{sqlparser.purpose}"
+            purpose = f"【{idx:0>3d}】{sqlparser.purpose}"
             sql = re.sub('--【.*?\n', '', sql.strip())
 
-            if iscombination_test:
+            if with_test:
                 combination_sqls = sqlparser.combination_sqls
                 for idx, sql in enumerate(combination_sqls):
-                    sqls[f"{purpose}_{idx} verbose1"] = sql
+                    if with_snum <= idx:
+                        sqls[f"{purpose}_{idx:03d}"] = sql
             else:
                 sqls[purpose] = sql
         return arguments, sqls

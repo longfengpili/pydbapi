@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-04 17:45:04
-# @Last Modified time: 2022-11-24 13:08:42
+# @Last Modified time: 2022-11-25 15:25:18
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -93,7 +93,7 @@ class TestSqlFileParse:
 
     def test_withsql(self):
         filepparser = SqlFileParse(self.withfilepath)
-        arguments, sqls = filepparser.get_filesqls(iscombination_test=True)
+        arguments, sqls = filepparser.get_filesqls(with_test=True, with_snum=3)
         for sql in sqls:
             print('='*50)
             print(sql)
