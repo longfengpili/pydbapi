@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-08 11:55:54
-# @Last Modified time: 2022-11-24 13:13:03
+# @Last Modified time: 2022-11-25 15:32:02
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -27,12 +27,13 @@ class DBFileExec(DBbase):
         arguments, sqls = sqlfileparser.get_filesqls(**kw)
         return arguments, sqls
 
-    def file_exec(self, filepath, ehandling=None, verbose=0, iscombination_test=False, **kw):
+    def file_exec(self, filepath: str, ehandling: str = None, verbose: int = 0, 
+                  with_test: bool = False, with_snum: int = 0, **kw):
         st = time.time()
         results = {}
         filename = os.path.basename(filepath)
         dblogger.info(f"Start Job 【{filename}】".center(80, '='))
-        arguments, sqls = self.get_filesqls(filepath, iscombination_test=iscombination_test, **kw)
+        arguments, sqls = self.get_filesqls(filepath, with_test=with_test, with_snum=with_snum, **kw)
         for desc, sql in sqls.items():
             dblogger.info(f">>> START {desc}")
             sqlverbose = verbose or (2 if 'verbose2' in desc else 1
