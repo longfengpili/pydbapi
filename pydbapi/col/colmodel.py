@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-11-30 16:28:21
-# @Last Modified time: 2022-11-18 15:40:35
+# @Last Modified time: 2022-11-30 15:41:31
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -10,15 +10,18 @@
 
 class ColumnModel(object):
 
-    def __init__(self, newname, coltype='varchar', sqlexpr=None, func=None, order=0):
+    def __init__(self, newname, coltype='varchar', sqlexpr=None, func=None, order=0, desc=None):
         self.newname = newname
         self.coltype = coltype
         self.sqlexpr = sqlexpr or newname
         self.func = self.__check_func(func)
         self.order = order
+        self.desc = desc
 
     def __repr__(self):
-        return f"{self.newname}({self.coltype})"
+        col = f"{self.newname}({self.coltype})"
+        col = col + f':{self.desc}' if self.desc else col
+        return col
 
     def __contains__(self, newname):
         return newname == self.newname
