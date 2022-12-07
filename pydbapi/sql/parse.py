@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2022-11-25 15:26:48
+# @Last Modified time: 2022-12-07 15:38:13
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -86,7 +86,7 @@ class SqlParse(object):
         if not sql.lower().startswith('with'):
             raise Exception(f"Sql should startswith [with], but startswith [{sql[:4]}] !!!")
 
-        sqls = re.split('(?<=\)),\n+.*?\n*(?=.*?as)', sql)
+        sqls = re.split('?<=\)),\n+.*?\n*(?=.*?as *\n)', sql)
         if sqls[-1].startswith('select'):
             sql_last = sqls[-2] + sqls[-1]
             sqls = sqls[:-2] + [sql_last]
