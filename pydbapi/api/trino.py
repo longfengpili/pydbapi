@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2022-11-14 14:17:02
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2022-11-18 15:44:22
+# @Last Modified time: 2023-01-12 12:25:12
 
 
 import re
@@ -40,6 +40,7 @@ class SqlTrinoCompile(SqlCompile):
         return partition
 
     def create(self, columns, partition=None):
+        partition_sql = None
         if partition:
             partition_key = columns.get_column_by_name(partition)
             columns = columns.remove(partition)
