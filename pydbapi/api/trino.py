@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2022-11-14 14:17:02
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-01-12 12:25:12
+# @Last Modified time: 2023-01-13 11:25:26
 
 
 import re
@@ -178,13 +178,13 @@ class TrinoDB(DBMixin, DBFileExec):
                 pass
                 
             try:
-                self._execute_step(cur, sql, ehandling=ehandling)
+                self._execute_step(cur, sql)
                 results = self.cur_results(cur, count)
             except Exception as e:
-                sql = sql.replace('\n', '')  # sql转换成一行
-                mytrinologger.error(f"【Error】{e}, 【error Sql】: {sql}")
-                conn.rollback()
-                break
+                mytrinologger.error(e)
+                if ehandling == 'raise':
+                    conn.rollback()
+                    raise e
 
             if (action == 'SELECT' and (verbose or idx == sqls_length)) \
                     or (action == 'WITH' and idx == sqls_length):

@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-02 18:46:58
-# @Last Modified time: 2023-01-12 15:00:20
+# @Last Modified time: 2023-01-13 11:25:44
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -26,7 +26,7 @@ class DBbase(object):
     def get_conn(self):
         pass
 
-    def _execute_step(self, cursor, sql, ehandling='raise'):
+    def _execute_step(self, cursor, sql):
         '''[summary]
 
         [description]
@@ -42,11 +42,7 @@ class DBbase(object):
         try:
             cursor.execute(sql)
         except Exception as e:
-            sql = sql.replace('\n', ' ')  # sql转换成一行
-            dblogger.error(f"【Error】{e}, 【error Sql】: {sql}")
-
-            if ehandling == 'raise':
-                raise ValueError(f"【Error】:{e}【Sql】:{sql}")
+            raise ValueError(f"【Error】:{e}【Sql】:{sql}")
 
     def cur_results(self, cursor, count):
         results = cursor.fetchmany(count) if count else cursor.fetchall()
@@ -81,7 +77,7 @@ class DBbase(object):
         #     results = list(results) if results else []
         #     columns = tuple(map(lambda x: x[0].lower(), cur.description)) if cur.description  # 列名
         #     return columns, results
-
+        
         rows = 0
         idx = 0
         conn = self.get_conn()
@@ -114,10 +110,12 @@ class DBbase(object):
                 pass
                 
             try:
-                self._execute_step(cur, sql, ehandling=ehandling)
-            except Exception:
-                conn.rollback()
-                break
+                self._execute_step(cur, sql)
+            except Exception as e:
+                dblogger.error(e)
+                if ehandling == 'raise':
+                    conn.rollback()
+                    raise e
 
             if (action == 'SELECT' and (verbose or idx == sqls_length)) \
                     or (action == 'WITH' and idx == sqls_length):
@@ -133,11 +131,15 @@ class DBbase(object):
 
                 if columns:
                     results.insert(0, columns)
+
         try:
             conn.commit()
         except Exception as e:
             dblogger.error(e)
             conn.rollback()
+            conn.close()
+            raise e
+
         rows = cur.rowcount
         conn.close()
         return rows, action, results
