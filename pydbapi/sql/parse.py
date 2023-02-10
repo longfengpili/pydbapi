@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 10:51:08
-# @Last Modified time: 2022-12-07 17:03:59
+# @Last Modified time: 2023-02-10 15:17:36
 # @github: https://github.com/longfengpili
 
 #!/usr/bin/env python3
@@ -133,7 +133,8 @@ class SqlFileParse(object):
         key, value = argument.split('=', 1)
         key, value = key.strip(), value.strip()
         try:
-            value = eval(value, globals(), arguments)
+            globals_value = {'timedelta': timedelta}
+            value = eval(value, globals_value, arguments)
         except NameError as e:
             raise NameError(f"{e}, please set it before '{key}' !!!")
         return key, value
