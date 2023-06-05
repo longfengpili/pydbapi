@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2022-08-11 10:05:16
+# @Last Modified time: 2023-06-05 13:49:19
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -134,8 +134,6 @@ class MysqlDB(DBMixin, DBFileExec):
     def get_conn(self):
         conn = pymysql.connect(database=self.database, user=self.user, password=self.password,
                                host=self.host, port=self.port, charset=self.charset)
-        if not conn:
-            self.get_conn()
         return conn
 
     def create(self, tablename, columns, indexes=None, index_part=128, ismultiple_index=True,

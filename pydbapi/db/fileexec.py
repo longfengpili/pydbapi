@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-08 11:55:54
-# @Last Modified time: 2022-11-25 15:32:02
+# @Last Modified time: 2023-06-05 18:56:46
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -36,6 +36,7 @@ class DBFileExec(DBbase):
         arguments, sqls = self.get_filesqls(filepath, with_test=with_test, with_snum=with_snum, **kw)
         for desc, sql in sqls.items():
             dblogger.info(f">>> START {desc}")
+            print(sql)
             sqlverbose = verbose or (2 if 'verbose2' in desc else 1
                                      if 'verbose1' in desc or filename.startswith('test')
                                      else 0)

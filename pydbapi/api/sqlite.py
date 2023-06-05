@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-03 15:25:44
-# @Last Modified time: 2022-08-11 10:05:25
+# @Last Modified time: 2023-06-05 13:49:34
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -69,8 +69,6 @@ class SqliteDB(DBMixin, DBFileExec):
 
     def get_conn(self):
         conn = sqlite3.connect(database=self.database)
-        if not conn:
-            self.get_conn()
         return conn
 
     def create(self, tablename, columns, indexes=None, verbose=0):

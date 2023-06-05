@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-06-10 14:40:50
-# @Last Modified time: 2022-08-11 10:05:30
+# @Last Modified time: 2023-06-05 13:49:26
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -73,8 +73,6 @@ class RedshiftDB(DBMixin, DBFileExec):
 
     def get_conn(self):
         conn = psycopg2.connect(database=self.database, user=self.user, password=self.password, host=self.host, port=self.port)
-        if not conn:
-            self.get_conn()
         return conn
 
     def create(self, tablename, columns, indexes=None, verbose=0):

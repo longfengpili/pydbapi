@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2022-11-14 14:17:02
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-01-13 11:25:26
+# @Last Modified time: 2023-06-05 13:49:45
 
 
 import re
@@ -119,8 +119,6 @@ class TrinoDB(DBMixin, DBFileExec):
                        host=self.host, port=self.port, catalog=self.catalog, 
                        # isolation_level=self.isolation_level  # 如果使用事务模式，则不能（drop、select、create）混合使用
                        )
-        if not conn:
-            self.get_conn()
         return conn
 
     def execute(self, sql, count=None, ehandling='raise', verbose=0):
