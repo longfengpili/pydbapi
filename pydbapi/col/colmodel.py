@@ -1,7 +1,7 @@
 # @Author: chunyang.xu
 # @Email:  398745129@qq.com
 # @Date:   2020-11-30 16:28:21
-# @Last Modified time: 2022-11-30 15:41:31
+# @Last Modified time: 2023-06-08 10:30:28
 # @github: https://github.com/longfengpili
 
 # !/usr/bin/env python3
@@ -54,10 +54,14 @@ class ColumnsModel(object):
         self.columns = columns
 
     def __repr__(self):
-        return f"{[column for column in self.columns]}"
+        return f"{self.columns}"
 
     def __getitem__(self, key):
         return self.columns[key]
+
+    # def __iter__(self):
+    #     for column in self.columns:
+    #         yield column
 
     def index(self, key):
         return self.columns[key]
