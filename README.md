@@ -191,6 +191,7 @@ row, action, result = db.execute(sql)
 ```python
 import logging.config
 from pydbapi.conf.settings import LOGGING_CONFIG
+LOGGING_CONFIG['handlers']['console']['formatter'] = 'color'  # set log all use color  # noqa: E501
 logging.config.dictConfig(LOGGING_CONFIG)
 ```
 
