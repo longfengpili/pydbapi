@@ -1,9 +1,9 @@
-
 # -*- coding: utf-8 -*-
 # @Author: chunyang.xu
-# @Date:   2021-03-08 14:19:01
+# @Date:   2023-06-02 15:27:41
 # @Last Modified by:   chunyang.xu
-# @Last Modified time: 2022-08-11 11:25:41
+# @Last Modified time: 2023-07-26 18:18:18
+# @github: https://github.com/longfengpili
 
 import os
 import pytest
@@ -13,7 +13,7 @@ from pydbapi.api import MysqlDB
 from pydbapi.api.mysql import SqlMysqlCompile
 
 # 如果需要日期，请打开
-# from pydbapi.conf.settings import LOGGING_CONFIG
+# from pydbapi.conf.logconf import LOGGING_CONFIG
 # import logging.config
 # logging.config.dictConfig(LOGGING_CONFIG)
 

@@ -1,12 +1,9 @@
+# -*- coding: utf-8 -*-
 # @Author: chunyang.xu
-# @Email:  398745129@qq.com
-# @Date:   2020-11-30 18:43:01
-# @Last Modified time: 2021-02-01 19:27:10
+# @Date:   2023-06-02 15:27:41
+# @Last Modified by:   chunyang.xu
+# @Last Modified time: 2023-07-26 18:18:37
 # @github: https://github.com/longfengpili
-
-# !/usr/bin/env python3
-# -*- coding:utf-8 -*-
-
 
 from pydbapi.col import ColumnModel, ColumnsModel
 from pydbapi.sql import SqlCompile

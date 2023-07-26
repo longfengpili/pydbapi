@@ -1,13 +1,11 @@
+# -*- coding: utf-8 -*-
 # @Author: chunyang.xu
-# @Email:  398745129@qq.com
-# @Date:   2020-06-10 12:18:59
-# @Last Modified time: 2020-06-17 21:08:41
+# @Date:   2023-06-02 15:27:41
+# @Last Modified by:   chunyang.xu
+# @Last Modified time: 2023-07-26 18:05:23
 # @github: https://github.com/longfengpili
 
-#!/usr/bin/env python3
-# -*- coding:utf-8 -*-
-
 from .myhandlers import MakeFileHandler
-from .settings import *
+from .logconf import *
 
 # __all__ = ['MakeFileHandler', 'LOGGING_CONFIG', 'AUTO_RULES', 'REDSHIFT_AUTO_RULES']

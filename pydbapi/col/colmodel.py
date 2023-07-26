@@ -1,12 +1,9 @@
+# -*- coding: utf-8 -*-
 # @Author: chunyang.xu
-# @Email:  398745129@qq.com
-# @Date:   2020-11-30 16:28:21
-# @Last Modified time: 2023-06-08 10:30:28
+# @Date:   2023-06-02 15:27:41
+# @Last Modified by:   chunyang.xu
+# @Last Modified time: 2023-07-26 18:05:10
 # @github: https://github.com/longfengpili
-
-# !/usr/bin/env python3
-# -*- coding:utf-8 -*-
-
 
 class ColumnModel(object):
 

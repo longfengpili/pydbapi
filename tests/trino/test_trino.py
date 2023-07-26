@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-# @Author: longfengpili
-# @Date:   2022-11-14 14:25:01
-# @Last Modified by:   longfengpili
-# @Last Modified time: 2022-11-18 15:15:50
+# @Author: chunyang.xu
+# @Date:   2023-06-02 15:27:41
+# @Last Modified by:   chunyang.xu
+# @Last Modified time: 2023-07-26 18:19:19
+# @github: https://github.com/longfengpili
 
 
 import sys
@@ -16,7 +17,7 @@ from pydbapi.api import TrinoDB
 from pydbapi.api.trino import SqlTrinoCompile
 
 # 如果需要日期，请打开
-# from pydbapi.conf.settings import LOGGING_CONFIG
+# from pydbapi.conf.logconf import LOGGING_CONFIG
 # import logging.config
 # logging.config.dictConfig(LOGGING_CONFIG)
 

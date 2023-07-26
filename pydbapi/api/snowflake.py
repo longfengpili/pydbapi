@@ -1,11 +1,9 @@
-# # @Author: chunyang.xu
-# # @Email:  398745129@qq.com
-# # @Date:   2020-10-22 16:12:47
-# # @Last Modified time: 2022-08-11 10:05:28
-# # @github: https://github.com/longfengpili
-
-# # !/usr/bin/env python3
-# # -*- coding:utf-8 -*-
+# -*- coding: utf-8 -*-
+# @Author: chunyang.xu
+# @Date:   2023-06-02 15:27:41
+# @Last Modified by:   chunyang.xu
+# @Last Modified time: 2023-07-26 18:05:45
+# @github: https://github.com/longfengpili
 
 # import threading
 # import snowflake.connector
@@ -13,13 +11,6 @@
 # from pydbapi.db import DBMixin, DBFileExec
 # from pydbapi.sql import SqlCompile
 # from pydbapi.conf import AUTO_RULES
-
-
-# import logging
-# import logging.config
-# from pydbapi.conf import LOGGING_CONFIG
-# logging.config.dictConfig(LOGGING_CONFIG)
-# sflogger = logging.getLogger('snowflake')
 
 
 # class SqlSnowflakeCompile(SqlCompile):
