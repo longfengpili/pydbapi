@@ -2,13 +2,13 @@
 # @Author: chunyang.xu
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   chunyang.xu
-# @Last Modified time: 2023-07-26 18:06:48
+# @Last Modified time: 2023-07-26 18:22:19
 # @github: https://github.com/longfengpili
 
 import pytest
 
 from pydbapi.sql import SqlParse
-from pydbapi.conf.settings import LOGGING_CONFIG
+from pydbapi.conf.logconf import LOGGING_CONFIG
 import logging.config
 logging.config.dictConfig(LOGGING_CONFIG)
 

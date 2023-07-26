@@ -2,12 +2,12 @@
 # @Author: chunyang.xu
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   chunyang.xu
-# @Last Modified time: 2023-07-26 18:06:21
+# @Last Modified time: 2023-07-26 18:20:31
 # @github: https://github.com/longfengpili
 
 import os
 import logging.config
-from pydbapi.conf.settings import LOGGING_CONFIG
+from pydbapi.conf.logconf import LOGGING_CONFIG
 logging.config.dictConfig(LOGGING_CONFIG)
 
 os.environ['NUMEXPR_MAX_THREADS'] = '16'
