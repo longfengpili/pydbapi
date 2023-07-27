@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
-# @Author: chunyang.xu
+# @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
-# @Last Modified by:   chunyang.xu
-# @Last Modified time: 2023-07-26 18:19:32
+# @Last Modified by:   longfengpili
+# @Last Modified time: 2023-07-27 15:43:11
 # @github: https://github.com/longfengpili
-#
+
+
 import os
 import sys
 import shutil
 import setuptools
 
-VERSION = '0.0.107'
+VERSION = '0.0.108'
 PROJECT_NAME = 'pydbapi'
 
 with open('README.md', 'r', encoding='utf-8') as f:

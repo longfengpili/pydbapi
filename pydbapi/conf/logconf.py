@@ -1,11 +1,10 @@
-# @Author: chunyang.xu
-# @Email:  398745129@qq.com
-# @Date:   2020-06-10 14:14:53
-# @Last Modified time: 2022-08-11 11:56:34
+# -*- coding: utf-8 -*-
+# @Author: longfengpili
+# @Date:   2023-07-26 17:46:27
+# @Last Modified by:   longfengpili
+# @Last Modified time: 2023-07-27 15:38:28
 # @github: https://github.com/longfengpili
 
-# !/usr/bin/env python3
-# -*- coding:utf-8 -*-
 
 import re
 import os
@@ -17,8 +16,10 @@ REDSHIFT_AUTO_RULES = AUTO_RULES + ['_data_aniland']  # Amazon Redshift 可以�
 
 # logging settings
 USERPATH = os.environ['USERPROFILE'] if 'USERPROFILE' in os.environ else os.environ['HOME'] if 'HOME' in os.environ else ''
-LOG_BASE_PATH = os.path.join(USERPATH, '.pydbapilog')  # 可以user目录下查看日志
+LOG_BASE_PATH = os.path.join(USERPATH, 'snapilog')  # 可以user目录下查看日志
 PROJECT_NAME = re.sub(':?\\\\', '_', os.getcwd())
+PROJECT_NAME = PROJECT_NAME[1:] if PROJECT_NAME.startswith('/') else PROJECT_NAME  # linux
+
 LOGGING_CONFIG = {
     'version': 1,  # 保留字
     'disable_existing_loggers': False,  # 禁用已经存在的logger实例
@@ -62,7 +63,7 @@ LOGGING_CONFIG = {
             'level': 'DEBUG',
             'filters': [],
             'class': 'logging.StreamHandler',  #
-            'formatter': 'color' if sys.stdout.isatty() else 'simple'
+            'formatter': 'color' if sys.stdout.isatty() or any("jupyter" in arg for arg in sys.argv) else 'simple'
         },
         # 默认的
         'default': {
