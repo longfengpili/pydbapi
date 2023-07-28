@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-27 15:42:27
+# @Last Modified time: 2023-07-28 10:29:11
 # @github: https://github.com/longfengpili
 
 
@@ -22,9 +22,8 @@ from pydbapi.api.mysql import SqlMysqlCompile
 class TestMysql:
 
     def setup_method(self, method):
-        AdLocal = os.environ.get('ADLOCAL').lower()
-        self.AdLocal = json.loads(AdLocal.replace("'", '"'))
-        self.mysqldb = MysqlDB(safe_rule=False, **self.AdLocal)
+        self.LocalDB = {'host': 'localhost', 'port': 3306, 'user': 'longfengpili', 'password': '123456abc', 'database': 'test'}
+        self.mysqldb = MysqlDB(safe_rule=False, **self.LocalDB)
         self.tablename = 'test_xu'
         self.id = ColumnModel('id', 'varchar(1024)')
         self.name = ColumnModel('name', 'varchar(1024)')
@@ -37,11 +36,11 @@ class TestMysql:
         pass
 
     def test_get_instance(self):
-        # mysql1 = MysqlDB.get_instance(safe_rule=False, **self.AdLocal)
+        # mysql1 = MysqlDB.get_instance(safe_rule=False, **self.LocalDB)
         # print(mysql1)
-        # mysql2 = MysqlDB.get_instance(safe_rule=False, **self.AdLocal)
-        mysql3 = MysqlDB(safe_rule=False, **self.AdLocal)
-        # mysql4 = MysqlDB(safe_rule=False, **self.AdLocal)
+        # mysql2 = MysqlDB.get_instance(safe_rule=False, **self.LocalDB)
+        mysql3 = MysqlDB(safe_rule=False, **self.LocalDB)
+        # mysql4 = MysqlDB(safe_rule=False, **self.LocalDB)
         # print(mysql3, mysql4)
         # for i in dir(mysql4):
         #     result = eval(f"mysql4.{i}")

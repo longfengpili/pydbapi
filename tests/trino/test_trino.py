@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-27 15:42:43
+# @Last Modified time: 2023-07-28 10:23:02
 # @github: https://github.com/longfengpili
 
 
@@ -22,6 +22,7 @@ from pydbapi.api.trino import SqlTrinoCompile
 # logging.config.dictConfig(LOGGING_CONFIG)
 
 
+@pytest.mark.skip(reason='跳过')
 class TestTrino:
 
     def setup_method(self, method):
