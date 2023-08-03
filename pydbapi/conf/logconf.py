@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-07-26 17:46:27
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-27 17:17:47
+# @Last Modified time: 2023-08-03 11:58:10
 # @github: https://github.com/longfengpili
 
 
@@ -15,8 +15,7 @@ AUTO_RULES = ['test_xu']  # 可以自动执行表名（表名包含即可）
 REDSHIFT_AUTO_RULES = AUTO_RULES + ['_data_aniland']  # Amazon Redshift 可以自动执行表名（表名包含即可）
 
 # logging settings
-USERPATH = os.environ['USERPROFILE'] if 'USERPROFILE' in os.environ else os.environ['HOME'] if 'HOME' in os.environ else ''
-LOG_BASE_PATH = os.path.join(USERPATH, 'snapilog')  # 可以user目录下查看日志
+LOG_BASE_PATH = os.path.join(os.path.expanduser('~'), 'pydbapilog')  # 可以user目录下查看日志
 PROJECT_NAME = re.sub(':?\\\\', '_', os.getcwd())
 PROJECT_NAME = PROJECT_NAME[1:] if PROJECT_NAME.startswith('/') else PROJECT_NAME  # linux
 

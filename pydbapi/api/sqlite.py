@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-27 15:32:24
+# @Last Modified time: 2023-08-03 11:59:33
 # @github: https://github.com/longfengpili
 
 
@@ -15,9 +15,6 @@ from pydbapi.sql import SqlCompile
 
 import logging
 sqlitelogger = logging.getLogger(__name__)
-
-
-USERPATH = os.environ['USERPROFILE'] if 'USERPROFILE' in os.environ else os.environ['HOME'] if 'HOME' in os.environ else ''
 
 
 class SqliteCompile(SqlCompile):
@@ -46,7 +43,7 @@ class SqliteDB(DBMixin, DBFileExec):
     _instance_lock = threading.Lock()
 
     def __init__(self, database=None):
-        self.database = database if database else os.path.join(USERPATH, 'sqlite3_test.db')
+        self.database = database if database else os.path.join(os.path.expanduser('~'), 'sqlite3_test.db')
         super(SqliteDB, self).__init__()
 
     # def __new__(cls, *args, **kwargs):
