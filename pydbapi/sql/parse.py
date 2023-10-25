@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-27 15:35:15
+# @Last Modified time: 2023-10-25 10:16:33
 # @github: https://github.com/longfengpili
 
 
@@ -39,6 +39,7 @@ class SqlParse(object):
 
     @staticmethod
     def split_sqls(sql):
+        sql = sql.strip()
         sql = sql if sql.endswith(';') else sql + ';'
         sql_r1 = re.sub('; *\n', ';\n', sql)  # 处理多余的；
         sql_r2 = re.sub(';$', ';\n', sql_r1)  # 末尾增加'\n'
