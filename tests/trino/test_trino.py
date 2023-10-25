@@ -2,19 +2,16 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-28 10:23:02
+# @Last Modified time: 2023-10-25 11:11:51
 # @github: https://github.com/longfengpili
 
 
-import sys
-sys.path.append(r'D:\GoogleDrive\ourpalm\workspace\2022.11.14-trino-python\trino-example')
-
-import os
 import pytest
-import json
 from pydbapi.col import ColumnModel, ColumnsModel
 from pydbapi.api import TrinoDB
 from pydbapi.api.trino import SqlTrinoCompile
+
+from ..variables import TRINO_HOST, TRINO_USER, TRINO_PASSWORD, TRINO_DATABASE
 
 # 如果需要日期，请打开
 # from pydbapi.conf.logconf import LOGGING_CONFIG
@@ -26,10 +23,8 @@ from pydbapi.api.trino import SqlTrinoCompile
 class TestTrino:
 
     def setup_method(self, method):
-        GAME = os.environ.get('NEWGAME').lower()
-        self.game = json.loads(GAME.replace("'", '"'))
-        self.trinodb = TrinoDB(**self.game, safe_rule=False)
-        self.tablename = 'report_20000073_11.test_friuts'
+        self.trinodb = TrinoDB(TRINO_HOST, TRINO_USER, TRINO_PASSWORD, TRINO_DATABASE, safe_rule=False)
+        self.tablename = 'dow_jp_w.test_friuts_xu'
         self.id = ColumnModel('id', 'integer')
         self.name = ColumnModel('name', 'varchar(1024)')
         self.address = ColumnModel('address', 'varchar(1024)')
@@ -44,98 +39,18 @@ class TestTrino:
         print(self.trinodb)
         print(dir(self.trinodb))
 
-    def test_create_by_sql1(self):
-        sql = '''
-        create table if not exists report_20000073_11.test_xu
-        (time varchar,
-        adid varchar,
-        dt varchar)
-        with (partitioned_by = ARRAY['dt']);
-        '''
-        rows, action, result = self.trinodb.execute(sql, verbose=1)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
-
-    def test_create_by_sql2(self):
-        sql = '''
-        create table if not exists report_20000073_11.test_xu as 
-        with test as
-        (select * 
-        from logs_thirdparty.adjust_callback 
-        limit 10),
-
-        test1 as
-        (select time, adid, substring(time, 1, 10) as dt
-        from test
-        )
-
-        select * from test1
-        ;
-        '''
-        rows, action, result = self.trinodb.execute(sql, verbose=1)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
-
-    def test_insert_by_sql(self):
-        sql = '''
-            delete from report_20000073_11.test_xu;
-            with test as
-            (select * 
-            from logs_thirdparty.adjust_callback 
-            limit 10),
-
-            test1 as
-            (select time, adid, substring(time, 1, 10) as dt
-            from test
-            )
-
-            select * from test1
-            ;
-            insert into report_20000073_11.test_xu
-            with test as
-            (select * 
-            from logs_thirdparty.adjust_callback 
-            limit 10),
-
-            test1 as
-            (select time, adid, substring(time, 1, 10) as dt
-            from test
-            )
-
-            select * from test1
-            ;
-        '''
-        rows, action, result = self.trinodb.execute(sql, verbose=1)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
-
-    def test_drop_by_sql(self):
-        sql = '''
-        drop table report_20000073_11.test_xu
-        '''
-        rows, action, result = self.trinodb.execute(sql)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
-
-    def test_select_by_sql(self):
-        sql = '''
-        with test as
-        (select * 
-        from logs_thirdparty.adjust_callback 
-        limit 10),
-
-        test1 as
-        (select time, adid, substring(time, 1, 10) as dt
-        from test
-        )
-
-        select * from test1
-        '''
-        rows, action, result = self.trinodb.execute(sql, verbose=1)
+    def test_create_for_drop(self):
+        tablename = f"{self.tablename}_for_drop"
+        rows, action, result = self.trinodb.create(tablename, self.columns, partition='birthday')
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_drop(self):
-        rows, action, result = self.trinodb.drop(self.tablename)
+        tablename = f"{self.tablename}_for_drop"
+        rows, action, result = self.trinodb.drop(tablename)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_create(self):
-        rows, action, result = self.trinodb.create(self.tablename, self.columns, partition='score')
+        rows, action, result = self.trinodb.create(self.tablename, self.columns, partition='birthday')
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_insertsql(self):
@@ -154,21 +69,92 @@ class TestTrino:
                   [3, 'chocolate', 'yunnan', '2020-06-14 23:00:05', '{"yuwen": 90, "shuxue": 90}'],
                   [4, 'pizza', 'taiwan', '2020-05-15 23:08:25', '{"yuwen": 10, "shuxue": 21}'],
                   [5, 'pizza', 'hebei', '2020-08-12 14:05:36', '{"yuwen": 30, "shuxue": 23}']]
-
-        rows, action, result = self.trinodb.create(self.tablename, self.columns, partition='birthday')
         rows, action, result = self.trinodb.insert(self.tablename, self.columns, values=values, chunksize=1, verbose=1)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
-    def test_selectsql(self):
-        sqlcompile = SqlTrinoCompile(self.tablename)
-        sql = sqlcompile.select_base(self.columns, condition="name='pizza'")
-        print(sql)
-
-    def test_select(self):
-        rows, action, result = self.trinodb.select(self.tablename, self.columns, condition="name='pizza'", verbose=1)
+    def test_create_by_sql1(self):
+        sql = '''
+        create table if not exists dow_jp_w.test_xu1
+        (time varchar,
+        adid varchar,
+        dt varchar)
+        with (partitioned_by = ARRAY['dt']);
+        '''
+        rows, action, result = self.trinodb.execute(sql, verbose=1)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
-    def test_createsql(self):
-        sqlcompile = SqlTrinoCompile(self.tablename)
-        sql = sqlcompile.create(self.columns, partition='name')
-        print(sql)
+    def test_create_by_sql2(self):
+        sql = '''
+        create table if not exists dow_jp_w.test_xu2 as 
+        with test as
+        (select * 
+        from dow_jp_w.test_friuts_xu 
+        limit 10),
+
+        test1 as
+        (select birthday as time, name as adid, substring(birthday, 1, 10) as dt
+        from test
+        )
+
+        select * from test1
+        ;
+        '''
+        rows, action, result = self.trinodb.execute(sql, verbose=1)
+        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+
+    def test_insert_by_sql(self):
+        sql = '''
+            delete from dow_jp_w.test_xu2;
+            with test as
+            (select * 
+            from dow_jp_w.test_friuts_xu 
+            limit 10),
+
+            test1 as
+            (select birthday as time, name as adid, substring(birthday, 1, 10) as dt
+            from test
+            )
+
+            select * from test1
+            ;
+            insert into dow_jp_w.test_xu2
+            with test as
+            (select * 
+            from dow_jp_w.test_friuts_xu
+            limit 10),
+
+            test1 as
+            (select birthday as time, name as adid, substring(birthday, 1, 10) as dt
+            from test
+            )
+
+            select * from test1
+            ;
+        '''
+        rows, action, result = self.trinodb.execute(sql, verbose=1)
+        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+
+    def test_drop_by_sql(self):
+        sql = '''
+        drop table dow_jp_w.test_xu
+        '''
+        rows, action, result = self.trinodb.execute(sql)
+        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+
+    def test_select_by_sql(self):
+        sql = '''
+            with test as
+            (select * 
+            from dow_jp_w.test_friuts_xu 
+            limit 10),
+
+            test1 as
+            (select birthday as time, name as adid, substring(birthday, 1, 10) as dt
+            from test
+            )
+
+            select * from test1
+            ;
+        '''
+        rows, action, result = self.trinodb.execute(sql, verbose=1)
+        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")

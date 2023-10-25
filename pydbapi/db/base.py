@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-27 15:34:43
+# @Last Modified time: 2023-10-25 11:09:55
 # @github: https://github.com/longfengpili
 
 
@@ -140,6 +140,7 @@ class DBbase(object):
             raise e
 
         rows = cur.rowcount
+        rows = len(results[1:]) if rows == -1 and results else rows
         conn.close()
         return rows, action, results
 
