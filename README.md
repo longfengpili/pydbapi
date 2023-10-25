@@ -27,6 +27,13 @@ db = MysqlDB(host, user, password, database, port=3306, safe_rule=True, isdoris=
 sql = 'select * from [table];'
 row, action, result = db.execute(sql)
 ```
++ Trino
+```python
+from pydbapi.api import TrinoDB
+db = TrinoDB(host, user, password, database, catalog, port=8443, safe_rule=True)
+sql = 'select * from [table];'
+row, action, result = db.execute(sql)
+```
 + Snowflake(删除)
 ```python
 from pydbapi.api import SnowflakeDB
@@ -103,6 +110,14 @@ row, action, result = db.execute(sql)
             - `indexes`: 索引
             - `index_part`: 索引part
             - `ismultiple_index`: 多重索引
+            - `partition`: 分区
+            - `verbose`： 是否打印执行进度。
+    + trino
+        + 代码  
+        `db.create(tablename, columns, partition=None, verbose=0)`
+        + params
+            - `tablename`: 表名;
+            - `columns`： 列内容;
             - `partition`: 分区
             - `verbose`： 是否打印执行进度。
 + insert[【db/base.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/base.py)

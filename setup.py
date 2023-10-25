@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-27 15:43:11
+# @Last Modified time: 2023-10-25 11:13:57
 # @github: https://github.com/longfengpili
 
 
@@ -11,7 +11,7 @@ import sys
 import shutil
 import setuptools
 
-VERSION = '0.0.108'
+VERSION = '0.0.109'
 PROJECT_NAME = 'pydbapi'
 
 with open('README.md', 'r', encoding='utf-8') as f:
@@ -46,7 +46,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
     ],
     keywords=["dbapi", "sqlite3", "redshift", 'snowflake'],
-    python_requires=">=3.6",
+    python_requires=">=3.9",
     project_urls={
         'Documentation': f'https://github.com/longfengpili/{PROJECT_NAME}/blob/master/README.md',
         'Source': f'https://github.com/longfengpili/{PROJECT_NAME}',

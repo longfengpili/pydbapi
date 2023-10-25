@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-10-25 11:09:55
+# @Last Modified time: 2023-10-25 11:18:43
 # @github: https://github.com/longfengpili
 
 
@@ -196,7 +196,7 @@ class DBMixin(DBbase):
             rows, action, result = self.execute(sql_for_insert, verbose=verbose)
 
             if values and rows != (vlength % chunksize or chunksize):
-                raise Exception(f'Insert Error !!!')
+                raise Exception('Insert Error !!!')
 
             rows = vlength if values else rows
             dblogger.info(f'【{action}】{tablename} insert {rows} rows succeed !')
