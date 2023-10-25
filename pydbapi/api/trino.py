@@ -2,20 +2,16 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-10-25 11:10:49
+# @Last Modified time: 2023-10-25 11:21:52
 # @github: https://github.com/longfengpili
 
 
-import re
-import tqdm
-import pandas as pd
 import threading
 from trino.dbapi import connect
 from trino.auth import BasicAuthentication
 
-from pydbapi.col import ColumnModel
 from pydbapi.db import DBMixin, DBFileExec
-from pydbapi.sql import SqlParse, SqlCompile
+from pydbapi.sql import SqlCompile
 from pydbapi.conf import AUTO_RULES
 
 
