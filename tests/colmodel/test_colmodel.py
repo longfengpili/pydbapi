@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-10-31 10:26:10
+# @Last Modified time: 2023-10-31 11:28:13
 # @github: https://github.com/longfengpili
 
 
@@ -22,10 +22,12 @@ class TestColModel:
     def teardown_method(self, method):
         pass
 
-    def test_column_getter(self):
+    def test_column_by_name(self):
         colname = 'score'
         col = self.columns.get_column_by_name(colname)
         print(col)
+
+    def test_column_getter(self):
         col = self.columns[0]
         print(col)
         cols = self.columns[1:3]

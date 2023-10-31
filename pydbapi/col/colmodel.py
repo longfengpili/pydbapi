@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-10-31 10:25:06
+# @Last Modified time: 2023-10-31 11:30:48
 # @github: https://github.com/longfengpili
 
 from typing import Iterable, List, Any
@@ -54,19 +54,19 @@ class ColumnsModel(object):
         self.columns = list(columns)
 
     def __repr__(self):
-        return f"{self.columns}"
+        return f"ColumnsModel({self.columns})"
 
     def __getitem__(self, index: int):
         if isinstance(index, slice):
             start, stop, step = index.indices(len(self.columns))
-            return [self.columns[i] for i in range(start, stop, step)]
-        elif 0 <= index < len(self.columns):
-            return self.columns[index]
+            return ColumnsModel(*[self.columns[i] for i in range(start, stop, step)])
+        elif -len(self.columns) <= index < len(self.columns):
+            return ColumnsModel(self.columns[index])
         else:
             raise IndexError("Index out of range")
 
     def __setitem__(self, index: int, column: ColumnModel):
-        if 0 <= index < len(self.columns):
+        if -len(self.columns) <= index < len(self.columns):
             self.columns[index] = column
         else:
             raise IndexError("Index out of range")
@@ -80,9 +80,9 @@ class ColumnsModel(object):
     def __len__(self) -> int:
         return len(self.columns)
 
-    # def __iter__(self):
-    #     for column in self.columns:
-    #         yield column
+    def __iter__(self):
+        for column in self.columns:
+            yield column
 
     def __contains__(self, name):
         col = self.get_column_by_name(name)
