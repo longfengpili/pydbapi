@@ -2,8 +2,10 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-27 15:33:37
+# @Last Modified time: 2023-10-31 10:25:06
 # @github: https://github.com/longfengpili
+
+from typing import Iterable, List, Any
 
 
 class ColumnModel(object):
@@ -49,34 +51,47 @@ class ColumnModel(object):
 class ColumnsModel(object):
 
     def __init__(self, *columns):
-        self.columns = columns
+        self.columns = list(columns)
 
     def __repr__(self):
         return f"{self.columns}"
 
-    def __getitem__(self, key):
-        return self.columns[key]
+    def __getitem__(self, index: int):
+        if isinstance(index, slice):
+            start, stop, step = index.indices(len(self.columns))
+            return [self.columns[i] for i in range(start, stop, step)]
+        elif 0 <= index < len(self.columns):
+            return self.columns[index]
+        else:
+            raise IndexError("Index out of range")
+
+    def __setitem__(self, index: int, column: ColumnModel):
+        if 0 <= index < len(self.columns):
+            self.columns[index] = column
+        else:
+            raise IndexError("Index out of range")
+
+    def append(self, item: Any) -> None:
+        self.columns.append(item)
+
+    def extend(self, iterable: Iterable[Any]) -> None:
+        self.columns.extend(iterable)
+
+    def __len__(self) -> int:
+        return len(self.columns)
 
     # def __iter__(self):
     #     for column in self.columns:
     #         yield column
-
-    def index(self, key):
-        return self.columns[key]
 
     def __contains__(self, name):
         col = self.get_column_by_name(name)
         isin = True if col else False
         return isin
 
-    def append(self, column: ColumnModel):
-        columns = list(self.columns)
-        columns.append(column)
-        return ColumnsModel(*columns)
-
     def remove(self, remove_column: str):
         new_columns = []
-        columns = list(self.columns)
+        columns = self.columns
         for column in columns:
             if column.newname != remove_column:
                 new_columns.append(column)
