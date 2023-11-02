@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-11-02 13:36:08
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-02 15:24:25
+# @Last Modified time: 2023-11-02 15:47:31
 # @github: https://github.com/longfengpili
 
 
@@ -23,7 +23,6 @@ from IPython.core.magic_arguments import (  # type: ignore
     parse_argstring,
 )
 
-import getpass
 from traitlets import Int, Bool, Dict, Instance, Unicode, default, observe  # noqa
 from traitlets.config.loader import Config
 
@@ -33,13 +32,13 @@ from pydbapi.api import SqliteDB, MysqlDB, RedshiftDB, TrinoDB
 @magics_class
 class PydbapiMagics(Magics):
     dbtype = Unicode('trino', 
-                     help=('current use dbtype, default: trino ~'
-                           'It supports dbtype:'
-                           '- sqlite'
-                           '- mysql'
-                           '- doris'
-                           '- redshift'
-                           '- trino'
+                     help=('current use dbtype, default: trino ~\n'
+                           'It supports dbtype:\n'
+                           '- sqlite\n'
+                           '- mysql\n'
+                           '- doris\n'
+                           '- redshift\n'
+                           '- trino\n'
                            )
                      ).tag(config=True)
 
