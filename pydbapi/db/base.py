@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-02 14:59:05
+# @Last Modified time: 2023-11-02 18:33:01
 # @github: https://github.com/longfengpili
 
 
@@ -104,7 +104,7 @@ class DBbase(object):
                 dblogger.debug(sql)
             elif verbose >= 2:
                 sqls.postfix[0] = f"{step}"
-                sqls.update()
+                # sqls.update()
             else:
                 pass
                 
