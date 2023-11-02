@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-11-02 13:36:08
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-02 16:13:53
+# @Last Modified time: 2023-11-02 16:52:11
 # @github: https://github.com/longfengpili
 
 
@@ -82,7 +82,8 @@ class PydbapiMagics(Magics):
         if not self.host:
             self.host = input('please input your host:')
         if not self.port:
-            self.port = input('please input your port:')
+            port = input('please input your port:')
+            self.port = int(port)
         if not self.user:
             self.user = input('please input your user:')
         if not self.password:
