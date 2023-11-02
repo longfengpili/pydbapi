@@ -4,3 +4,4 @@ pymysql
 trino
 colorlog
 tqdm
+IPython
