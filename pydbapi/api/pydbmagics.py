@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-11-02 13:36:08
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-02 15:47:31
+# @Last Modified time: 2023-11-02 16:13:53
 # @github: https://github.com/longfengpili
 
 
@@ -154,8 +154,8 @@ class PydbapiMagics(Magics):
             doc = self.class_get_help()
             print(doc)
             return
-        elif line in class_configs.keys():
-            return getattr(self, line)
+        elif line.lower() in class_configs.keys():
+            return getattr(self, line.lower())
         elif '=' in line and line.split('=')[0].strip().lower() in class_configs.keys():
             param, value = line.strip().split('=')
             line = param.lower() + '=' + value
