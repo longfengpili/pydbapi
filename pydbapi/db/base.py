@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-10-25 11:18:43
+# @Last Modified time: 2023-11-02 14:59:05
 # @github: https://github.com/longfengpili
 
 
@@ -121,7 +121,7 @@ class DBbase(object):
                 # columns, results = cur_getresults(cur, count)
                 results = self.cur_results(cur, count)
                 desc, columns = self.cur_columns(cur)
-                if verbose and columns:
+                if verbose == 1 and columns:
                     dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
                 elif not columns:
                     dblogger.warning(f"Not Columns, cursor description is {desc}")

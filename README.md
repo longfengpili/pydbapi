@@ -195,6 +195,36 @@ row, action, result = db.execute(sql)
         * now：获取执行的时间
         * today: 获取执行的日期
 
+## 魔法命令
++ 参数
+    * 帮助  
+    `%dbconfig`
+    * 配置  
+        ```python
+        %dbconfig DBTYPE = 'mysql'
+        %dbconfig HOST = 'localhost'
+        %dbconfig USER = 'longfengpili'
+        %dbconfig PASSWORD = '123456abc'
+        %dbconfig DATABASE = 'test'
+        %dbconfig PORT = 3306
+        ```
+    * 查看  
+    `%dbconfig DBTYPE`
++ 使用方法
+1. 使用`load_ext`   
+`%load_ext pydbapi`
+2. 配置startup文件夹
+    * 创建文件`mymagics.py`
+    * 文件中添加如下代码
+        ```python
+        from pydbapi import PydbapiMagics
+        
+        c = get_ipython()
+        # 注册魔术命令
+        c.register_magics(PydbapiMagics)
+        ```
+    * 文件添加至目录`/user/.ipython/profile_default/startup`
+
 ## 支持的的settings[【conf/settings.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/conf/settings.py)
 + AUTO_RULES  
     可以自动执行表名（表名包含即可）
@@ -202,16 +232,7 @@ row, action, result = db.execute(sql)
     Amazon Redshift 可以自动执行表名（表名包含即可）
 
 ## 调用日志格式
-1. 调用基础日志格式(已添加至工程init)
-```python
-import logging.config
-from pydbapi.conf.settings import LOGGING_CONFIG
-LOGGING_CONFIG['handlers']['console']['formatter'] = 'color'  # set log all use color  # noqa: E501
-logging.config.dictConfig(LOGGING_CONFIG)
-```
-
-
-2. 查看每步sql可以使用如下日志格式（如果还出错，同时加上上面的内容）
+1. 查看每步sql可以使用如下日志格式（如果还出错，同时加上上面的内容）
 ```python
 import logging
 dblogger = logging.getLogger('pydbapi.db.base')
