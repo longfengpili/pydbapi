@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-02 16:14:43
+# @Last Modified time: 2023-11-03 10:31:14
 # @github: https://github.com/longfengpili
 
 
@@ -11,7 +11,7 @@ import sys
 import shutil
 import setuptools
 
-VERSION = '0.0.111'
+VERSION = '0.0.112'
 PROJECT_NAME = 'pydbapi'
 
 with open('README.md', 'r', encoding='utf-8') as f:
