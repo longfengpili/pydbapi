@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-03 10:56:03
+# @Last Modified time: 2023-11-03 14:25:59
 # @github: https://github.com/longfengpili
 
 
@@ -121,9 +121,9 @@ class MysqlDB(DBMixin, DBFileExec):
 
     @classmethod
     def get_instance(cls, *args, **kwargs):
-        mysqllogger.info(MysqlDB._instance_lock)
+        # mysqllogger.info(MysqlDB._instance_lock)
         if not hasattr(MysqlDB, '_instance'):
-            mysqllogger.info(MysqlDB._instance_lock)
+            # mysqllogger.info(MysqlDB._instance_lock)
             with MysqlDB._instance_lock:
                 if not hasattr(MysqlDB, '_instance'):
                     MysqlDB._instance = cls(*args, **kwargs)

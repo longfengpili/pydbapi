@@ -2,13 +2,13 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-03 10:52:50
+# @Last Modified time: 2023-11-03 17:21:26
 # @github: https://github.com/longfengpili
 
 
 import re
+import sys
 import pandas as pd
-from tqdm import tqdm
 
 from pydbapi.sql import SqlParse, SqlCompile
 from pydbapi.conf import AUTO_RULES
@@ -76,7 +76,12 @@ class DBbase(object):
         #     results = list(results) if results else []
         #     columns = tuple(map(lambda x: x[0].lower(), cur.description)) if cur.description  # 列名
         #     return columns, results
-        
+
+        if any("jupyter" in arg for arg in sys.argv):
+            from tqdm.notebook import tqdm
+        else:
+            from tqdm import tqdm
+            
         rows = 0
         idx = 0
         conn = self.get_conn()
@@ -86,8 +91,8 @@ class DBbase(object):
         # print(sqls)
         sqls = [sql.strip() for sql in sqls if sql]
         sqls_length = len(sqls)
-        bar_format = '{l_bar}{bar:30}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
-        sqls = sqls if verbose <= 1 else tqdm(sqls, ncols=100, postfix=['START'], bar_format=bar_format)  # 如果verbose>=2则显示进度条
+        bar_format = '{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
+        sqls = sqls if verbose <= 1 else tqdm(sqls, postfix=['START'], bar_format=bar_format)  # 如果verbose>=2则显示进度条
         for _sql in sqls:
             results = None
             idx += 1
