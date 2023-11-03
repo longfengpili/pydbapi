@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-27 15:32:58
+# @Last Modified time: 2023-11-03 10:57:07
 # @github: https://github.com/longfengpili
 
 
@@ -71,6 +71,7 @@ class RedshiftDB(DBMixin, DBFileExec):
 
     def get_conn(self):
         conn = psycopg2.connect(database=self.database, user=self.user, password=self.password, host=self.host, port=self.port)
+        redlogger.info(f'connect {self.__class__.__name__}({self.user}@{self.host}:{self.port}/{self.database})')
         if not conn:
             self.get_conn()
         return conn

@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-10-25 11:21:52
+# @Last Modified time: 2023-11-03 10:59:55
 # @github: https://github.com/longfengpili
 
 
@@ -99,9 +99,9 @@ class TrinoDB(DBMixin, DBFileExec):
 
     @classmethod
     def get_instance(cls, *args, **kwargs):
-        mytrinologger.info(TrinoDB._instance_lock)
+        # mytrinologger.info(TrinoDB._instance_lock)
         if not hasattr(TrinoDB, '_instance'):
-            mytrinologger.info(TrinoDB._instance_lock)
+            # mytrinologger.info(TrinoDB._instance_lock)
             with TrinoDB._instance_lock:
                 if not hasattr(TrinoDB, '_instance'):
                     TrinoDB._instance = cls(*args, **kwargs)
@@ -114,6 +114,7 @@ class TrinoDB(DBMixin, DBFileExec):
                        catalog=self.catalog, schema=self.database,
                        port=self.port, http_scheme="https"
                        )
+        mytrinologger.info(f'connect {self.__class__.__name__}({self.user}@{self.host}:{self.port}/{self.catalog}.{self.database})')  # noqa: E501
         if not conn:
             self.get_conn()
         return conn

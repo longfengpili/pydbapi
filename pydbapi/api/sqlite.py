@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-08-03 11:59:33
+# @Last Modified time: 2023-11-03 10:58:00
 # @github: https://github.com/longfengpili
 
 
@@ -65,6 +65,7 @@ class SqliteDB(DBMixin, DBFileExec):
 
     def get_conn(self):
         conn = sqlite3.connect(database=self.database)
+        sqlitelogger.info(f'connect {self.__class__.__name__}({self.database})')
         if not conn:
             self.get_conn()
         return conn
