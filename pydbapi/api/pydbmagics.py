@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-11-02 13:36:08
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-02 16:52:11
+# @Last Modified time: 2023-11-03 10:39:11
 # @github: https://github.com/longfengpili
 
 
@@ -49,6 +49,17 @@ class PydbapiMagics(Magics):
     port = Int(allow_none=False, 
                help=('Database port')
                ).tag(config=True)
+
+    @default('port')
+    def _default_port(self):
+        dbtype = self.dbtype
+        if dbtype == 'mysql':
+            port = 3306
+        elif dbtype == 'trino':
+            port = 8443
+        else:
+            port = None
+        return port
 
     user = Unicode(allow_none=False, 
                    help=('Database username')
