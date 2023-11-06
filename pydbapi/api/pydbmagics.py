@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-11-02 13:36:08
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-03 10:39:11
+# @Last Modified time: 2023-11-06 10:26:06
 # @github: https://github.com/longfengpili
 
 
@@ -31,14 +31,14 @@ from pydbapi.api import SqliteDB, MysqlDB, RedshiftDB, TrinoDB
 
 @magics_class
 class PydbapiMagics(Magics):
-    dbtype = Unicode('trino', 
-                     help=('current use dbtype, default: trino ~\n'
-                           'It supports dbtype:\n'
-                           '- sqlite\n'
-                           '- mysql\n'
-                           '- doris\n'
-                           '- redshift\n'
-                           '- trino\n'
+    dbtype = Unicode('trino',
+                     help=('current use dbtype, default: trino ~\n\n'
+                           'It supports dbtype:\n\n'
+                           '- sqlite\n\n'
+                           '- mysql\n\n'
+                           '- doris\n\n'
+                           '- redshift\n\n'
+                           '- trino\n\n'
                            )
                      ).tag(config=True)
 
@@ -150,13 +150,13 @@ class PydbapiMagics(Magics):
 
         Exemplar usage:
 
-        - %xhconfig
+        - %dbconfig
           print all the configurable parameters and its current value
 
-        - %xhconfig <parameter_name>
+        - %dbconfig <parameter_name>
           print the current value of the parameter
 
-        - %xhconfig <parameter_name>=<value>
+        - %dbconfig <parameter_name>=<value>
           set the value of the parameter
         """
         line = line.strip().split('#')[0].strip()
