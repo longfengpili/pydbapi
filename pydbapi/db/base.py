@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-14 18:16:46
+# @Last Modified time: 2023-11-14 18:37:59
 # @github: https://github.com/longfengpili
 
 
@@ -72,10 +72,10 @@ class DBbase(object):
         return desc, columns
 
     def fetch_query_results(self, cur, action, count, verbose):
-        results = self.cur_results(cur, count) if action in ['SELECT', 'WITH'] else None
         desc, columns = self.cur_columns(cur)
+        results = self.cur_results(cur, count) if action in ['SELECT', 'WITH'] else None
 
-        if (verbose == 1 or verbose >= 3) and columns:
+        if (verbose == 1 or verbose >= 3) and results:
             dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
         elif verbose and not columns:
             dblogger.warning(f"Not Columns, cursor description is {desc}")
@@ -83,7 +83,7 @@ class DBbase(object):
         if results:
             results.insert(0, columns)
 
-        return results, columns
+        return columns, results
 
     def handle_progress_logging(self, step, verbose, sqls):
         if verbose == 1:
@@ -128,7 +128,7 @@ class DBbase(object):
                     self._execute_step(cur, sql, ehandling=ehandling)
 
                     if idx + 1 == len(sqls) or action in ['SELECT', 'WITH']:
-                        results, columns = self.fetch_query_results(cur, action, count, verbose)
+                        columns, results = self.fetch_query_results(cur, action, count, verbose)
 
             conn.commit()
         except Exception as e:

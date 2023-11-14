@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-27 15:41:56
+# @Last Modified time: 2023-11-14 18:33:41
 # @github: https://github.com/longfengpili
 
 
@@ -76,7 +76,7 @@ class TestSqlite:
         yuwen = ColumnModel('yuwen', sqlexpr="score", order=1)
         columns = ColumnsModel(self.id, self.name, yuwen)
         rows, action, result = self.sqlite.select(self.tablename, columns)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: \n{pd.DataFrame(result[1:], columns=result[0])}")
+        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_getcol(self):
         columns = self.sqlite.get_columns(self.tablename)
