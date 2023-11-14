@@ -2,13 +2,15 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-14 16:35:27
+# @Last Modified time: 2023-11-14 17:11:23
 # @github: https://github.com/longfengpili
 
 
 import re
 import sys
 import pandas as pd
+
+from tqdm.contrib.logging import logging_redirect_tqdm
 
 from pydbapi.sql import SqlParse, SqlCompile
 from pydbapi.conf import AUTO_RULES
@@ -93,49 +95,53 @@ class DBbase(object):
         sqls_length = len(sqls)
         bar_format = '{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
         sqls = sqls if verbose <= 1 else tqdm(sqls, postfix=['START'], bar_format=bar_format)  # 如果verbose>=2则显示进度条
-        for _sql in sqls:
-            results = None
-            idx += 1
-            parser = SqlParse(_sql)
-            comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
-            if not sql:
-                # dblogger.info(f'【{idx:0>2d}_PROGRESS】 no run !!!\n{_sql}')
-                continue
+        with logging_redirect_tqdm():
+            for _sql in sqls:
+                results = None
+                idx += 1
+                parser = SqlParse(_sql)
+                comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
+                if not sql:
+                    # dblogger.info(f'【{idx:0>2d}_PROGRESS】 no run !!!\n{_sql}')
+                    continue
 
-            step = f"【{idx:0>2d}_PROGRESS】({action}){tablename}::{comment}"
+                step = f"【{idx:0>2d}_PROGRESS】({action}){tablename}::{comment}"
 
-            if verbose == 1:
-                dblogger.info(f"{step}")
-                dblogger.debug(sql)
-            elif verbose >= 2:
-                sqls.postfix[0] = f"{step}"
-                # dblogger.info(f"{step}")
-                # sqls.update()
-            else:
-                pass
-                
-            try:
-                self._execute_step(cur, sql)
-            except Exception as e:
-                dblogger.error(e)
-                if ehandling == 'raise':
-                    conn.rollback()
-                    raise e
-
-            if (action == 'SELECT' and (verbose or idx == sqls_length)) \
-                    or (action == 'WITH' and idx == sqls_length):
-                # columns, results = cur_getresults(cur, count)
-                results = self.cur_results(cur, count)
-                desc, columns = self.cur_columns(cur)
-                if verbose == 1 and columns:
-                    dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
-                elif not columns:
-                    dblogger.warning(f"Not Columns, cursor description is {desc}")
+                if verbose == 1:
+                    dblogger.info(f"{step}")
+                    dblogger.debug(sql)
+                elif verbose == 2:
+                    sqls.postfix[0] = f"{step}"
+                    # dblogger.info(f"{step}")
+                    # sqls.update()
+                elif verbose >= 3:
+                    sqls.postfix[0] = f"{step}"
+                    dblogger.info(f"{step}")
                 else:
                     pass
+                    
+                try:
+                    self._execute_step(cur, sql)
+                except Exception as e:
+                    dblogger.error(e)
+                    if ehandling == 'raise':
+                        conn.rollback()
+                        raise e
 
-                if columns:
-                    results.insert(0, columns)
+                if (action == 'SELECT' and (verbose or idx == sqls_length)) \
+                        or (action == 'WITH' and idx == sqls_length):
+                    # columns, results = cur_getresults(cur, count)
+                    results = self.cur_results(cur, count)
+                    desc, columns = self.cur_columns(cur)
+                    if (verbose == 1 or verbose >= 3) and columns:
+                        dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
+                    elif not columns:
+                        dblogger.warning(f"Not Columns, cursor description is {desc}")
+                    else:
+                        pass
+
+                    if columns:
+                        results.insert(0, columns)
 
         try:
             conn.commit()

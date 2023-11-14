@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-14 16:36:12
+# @Last Modified time: 2023-11-14 17:12:19
 # @github: https://github.com/longfengpili
 
 
@@ -143,6 +143,35 @@ class TestTrino:
 
     def test_select_by_sql(self):
         sql = f'''
+            -- test1
+            with test as
+            (select * 
+            from {self.tablename} 
+            limit 10),
+
+            test1 as
+            (select birthday as time, name as adid, substring(birthday, 1, 10) as dt
+            from test
+            )
+
+            select * from test1
+            ;
+
+            -- test2
+            with test as
+            (select * 
+            from {self.tablename} 
+            limit 10),
+
+            test1 as
+            (select birthday as time, name as adid, substring(birthday, 1, 10) as dt
+            from test
+            )
+
+            select * from test1
+            ;
+
+            -- test3
             with test as
             (select * 
             from {self.tablename} 
@@ -156,5 +185,6 @@ class TestTrino:
             select * from test1
             ;
         '''
-        rows, action, result = self.trinodb.execute(sql, verbose=1)
+        # print(sql)
+        rows, action, result = self.trinodb.execute(sql, verbose=3)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
