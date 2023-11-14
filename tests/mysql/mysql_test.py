@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-28 10:29:11
+# @Last Modified time: 2023-11-14 18:07:40
 # @github: https://github.com/longfengpili
 
 
@@ -88,4 +88,52 @@ class TestMysql:
     @pytest.mark.skip()
     def test_loaddata(self):
         rows, action, result = self.mysqldb.loaddata(self.tablename, self.columns, '/tmp/pydbapitest.csv')
+        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+
+    def test_select_by_sql(self):
+        sql = f'''
+            -- test1
+            with test as
+            (select * 
+            from {self.tablename} 
+            limit 10),
+
+            test1 as
+            (select birthday as time, name as adid, substring(birthday, 1, 10) as dt
+            from test
+            )
+
+            select * from test1
+            ;
+
+            -- test2
+            with test as
+            (select * 
+            from {self.tablename} 
+            limit 10),
+
+            test1 as
+            (select birthday as time, name as adid, substring(birthday, 1, 10) as dt
+            from test
+            )
+
+            select * from test1
+            ;
+
+            -- test3
+            with test as
+            (select * 
+            from {self.tablename} 
+            limit 10),
+
+            test1 as
+            (select birthday as time, name as adid, substring(birthday, 1, 10) as dt
+            from test
+            )
+
+            select * from test1
+            ;
+        '''
+        # print(sql)
+        rows, action, result = self.mysqldb.execute(sql, verbose=3)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")

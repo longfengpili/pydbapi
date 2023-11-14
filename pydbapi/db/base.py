@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-14 17:11:23
+# @Last Modified time: 2023-11-14 18:16:46
 # @github: https://github.com/longfengpili
 
 
@@ -27,7 +27,20 @@ class DBbase(object):
     def get_conn(self):
         pass
 
-    def _execute_step(self, cursor, sql):
+    def prepare_sql_statements(self, sql, verbose):
+        if any("jupyter" in arg for arg in sys.argv):
+            from tqdm.notebook import tqdm
+        else:
+            from tqdm import tqdm
+
+        sqls = SqlParse.split_sqls(sql)
+        # print(sqls)
+        sqls = [sql.strip() for sql in sqls if sql]
+        bar_format = '{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
+        sqls = sqls if verbose <= 1 else tqdm(sqls, postfix=['START'], bar_format=bar_format)  # 如果verbose>=2则显示进度条
+        return sqls
+
+    def _execute_step(self, cursor, sql, ehandling='raise'):
         '''[summary]
 
         [description]
@@ -43,7 +56,9 @@ class DBbase(object):
         try:
             cursor.execute(sql)
         except Exception as e:
-            raise ValueError(f"【Error】:{e}【Sql】:{sql}")
+            dblogger.error(e)
+            if ehandling == 'raise':
+                raise ValueError(f"【Error】:{e}【Sql】:{sql}")
 
     def cur_results(self, cursor, count):
         results = cursor.fetchmany(count) if count else cursor.fetchall()
@@ -55,6 +70,28 @@ class DBbase(object):
         columns = tuple(map(lambda x: x[0].lower(), desc)) if desc else None  # 列名
 
         return desc, columns
+
+    def fetch_query_results(self, cur, action, count, verbose):
+        results = self.cur_results(cur, count) if action in ['SELECT', 'WITH'] else None
+        desc, columns = self.cur_columns(cur)
+
+        if (verbose == 1 or verbose >= 3) and columns:
+            dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
+        elif verbose and not columns:
+            dblogger.warning(f"Not Columns, cursor description is {desc}")
+
+        if results:
+            results.insert(0, columns)
+
+        return results, columns
+
+    def handle_progress_logging(self, step, verbose, sqls):
+        if verbose == 1:
+            dblogger.info(step)
+        elif verbose >= 2:
+            sqls.postfix[0] = step
+            if verbose >= 3:
+                dblogger.info(step)
 
     def execute(self, sql, count=None, ehandling='raise', verbose=0):
         '''[summary]
@@ -73,87 +110,37 @@ class DBbase(object):
             rows {[int]} -- [影响的行数]
             results {[list]} -- [返回的结果]
         '''
-        # def cur_getresults(cur, count):
-        #     results = cur.fetchmany(count) if count else cur.fetchall()
-        #     results = list(results) if results else []
-        #     columns = tuple(map(lambda x: x[0].lower(), cur.description)) if cur.description  # 列名
-        #     return columns, results
-
-        if any("jupyter" in arg for arg in sys.argv):
-            from tqdm.notebook import tqdm
-        else:
-            from tqdm import tqdm
             
-        rows = 0
-        idx = 0
         conn = self.get_conn()
-        # dblogger.info(conn)
         cur = conn.cursor()
-        sqls = SqlParse.split_sqls(sql)
-        # print(sqls)
-        sqls = [sql.strip() for sql in sqls if sql]
-        sqls_length = len(sqls)
-        bar_format = '{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
-        sqls = sqls if verbose <= 1 else tqdm(sqls, postfix=['START'], bar_format=bar_format)  # 如果verbose>=2则显示进度条
-        with logging_redirect_tqdm():
-            for _sql in sqls:
-                results = None
-                idx += 1
-                parser = SqlParse(_sql)
-                comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
-                if not sql:
-                    # dblogger.info(f'【{idx:0>2d}_PROGRESS】 no run !!!\n{_sql}')
-                    continue
+        sqls = self.prepare_sql_statements(sql, verbose)
+        try: 
+            with logging_redirect_tqdm():
+                for idx, _sql in enumerate(sqls):
+                    parser = SqlParse(_sql)
+                    comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
+                    if not sql:
+                        # dblogger.info(f'【{idx:0>2d}_PROGRESS】 no run !!!\n{_sql}')
+                        continue
 
-                step = f"【{idx:0>2d}_PROGRESS】({action}){tablename}::{comment}"
+                    step = f"【{idx:0>2d}_PROGRESS】({action}){tablename}::{comment}"
+                    self.handle_progress_logging(step, verbose, sqls)
+                    self._execute_step(cur, sql, ehandling=ehandling)
 
-                if verbose == 1:
-                    dblogger.info(f"{step}")
-                    dblogger.debug(sql)
-                elif verbose == 2:
-                    sqls.postfix[0] = f"{step}"
-                    # dblogger.info(f"{step}")
-                    # sqls.update()
-                elif verbose >= 3:
-                    sqls.postfix[0] = f"{step}"
-                    dblogger.info(f"{step}")
-                else:
-                    pass
-                    
-                try:
-                    self._execute_step(cur, sql)
-                except Exception as e:
-                    dblogger.error(e)
-                    if ehandling == 'raise':
-                        conn.rollback()
-                        raise e
+                    if idx + 1 == len(sqls) or action in ['SELECT', 'WITH']:
+                        results, columns = self.fetch_query_results(cur, action, count, verbose)
 
-                if (action == 'SELECT' and (verbose or idx == sqls_length)) \
-                        or (action == 'WITH' and idx == sqls_length):
-                    # columns, results = cur_getresults(cur, count)
-                    results = self.cur_results(cur, count)
-                    desc, columns = self.cur_columns(cur)
-                    if (verbose == 1 or verbose >= 3) and columns:
-                        dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
-                    elif not columns:
-                        dblogger.warning(f"Not Columns, cursor description is {desc}")
-                    else:
-                        pass
-
-                    if columns:
-                        results.insert(0, columns)
-
-        try:
             conn.commit()
         except Exception as e:
             dblogger.error(e)
             conn.rollback()
-            conn.close()
             raise e
+        finally:
+            cur.close()
+            conn.close()
 
         rows = cur.rowcount
         rows = len(results[1:]) if rows == -1 and results else rows
-        conn.close()
         return rows, action, results
 
 

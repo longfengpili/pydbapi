@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-14 17:12:19
+# @Last Modified time: 2023-11-14 17:19:38
 # @github: https://github.com/longfengpili
 
 
@@ -19,7 +19,7 @@ from ..variables import TRINO_HOST, TRINO_USER, TRINO_PASSWORD, TRINO_DATABASE
 # logging.config.dictConfig(LOGGING_CONFIG)
 
 
-@pytest.mark.skip(reason='跳过')
+# @pytest.mark.skip(reason='跳过')
 class TestTrino:
 
     def setup_method(self, method):
