@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-03 10:59:55
+# @Last Modified time: 2023-11-14 16:16:00
 # @github: https://github.com/longfengpili
 
 
@@ -42,8 +42,8 @@ class SqlTrinoCompile(SqlCompile):
         partition_sql = None
         if partition:
             partition_key = columns.get_column_by_name(partition)
-            columns = columns.remove(partition)
-            columns = columns.append(partition_key)
+            columns.remove(partition)
+            columns.append(partition_key)
             partition_sql = self.create_partition(partition_key)
 
         sql = self.create_nonindex(columns)

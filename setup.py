@@ -2,13 +2,13 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-03 14:09:37
+# @Last Modified time: 2023-11-14 16:36:24
 # @github: https://github.com/longfengpili
 
 
 import setuptools
 
-VERSION = '0.0.114'
+VERSION = '0.0.115'
 PROJECT_NAME = 'pydbapi'
 
 with open('README.md', 'r', encoding='utf-8') as f:

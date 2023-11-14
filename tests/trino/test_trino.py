@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-10-25 11:11:51
+# @Last Modified time: 2023-11-14 16:36:12
 # @github: https://github.com/longfengpili
 
 
@@ -24,7 +24,7 @@ class TestTrino:
 
     def setup_method(self, method):
         self.trinodb = TrinoDB(TRINO_HOST, TRINO_USER, TRINO_PASSWORD, TRINO_DATABASE, safe_rule=False)
-        self.tablename = 'dow_jp_w.test_friuts_xu'
+        self.tablename = 'dow_jp_w.test_friut_xu'
         self.id = ColumnModel('id', 'integer')
         self.name = ColumnModel('name', 'varchar(1024)')
         self.address = ColumnModel('address', 'varchar(1024)')
@@ -73,8 +73,8 @@ class TestTrino:
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_create_by_sql1(self):
-        sql = '''
-        create table if not exists dow_jp_w.test_xu1
+        sql = f'''
+        create table if not exists {self.tablename}_bysql
         (time varchar,
         adid varchar,
         dt varchar)
@@ -84,11 +84,11 @@ class TestTrino:
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_create_by_sql2(self):
-        sql = '''
-        create table if not exists dow_jp_w.test_xu2 as 
+        sql = f'''
+        create table if not exists {self.tablename}_bysql2 as 
         with test as
         (select * 
-        from dow_jp_w.test_friuts_xu 
+        from {self.tablename}
         limit 10),
 
         test1 as
@@ -103,11 +103,11 @@ class TestTrino:
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_insert_by_sql(self):
-        sql = '''
-            delete from dow_jp_w.test_xu2;
+        sql = f'''
+            delete from {self.tablename}_bysql2;
             with test as
             (select * 
-            from dow_jp_w.test_friuts_xu 
+            from {self.tablename}
             limit 10),
 
             test1 as
@@ -117,10 +117,10 @@ class TestTrino:
 
             select * from test1
             ;
-            insert into dow_jp_w.test_xu2
+            insert into {self.tablename}_bysql2
             with test as
             (select * 
-            from dow_jp_w.test_friuts_xu
+            from {self.tablename}
             limit 10),
 
             test1 as
@@ -135,17 +135,17 @@ class TestTrino:
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_drop_by_sql(self):
-        sql = '''
-        drop table dow_jp_w.test_xu
+        sql = f'''
+        drop table {self.tablename}_bysql
         '''
         rows, action, result = self.trinodb.execute(sql)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_select_by_sql(self):
-        sql = '''
+        sql = f'''
             with test as
             (select * 
-            from dow_jp_w.test_friuts_xu 
+            from {self.tablename} 
             limit 10),
 
             test1 as

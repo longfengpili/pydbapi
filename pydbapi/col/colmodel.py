@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-10-31 11:30:48
+# @Last Modified time: 2023-11-14 16:18:21
 # @github: https://github.com/longfengpili
 
 from typing import Iterable, List, Any
@@ -95,7 +95,7 @@ class ColumnsModel(object):
         for column in columns:
             if column.newname != remove_column:
                 new_columns.append(column)
-        return ColumnsModel(*new_columns)
+        self.columns = new_columns
 
     @property
     def func_cols(self):
