@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-29 13:58:55
+# @Last Modified time: 2023-12-04 12:01:37
 # @github: https://github.com/longfengpili
 
 
@@ -22,7 +22,7 @@ dblogger = logging.getLogger(__name__)
 class DBbase(object):
 
     def __init__(self, *args, **kwargs):
-        pass
+        self.dbtype = None
 
     def get_conn(self):
         pass
@@ -136,7 +136,8 @@ class DBbase(object):
             conn.rollback()
             raise e
         finally:
-            cur.close()
+            if self.dbtype not in ('trino',):
+                cur.close()
             conn.close()
 
         rows = cur.rowcount

@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-14 16:16:00
+# @Last Modified time: 2023-12-04 11:46:32
 # @github: https://github.com/longfengpili
 
 
@@ -88,6 +88,7 @@ class TrinoDB(DBMixin, DBFileExec):
         self.database = database
         super(TrinoDB, self).__init__()
         self.auto_rules = AUTO_RULES if safe_rule else None
+        self.dbtype = 'trino'
 
     # def __new__(cls, *args, **kwargs):
     #     if not hasattr(TrinoDB, '_instance'):

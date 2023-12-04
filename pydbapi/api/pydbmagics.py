@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-11-02 13:36:08
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-06 10:26:06
+# @Last Modified time: 2023-12-04 10:37:07
 # @github: https://github.com/longfengpili
 
 
@@ -43,7 +43,7 @@ class PydbapiMagics(Magics):
                      ).tag(config=True)
 
     host = Unicode(allow_none=False, 
-                   Truehelp=('Database host')
+                   help=('Database host')
                    ).tag(config=True)
 
     port = Int(allow_none=False, 

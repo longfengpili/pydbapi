@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-27 15:33:01
+# @Last Modified time: 2023-12-04 11:46:03
 # @github: https://github.com/longfengpili
 
 
@@ -48,6 +48,7 @@
 #         self.schema = schema
 #         super(SnowflakeDB, self).__init__()
 #         self.auto_rules = AUTO_RULES if safe_rule else None
+#         self.dbtype = 'snowflake'
 
 #     @classmethod
 #     def get_instance(cls, *args, **kwargs):

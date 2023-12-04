@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-03 14:25:59
+# @Last Modified time: 2023-12-04 11:45:28
 # @github: https://github.com/longfengpili
 
 
@@ -110,6 +110,7 @@ class MysqlDB(DBMixin, DBFileExec):
         self.isdoris = isdoris
         super(MysqlDB, self).__init__()
         self.auto_rules = AUTO_RULES if safe_rule else None
+        self.dbtype = 'mysql'
 
     # def __new__(cls, *args, **kwargs):
     #     if not hasattr(MysqlDB, '_instance'):

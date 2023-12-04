@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-03 10:57:07
+# @Last Modified time: 2023-12-04 11:45:42
 # @github: https://github.com/longfengpili
 
 
@@ -51,6 +51,7 @@ class RedshiftDB(DBMixin, DBFileExec):
         self.database = database
         super(RedshiftDB, self).__init__()
         self.auto_rules = REDSHIFT_AUTO_RULES if safe_rule else None
+        self.dbtype = 'redshift'
 
     # def __new__(cls, *args, **kwargs):
     #     if not hasattr(RedshiftDB, '_instance'):

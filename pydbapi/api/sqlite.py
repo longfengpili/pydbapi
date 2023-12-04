@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-03 10:58:00
+# @Last Modified time: 2023-12-04 12:00:45
 # @github: https://github.com/longfengpili
 
 
@@ -45,6 +45,7 @@ class SqliteDB(DBMixin, DBFileExec):
     def __init__(self, database=None):
         self.database = database if database else os.path.join(os.path.expanduser('~'), 'sqlite3_test.db')
         super(SqliteDB, self).__init__()
+        self.dbtype = 'sqlite'
 
     # def __new__(cls, *args, **kwargs):
     #     if not hasattr(SqliteDB, '_instance'):
