@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-07-26 17:46:27
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-08-03 11:58:10
+# @Last Modified time: 2023-12-11 17:30:43
 # @github: https://github.com/longfengpili
 
 
@@ -10,6 +10,7 @@ import re
 import os
 import sys
 import colorlog
+
 
 AUTO_RULES = ['test_xu']  # 可以自动执行表名（表名包含即可）
 REDSHIFT_AUTO_RULES = AUTO_RULES + ['_data_aniland']  # Amazon Redshift 可以自动执行表名（表名包含即可）
@@ -62,7 +63,7 @@ LOGGING_CONFIG = {
             'level': 'DEBUG',
             'filters': [],
             'class': 'logging.StreamHandler',  #
-            'formatter': 'color' if sys.stdout.isatty() or any("jupyter" in arg for arg in sys.argv) else 'simple'
+            'formatter': 'color' if sys.stdout.isatty() or any("ipython" in arg for arg in sys.argv) else 'simple'
         },
         # 默认的
         'default': {
