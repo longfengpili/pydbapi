@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-12-04 12:01:37
+# @Last Modified time: 2023-12-11 17:00:46
 # @github: https://github.com/longfengpili
 
 
@@ -56,7 +56,7 @@ class DBbase(object):
         try:
             cursor.execute(sql)
         except Exception as e:
-            dblogger.error(e)
+            # dblogger.error(e)
             if ehandling == 'raise':
                 raise ValueError(f"【Error】:{e}【Sql】:{sql}")
 
