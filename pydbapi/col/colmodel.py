@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-14 16:18:21
+# @Last Modified time: 2023-12-14 16:24:35
 # @github: https://github.com/longfengpili
 
 from typing import Iterable, List, Any
@@ -22,6 +22,11 @@ class ColumnModel(object):
         col = f"{self.newname}({self.coltype})"
         col = col + f':{self.desc}' if self.desc else col
         return col
+
+    def __eq__(self, other):
+        if self.newname == other.newname and self.coltype == other.coltype and self.sqlexpr == other.sqlexpr:
+            return True
+        return False
 
     def __contains__(self, newname):
         return newname == self.newname
