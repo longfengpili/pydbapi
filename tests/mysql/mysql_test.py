@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-14 18:07:40
+# @Last Modified time: 2024-02-28 11:47:20
 # @github: https://github.com/longfengpili
 
 
@@ -45,6 +45,10 @@ class TestMysql:
         # for i in dir(mysql4):
         #     result = eval(f"mysql4.{i}")
         #     print(f"【{i}】: {result}")
+
+    def test_cols(self):
+        result = self.mysqldb.get_columns(self.tablename)
+        print(result)
 
     def test_drop(self):
         rows, action, result = self.mysqldb.drop(self.tablename)

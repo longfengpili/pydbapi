@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-01-24 11:55:37
+# @Last Modified time: 2024-02-28 13:55:25
 # @github: https://github.com/longfengpili
 
 
@@ -13,6 +13,7 @@ import pandas as pd
 from tqdm.contrib.logging import logging_redirect_tqdm
 
 from pydbapi.sql import SqlParse, SqlCompile
+from pydbapi.col import ColumnModel, ColumnsModel
 from pydbapi.conf import AUTO_RULES
 
 import logging
@@ -71,9 +72,9 @@ class DBbase(object):
 
         return desc, columns
 
-    def fetch_query_results(self, cur, action, count, verbose):
+    def fetch_query_results(self, cur, count, verbose):
         desc, columns = self.cur_columns(cur)
-        results = self.cur_results(cur, count) if action in ['SELECT', 'WITH'] else None
+        results = self.cur_results(cur, count)
 
         if (verbose == 1 or verbose >= 3) and results:
             dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
@@ -128,7 +129,7 @@ class DBbase(object):
                     self._execute_step(cur, sql, ehandling=ehandling)
 
                     if idx + 1 == len(sqls) or action in ['SELECT', 'WITH']:
-                        columns, results = self.fetch_query_results(cur, action, count, verbose)
+                        columns, results = self.fetch_query_results(cur, count, verbose)
 
             conn.commit()
         except Exception as e:
@@ -203,10 +204,15 @@ class DBMixin(DBbase):
             return rows, action, result
 
     def get_columns(self, tablename, verbose=0):
-        sql = f"select * from {tablename} limit 1;"
-        rows, action, result = self.execute(sql, verbose=verbose)
-        columns = result[0]
-        columns = [c.lower() for c in columns]
+        sql = f"pragma table_info('{tablename}');" if self.dbtype == 'sqlite' else f"show columns from {tablename};"
+        rows, action, results = self.execute(sql, verbose=verbose)
+        print(action)
+
+        _, cols = results[0], results[1:]
+        nameidx = 1 if self.dbtype == 'sqlite' else 0
+        typeidx = 2 if self.dbtype == 'sqlite' else 1
+        columns = [ColumnModel(col[nameidx], col[typeidx]) for col in cols]
+        
         return columns
 
     def select(self, tablename, columns, condition=None, verbose=0):
@@ -233,6 +239,7 @@ class DBMixin(DBbase):
 
     def add_columns(self, tablename, columns, verbose=0):
         old_columns = self.get_columns(tablename)
+        old_columns = [col.newname for col in old_columns]
         old_columns = set(old_columns)
         new_columns = columns.new_cols
         new_columns = set([col.strip() for col in new_columns.split(',')])
