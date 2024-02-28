@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-14 17:19:38
+# @Last Modified time: 2024-02-28 15:59:17
 # @github: https://github.com/longfengpili
 
 
@@ -188,3 +188,11 @@ class TestTrino:
         # print(sql)
         rows, action, result = self.trinodb.execute(sql, verbose=3)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+
+    def test_alter_col(self):
+        old_cols, alter_cols = self.trinodb.alter_column(self.tablename, 'name', 'b', 'int')
+        print(old_cols)
+        print(alter_cols)
+
+    def test_alter_table(self):
+        self.trinodb.alter_table(self.tablename, colname='name', newname='b', newtype='int', partition='birthday')

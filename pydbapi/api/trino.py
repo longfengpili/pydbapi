@@ -2,16 +2,19 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-12-21 14:55:52
+# @Last Modified time: 2024-02-28 16:26:03
 # @github: https://github.com/longfengpili
 
 
 import threading
+from datetime import date
+
 from trino.dbapi import connect
 from trino.auth import BasicAuthentication
 
 from pydbapi.db import DBMixin, DBFileExec
 from pydbapi.sql import SqlCompile
+# from pydbapi.col import ColumnModel, ColumnsModel
 from pydbapi.conf import AUTO_RULES
 
 
@@ -33,8 +36,8 @@ class SqlTrinoCompile(SqlCompile):
 
     def create_partition(self, partition):
         coltype = partition.coltype
-        if not coltype.startswith('varchar'):
-            raise TypeError(f"{partition} only support varchar !")
+        if not (coltype.startswith('varchar') or coltype == 'date'):
+            raise TypeError(f"{partition} only support varchar, date !")
         partition = f"with (partitioned_by = ARRAY['{partition.newname}'])"
         return partition
 
@@ -42,6 +45,9 @@ class SqlTrinoCompile(SqlCompile):
         partition_sql = None
         if partition:
             partition_key = columns.get_column_by_name(partition)
+            if not partition_key:
+                raise ValueError(f"<{partition}> not in {columns}")
+
             columns.remove(partition)
             columns.append(partition_key)
             partition_sql = self.create_partition(partition_key)
@@ -110,15 +116,17 @@ class TrinoDB(DBMixin, DBFileExec):
         return TrinoDB._instance
 
     def get_conn(self):
-        auth = BasicAuthentication(self.user, self.password)
-        conn = connect(host=self.host, user=self.user, auth=auth, 
-                       catalog=self.catalog, schema=self.database,
-                       port=self.port, http_scheme="https"
-                       )
-        mytrinologger.info(f'connect {self.__class__.__name__}({self.user}@{self.host}:{self.port}/{self.catalog}.{self.database})')  # noqa: E501
-        if not conn:
-            self.get_conn()
-        return conn
+        if not hasattr(TrinoDB, '_conn'):
+            with TrinoDB._instance_lock:
+                if not hasattr(TrinoDB, '_conn'):
+                    auth = BasicAuthentication(self.user, self.password)
+                    conn = connect(host=self.host, user=self.user, auth=auth, 
+                                   catalog=self.catalog, schema=self.database,
+                                   port=self.port, http_scheme="https"
+                                   )
+                    mytrinologger.info(f'connect {self.__class__.__name__}({self.user}@{self.host}:{self.port}/{self.catalog}.{self.database})')  # noqa: E501
+                    TrinoDB._conn = conn
+        return TrinoDB._conn
 
     def create(self, tablename, columns, partition=None, verbose=0):
         # tablename = f"{self.database}.{tablename}"
@@ -141,3 +149,28 @@ class TrinoDB(DBMixin, DBFileExec):
             rows = vlength if values else rows
             mytrinologger.info(f'【{action}】{tablename} insert succeed !')
             return rows, action, result
+
+    def alter_table(self, tablename: str, colname: str, newname: str = None, newtype: str = None, 
+                    partition: str = 'part_date', verbose: int = 0):
+
+        old_columns, alter_columns = self.alter_column(tablename, colname, newname, newtype)
+        
+        # tablename
+        today = date.today()
+        today_str = today.strftime('%Y%m%d')
+        tablename_backup = f"{tablename}_{today_str}_{self.user}"
+        tablename_tmp = f"{tablename}_tmp"
+
+        # alter tablename to backup
+        altersql = f'alter table {tablename} rename to {tablename_backup};'
+        self.execute(altersql, verbose=verbose)
+
+        # create tmp table
+        self.create(tablename_tmp, alter_columns, partition=partition, verbose=verbose)
+
+        # move data to tmp table
+        self.insert(tablename_tmp, alter_columns, fromtable=tablename_backup, inserttype='select', verbose=verbose)
+
+        # alter tmp to tablename
+        altersql = f'alter table {tablename_tmp} rename to {tablename};'
+        self.execute(altersql, verbose=verbose)
