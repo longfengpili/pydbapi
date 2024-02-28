@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-28 11:47:20
+# @Last Modified time: 2024-02-28 15:44:18
 # @github: https://github.com/longfengpili
 
 
@@ -141,3 +141,24 @@ class TestMysql:
         # print(sql)
         rows, action, result = self.mysqldb.execute(sql, verbose=3)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+
+    def test_log(self):
+        sql = f'''
+            -- test1
+            with test as
+            (select * 
+            from {self.tablename} 
+            limit 10)
+
+            select birthday as time, name as adid, substring(birthday, 1, 10) as dt
+            from test
+            
+            '''
+
+        rows, action, result = self.mysqldb.execute(sql)
+        print(rows, action, result)
+        rows, action, result = self.mysqldb.execute(sql)
+        print(rows, action, result)
+        rows, action, result = self.mysqldb.execute(sql)
+        print(rows, action, result)
+

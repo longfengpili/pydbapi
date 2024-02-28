@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-28 13:55:25
+# @Last Modified time: 2024-02-28 15:50:20
 # @github: https://github.com/longfengpili
 
 
@@ -139,7 +139,7 @@ class DBbase(object):
         finally:
             if self.dbtype not in ('trino',):
                 cur.close()
-            conn.close()
+            # conn.close()  # 注释掉conn
 
         rows = cur.rowcount
         rows = len(results[1:]) if rows == -1 and results else rows
@@ -206,7 +206,6 @@ class DBMixin(DBbase):
     def get_columns(self, tablename, verbose=0):
         sql = f"pragma table_info('{tablename}');" if self.dbtype == 'sqlite' else f"show columns from {tablename};"
         rows, action, results = self.execute(sql, verbose=verbose)
-        print(action)
 
         _, cols = results[0], results[1:]
         nameidx = 1 if self.dbtype == 'sqlite' else 0
@@ -257,3 +256,16 @@ class DBMixin(DBbase):
                 sql = sqlcompile.add_column(column.newname, column.coltype)
                 self.execute(sql, verbose=0)
             dblogger.info(f'【{tablename}】add columns succeeded !【{new_columns - old_columns}】')
+
+    def alter_column(self, tablename: str, colname: str, newname: str = None, newtype: str = None):
+        old_columns = ColumnsModel(*self.get_columns(tablename))
+        alter_col = old_columns.get_column_by_name(colname)
+
+        newname = newname or alter_col.newname
+        newtype = newtype or alter_col.coltype
+        sqlexpr = f"cast({colname} as {newtype})"
+        newcol = ColumnModel(newname, newtype, sqlexpr=sqlexpr)
+
+        alter_columns = old_columns.alter(colname, newcol)
+
+        return old_columns, alter_columns

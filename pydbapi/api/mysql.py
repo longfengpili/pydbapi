@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-12-04 11:45:28
+# @Last Modified time: 2024-02-28 15:36:43
 # @github: https://github.com/longfengpili
 
 
@@ -132,12 +132,14 @@ class MysqlDB(DBMixin, DBFileExec):
         return MysqlDB._instance
 
     def get_conn(self):
-        conn = pymysql.connect(database=self.database, user=self.user, password=self.password,
-                               host=self.host, port=self.port, charset=self.charset)
-        mysqllogger.info(f'connect {self.__class__.__name__}({self.user}@{self.host}:{self.port}/{self.database})')
-        if not conn:
-            self.get_conn()
-        return conn
+        if not hasattr(MysqlDB, '_conn'):
+            with MysqlDB._instance_lock:
+                if not hasattr(MysqlDB, '_conn'):
+                    conn = pymysql.connect(database=self.database, user=self.user, password=self.password,
+                                           host=self.host, port=self.port, charset=self.charset)
+                    mysqllogger.info(f'connect {self.__class__.__name__}({self.user}@{self.host}:{self.port}/{self.database})')
+                    MysqlDB._conn = conn
+        return MysqlDB._conn
 
     def create(self, tablename, columns, indexes=None, index_part=128, ismultiple_index=True,
                partition=None, distribution=None, verbose=0):

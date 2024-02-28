@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-12-04 11:45:42
+# @Last Modified time: 2024-02-28 15:37:51
 # @github: https://github.com/longfengpili
 
 
@@ -71,11 +71,13 @@ class RedshiftDB(DBMixin, DBFileExec):
         return RedshiftDB._instance
 
     def get_conn(self):
-        conn = psycopg2.connect(database=self.database, user=self.user, password=self.password, host=self.host, port=self.port)
-        redlogger.info(f'connect {self.__class__.__name__}({self.user}@{self.host}:{self.port}/{self.database})')
-        if not conn:
-            self.get_conn()
-        return conn
+        if not hasattr(RedshiftDB, '_conn'):
+            with RedshiftDB._instance_lock:
+                if not hasattr(RedshiftDB, '_conn'):
+                    conn = psycopg2.connect(database=self.database, user=self.user, password=self.password, host=self.host, port=self.port)
+                    redlogger.info(f'connect {self.__class__.__name__}({self.user}@{self.host}:{self.port}/{self.database})')
+                    RedshiftDB._conn = conn
+        return RedshiftDB._conn
 
     def create(self, tablename, columns, indexes=None, verbose=0):
         # tablename = f"{self.database}.{tablename}"
