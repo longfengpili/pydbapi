@@ -2,13 +2,15 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-28 15:50:20
+# @Last Modified time: 2024-02-28 18:31:58
 # @github: https://github.com/longfengpili
 
 
 import re
 import sys
+import time
 import pandas as pd
+from datetime import date
 
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -268,4 +270,22 @@ class DBMixin(DBbase):
 
         alter_columns = old_columns.alter(colname, newcol)
 
-        return old_columns, alter_columns
+        return alter_columns
+
+    def alter_table_base(self, ftablename: str, mtablename: str, alter_columns: ColumnsModel, verbose: int = 0):
+        # tablename
+        today = date.today()
+        today_str = today.strftime('%Y%m%d')
+        time_str = time.time_ns()
+        tablename_backup = f"{ftablename}_{today_str}_{time_str}_{self.user}"
+
+        # alter ftablename to backup
+        altersql = f'alter table {ftablename} rename to {tablename_backup};'
+        self.execute(altersql, verbose=verbose)
+
+        # move data to mtablename
+        self.insert(mtablename, alter_columns, fromtable=tablename_backup, inserttype='select', verbose=verbose)
+
+        # alter mtablename to ftablename
+        altersql = f'alter table {mtablename} rename to {ftablename};'
+        self.execute(altersql, verbose=verbose)

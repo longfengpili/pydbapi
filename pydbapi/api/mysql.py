@@ -2,12 +2,14 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-28 15:36:43
+# @Last Modified time: 2024-02-28 18:21:27
 # @github: https://github.com/longfengpili
 
 
 import re
 import threading
+from datetime import date
+
 import pymysql
 
 from pydbapi.db import DBMixin, DBFileExec
@@ -164,3 +166,17 @@ class MysqlDB(DBMixin, DBFileExec):
         rows, action, result = self.execute(sql_for_load, verbose=verbose)
         mysqllogger.info(f"【{action}】{tablename} loaddata {rows} rows succeed, loadfile: {loadfile} !")
         return rows, action, result
+
+    def alter_table(self, tablename: str, colname: str, newname: str = None, newtype: str = None, 
+                    indexes: list = None, index_part: int = 128, ismultiple_index: bool = True,
+                    partition: str = None, distribution: str = None, verbose: int = 0):
+
+        alter_columns = self.alter_column(tablename, colname, newname, newtype)
+
+        # create middle table
+        mtablename = f"{tablename}_middle"
+        self.create(mtablename, alter_columns, indexes=indexes, index_part=index_part, ismultiple_index=ismultiple_index,
+                    partition=partition, distribution=distribution, verbose=verbose)
+
+        # alter table
+        self.alter_table_base(tablename, mtablename, alter_columns, verbose=verbose)
