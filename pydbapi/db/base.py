@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-28 18:31:58
+# @Last Modified time: 2024-02-29 10:41:50
 # @github: https://github.com/longfengpili
 
 
@@ -212,7 +212,7 @@ class DBMixin(DBbase):
         _, cols = results[0], results[1:]
         nameidx = 1 if self.dbtype == 'sqlite' else 0
         typeidx = 2 if self.dbtype == 'sqlite' else 1
-        columns = [ColumnModel(col[nameidx], col[typeidx]) for col in cols]
+        columns = ColumnsModel(*[ColumnModel(col[nameidx], col[typeidx]) for col in cols])
         
         return columns
 
@@ -240,11 +240,11 @@ class DBMixin(DBbase):
 
     def add_columns(self, tablename, columns, verbose=0):
         old_columns = self.get_columns(tablename)
-        old_columns = [col.newname for col in old_columns]
+        old_columns = old_columns.all_cols
         old_columns = set(old_columns)
-        new_columns = columns.new_cols
-        new_columns = set([col.strip() for col in new_columns.split(',')])
-        # dblogger.info(f'{old_columns}, {new_columns}')
+        new_columns = columns.all_cols
+        new_columns = set(new_columns)
+        dblogger.info(f'{old_columns}, {new_columns}')
 
         if old_columns == new_columns:
             dblogger.info(f'【{tablename}】columns not changed !')
@@ -260,7 +260,7 @@ class DBMixin(DBbase):
             dblogger.info(f'【{tablename}】add columns succeeded !【{new_columns - old_columns}】')
 
     def alter_column(self, tablename: str, colname: str, newname: str = None, newtype: str = None):
-        old_columns = ColumnsModel(*self.get_columns(tablename))
+        old_columns = self.get_columns(tablename)
         alter_col = old_columns.get_column_by_name(colname)
 
         newname = newname or alter_col.newname

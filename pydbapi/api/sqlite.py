@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-28 15:38:23
+# @Last Modified time: 2024-02-29 10:46:43
 # @github: https://github.com/longfengpili
 
 
@@ -65,19 +65,12 @@ class SqliteDB(DBMixin, DBFileExec):
         return SqliteDB._instance
 
     def get_conn(self):
-        conn = sqlite3.connect(database=self.database)
-        sqlitelogger.info(f'connect {self.__class__.__name__}({self.database})')
-        if not conn:
-            self.get_conn()
-        return conn
-
-        def get_conn(self):
-            if not hasattr(SqliteDB, '_conn'):
-                with SqliteDB._instance_lock:
-                    if not hasattr(SqliteDB, '_conn'):
-                        conn = sqlite3.connect(database=self.database)
-                        sqlitelogger.info(f'connect {self.__class__.__name__}({self.database})')
-                        SqliteDB._conn = conn
+        if not hasattr(SqliteDB, '_conn'):
+            with SqliteDB._instance_lock:
+                if not hasattr(SqliteDB, '_conn'):
+                    conn = sqlite3.connect(database=self.database)
+                    sqlitelogger.info(f'connect {self.__class__.__name__}({self.database})')
+                    SqliteDB._conn = conn
         return SqliteDB._conn
 
     def create(self, tablename, columns, indexes=None, verbose=0):

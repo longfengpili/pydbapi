@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-28 16:13:40
+# @Last Modified time: 2024-02-29 10:37:34
 # @github: https://github.com/longfengpili
 
 from typing import Iterable, List, Any
@@ -94,19 +94,6 @@ class ColumnsModel(object):
         isin = True if col else False
         return isin
 
-    def remove(self, remove_column: str):
-        new_columns = []
-        columns = self.columns
-        for column in columns:
-            if column.newname != remove_column:
-                new_columns.append(column)
-        self.columns = new_columns
-
-    def alter(self, column: str, newcol: ColumnModel):
-        columns = self.columns
-        new_columns = [newcol if col.newname == column else col for col in columns]
-        return ColumnsModel(*new_columns)
-
     @property
     def func_cols(self):
         func_cols = [col for col in self.columns if col.func]
@@ -118,10 +105,14 @@ class ColumnsModel(object):
         return nonfunc_cols
 
     @property
-    def new_cols(self):
+    def all_cols(self):
         all_cols = self.nonfunc_cols + self.func_cols
-        new_cols = [col.newname for col in all_cols]
-        new_cols = ', '.join(new_cols)
+        all_cols = [col.newname for col in all_cols]
+        return all_cols
+
+    @property
+    def new_cols(self):
+        new_cols = ', '.join(self.all_cols)
         return new_cols
 
     @property
@@ -157,3 +148,19 @@ class ColumnsModel(object):
         for col in self.columns:
             if col.newname == name:
                 return col
+
+    def remove(self, remove_column: str):
+        new_columns = []
+        columns = self.columns
+        for column in columns:
+            if column.newname != remove_column:
+                new_columns.append(column)
+        self.columns = new_columns
+
+    def alter(self, column: str, newcol: ColumnModel):
+        columns = self.columns
+        new_columns = [newcol if col.newname == column else col for col in columns]
+        return ColumnsModel(*new_columns)
+
+    def to_list(self):
+        return self.columns
