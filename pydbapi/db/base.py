@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-29 18:36:12
+# @Last Modified time: 2024-02-29 18:57:03
 # @github: https://github.com/longfengpili
 
 
@@ -78,7 +78,7 @@ class DBbase(object):
         if (verbose == 1 or verbose >= 3) and results:
             dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
         elif verbose and not columns:
-            dblogger.warning(f"Not results, results: {results}")
+            dblogger.warning("No results")
 
         if results:
             results.insert(0, columns)
