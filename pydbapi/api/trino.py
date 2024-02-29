@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-28 18:41:09
+# @Last Modified time: 2024-02-29 18:34:51
 # @github: https://github.com/longfengpili
 
 
@@ -151,13 +151,13 @@ class TrinoDB(DBMixin, DBFileExec):
             return rows, action, result
 
     def alter_table(self, tablename: str, colname: str, newname: str = None, newtype: str = None, 
-                    partition: str = 'part_date', verbose: int = 0):
+                    partition: str = 'part_date', conditions: list[str] = None, verbose: int = 0):
 
         alter_columns = self.alter_column(tablename, colname, newname, newtype)
 
         # create middle table
-        mtablename = f"{tablename}_middle"
+        mtablename = f"{tablename}_tmp"
         self.create(mtablename, alter_columns, partition=partition, verbose=verbose)
 
         # alter table
-        self.alter_table_base(tablename, mtablename, alter_columns, verbose=verbose)
+        self.alter_table_base(tablename, mtablename, alter_columns, conditions=conditions, verbose=verbose)

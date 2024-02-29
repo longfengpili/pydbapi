@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-07-26 17:46:27
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-12-11 17:30:43
+# @Last Modified time: 2024-02-29 17:58:27
 # @github: https://github.com/longfengpili
 
 
@@ -12,7 +12,7 @@ import sys
 import colorlog
 
 
-AUTO_RULES = ['test_xu']  # 可以自动执行表名（表名包含即可）
+AUTO_RULES = ['test_xu', 'tmp']  # 可以自动执行表名（表名包含即可）
 REDSHIFT_AUTO_RULES = AUTO_RULES + ['_data_aniland']  # Amazon Redshift 可以自动执行表名（表名包含即可）
 
 # logging settings

@@ -2,15 +2,13 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-29 10:41:50
+# @Last Modified time: 2024-02-29 18:36:12
 # @github: https://github.com/longfengpili
 
 
 import re
 import sys
-import time
 import pandas as pd
-from datetime import date
 
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -59,7 +57,6 @@ class DBbase(object):
         try:
             cursor.execute(sql)
         except Exception as e:
-            # dblogger.error(e)
             if ehandling == 'raise':
                 raise ValueError(f"【Error】:{e}【Sql】:{sql}")
 
@@ -81,7 +78,7 @@ class DBbase(object):
         if (verbose == 1 or verbose >= 3) and results:
             dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
         elif verbose and not columns:
-            dblogger.warning(f"Not Columns, cursor description is {desc}")
+            dblogger.warning(f"Not results, results: {results}")
 
         if results:
             results.insert(0, columns)
@@ -113,7 +110,8 @@ class DBbase(object):
             rows {[int]} -- [影响的行数]
             results {[list]} -- [返回的结果]
         '''
-            
+        
+        results = None
         conn = self.get_conn()
         cur = conn.cursor()
         sqls = self.prepare_sql_statements(sql, verbose)
@@ -136,8 +134,9 @@ class DBbase(object):
             conn.commit()
         except Exception as e:
             dblogger.error(e)
-            conn.rollback()
-            raise e
+            if ehandling == 'raise':
+                conn.rollback()
+                raise e
         finally:
             if self.dbtype not in ('trino',):
                 cur.close()
@@ -272,20 +271,26 @@ class DBMixin(DBbase):
 
         return alter_columns
 
-    def alter_table_base(self, ftablename: str, mtablename: str, alter_columns: ColumnsModel, verbose: int = 0):
+    def alter_table_base(self, ftablename: str, mtablename: str, alter_columns: ColumnsModel, 
+                         conditions: list[str] = None, verbose: int = 0):
+        import time
+        from datetime import date
         # tablename
         today = date.today()
         today_str = today.strftime('%Y%m%d')
         time_str = time.time_ns()
-        tablename_backup = f"{ftablename}_{today_str}_{time_str}_{self.user}"
+        tablename_backup = f"{ftablename}_backup_{today_str}_{time_str}_{self.user}"
 
         # alter ftablename to backup
         altersql = f'alter table {ftablename} rename to {tablename_backup};'
-        self.execute(altersql, verbose=verbose)
+        self.execute(altersql, ehandling='error', verbose=verbose)
 
         # move data to mtablename
-        self.insert(mtablename, alter_columns, fromtable=tablename_backup, inserttype='select', verbose=verbose)
+        conditions = conditions or [None]
+        for condition in conditions:
+            self.insert(mtablename, alter_columns, fromtable=tablename_backup, inserttype='select', 
+                        condition=condition, verbose=verbose)
 
         # alter mtablename to ftablename
         altersql = f'alter table {mtablename} rename to {ftablename};'
-        self.execute(altersql, verbose=verbose)
+        self.execute(altersql, ehandling='error', verbose=verbose)
