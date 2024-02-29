@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-28 15:59:17
+# @Last Modified time: 2024-02-29 17:09:55
 # @github: https://github.com/longfengpili
 
 
@@ -24,8 +24,8 @@ class TestTrino:
 
     def setup_method(self, method):
         self.trinodb = TrinoDB(TRINO_HOST, TRINO_USER, TRINO_PASSWORD, TRINO_DATABASE, safe_rule=False)
-        self.tablename = 'dow_jp_w.test_friut_xu'
-        self.id = ColumnModel('id', 'integer')
+        self.tablename = 'warship_jp_w.test_friut_xu'
+        self.id = ColumnModel('id', 'varchar')
         self.name = ColumnModel('name', 'varchar(1024)')
         self.address = ColumnModel('address', 'varchar(1024)')
         self.birthday = ColumnModel('birthday', 'varchar(1024)')
@@ -49,26 +49,34 @@ class TestTrino:
         rows, action, result = self.trinodb.drop(tablename)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
+    def test_get_columns(self):
+        try:
+            columns = self.trinodb.get_columns(self.tablename)
+            print(columns)
+            self.trinodb.drop(self.tablename)
+        except Exception as e:
+            print(e)
+
     def test_create(self):
         rows, action, result = self.trinodb.create(self.tablename, self.columns, partition='birthday')
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_insertsql(self):
-        values = [[1, 'apple', 'beijing', '2012-01-23', '{"yuwen": 90, "shuxue": 20}'],
-                  [2, 'banana', 'shanghai', '2020-02-25 01:00:00', '{"yuwen": 91, "shuxue": 80}'],
-                  [3, 'chocolate', 'yunnan', '2020-06-14 23:00:05', '{"yuwen": 90, "shuxue": 90}'],
-                  [4, 'pizza', 'taiwan', '2020-05-15 23:08:25', '{"yuwen": 10, "shuxue": 21}'],
-                  [5, 'pizza', 'hebei', '2020-08-12 14:05:36', '{"yuwen": 30, "shuxue": 23}']]
+        values = [['1', 'apple', 'beijing', '2012-01-23', '{"yuwen": 90, "shuxue": 20}'],
+                  ['2', 'banana', 'shanghai', '2020-02-25 01:00:00', '{"yuwen": 91, "shuxue": 80}'],
+                  ['3', 'chocolate', 'yunnan', '2020-06-14 23:00:05', '{"yuwen": 90, "shuxue": 90}'],
+                  ['4', 'pizza', 'taiwan', '2020-05-15 23:08:25', '{"yuwen": 10, "shuxue": 21}'],
+                  ['5', 'pizza', 'hebei', '2020-08-12 14:05:36', '{"yuwen": 30, "shuxue": 23}']]
         sqlcompile = SqlTrinoCompile(self.tablename)
         sql = sqlcompile.insert(self.columns, inserttype='value', values=values, chunksize=1000)
         print(sql)
 
     def test_insert(self):
-        values = [[1, 'apple', 'beijing', '2012-01-23', '{"yuwen": 90, "shuxue": 20}'],
-                  [2, 'banana', 'shanghai', '2020-02-25 01:00:00', '{"yuwen": 91, "shuxue": 80}'],
-                  [3, 'chocolate', 'yunnan', '2020-06-14 23:00:05', '{"yuwen": 90, "shuxue": 90}'],
-                  [4, 'pizza', 'taiwan', '2020-05-15 23:08:25', '{"yuwen": 10, "shuxue": 21}'],
-                  [5, 'pizza', 'hebei', '2020-08-12 14:05:36', '{"yuwen": 30, "shuxue": 23}']]
+        values = [['1', 'apple', 'beijing', '2012-01-23', '{"yuwen": 90, "shuxue": 20}'],
+                  ['2', 'banana', 'shanghai', '2020-02-25 01:00:00', '{"yuwen": 91, "shuxue": 80}'],
+                  ['3', 'chocolate', 'yunnan', '2020-06-14 23:00:05', '{"yuwen": 90, "shuxue": 90}'],
+                  ['4', 'pizza', 'taiwan', '2020-05-15 23:08:25', '{"yuwen": 10, "shuxue": 21}'],
+                  ['5', 'pizza', 'hebei', '2020-08-12 14:05:36', '{"yuwen": 30, "shuxue": 23}']]
         rows, action, result = self.trinodb.insert(self.tablename, self.columns, values=values, chunksize=1, verbose=1)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
@@ -190,9 +198,8 @@ class TestTrino:
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_alter_col(self):
-        old_cols, alter_cols = self.trinodb.alter_column(self.tablename, 'name', 'b', 'int')
-        print(old_cols)
+        alter_cols = self.trinodb.alter_column(self.tablename, 'id', 'idx', 'int')
         print(alter_cols)
 
     def test_alter_table(self):
-        self.trinodb.alter_table(self.tablename, colname='name', newname='b', newtype='int', partition='birthday')
+        self.trinodb.alter_table(self.tablename, colname='id', newname='idx', newtype='int', partition='birthday')

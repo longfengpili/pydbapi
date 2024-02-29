@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-28 16:26:03
+# @Last Modified time: 2024-02-28 18:41:09
 # @github: https://github.com/longfengpili
 
 
@@ -153,24 +153,11 @@ class TrinoDB(DBMixin, DBFileExec):
     def alter_table(self, tablename: str, colname: str, newname: str = None, newtype: str = None, 
                     partition: str = 'part_date', verbose: int = 0):
 
-        old_columns, alter_columns = self.alter_column(tablename, colname, newname, newtype)
-        
-        # tablename
-        today = date.today()
-        today_str = today.strftime('%Y%m%d')
-        tablename_backup = f"{tablename}_{today_str}_{self.user}"
-        tablename_tmp = f"{tablename}_tmp"
+        alter_columns = self.alter_column(tablename, colname, newname, newtype)
 
-        # alter tablename to backup
-        altersql = f'alter table {tablename} rename to {tablename_backup};'
-        self.execute(altersql, verbose=verbose)
+        # create middle table
+        mtablename = f"{tablename}_middle"
+        self.create(mtablename, alter_columns, partition=partition, verbose=verbose)
 
-        # create tmp table
-        self.create(tablename_tmp, alter_columns, partition=partition, verbose=verbose)
-
-        # move data to tmp table
-        self.insert(tablename_tmp, alter_columns, fromtable=tablename_backup, inserttype='select', verbose=verbose)
-
-        # alter tmp to tablename
-        altersql = f'alter table {tablename_tmp} rename to {tablename};'
-        self.execute(altersql, verbose=verbose)
+        # alter table
+        self.alter_table_base(tablename, mtablename, alter_columns, verbose=verbose)
