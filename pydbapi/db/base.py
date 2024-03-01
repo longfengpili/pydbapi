@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-01 12:26:21
+# @Last Modified time: 2024-03-01 12:31:00
 # @github: https://github.com/longfengpili
 
 
@@ -290,8 +290,6 @@ class DBMixin(DBbase):
 
         if alter_col.newname == newcol.newname and alter_col.coltype == newcol.coltype:
             return newcol
-
-        sys.tablename
 
         alter_columns = old_columns.alter(colname, newcol)
 
