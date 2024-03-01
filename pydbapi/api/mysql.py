@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-29 18:36:45
+# @Last Modified time: 2024-03-01 12:09:35
 # @github: https://github.com/longfengpili
 
 
@@ -167,10 +167,10 @@ class MysqlDB(DBMixin, DBFileExec):
         mysqllogger.info(f"【{action}】{tablename} loaddata {rows} rows succeed, loadfile: {loadfile} !")
         return rows, action, result
 
-    def alter_table(self, tablename: str, colname: str, newname: str = None, newtype: str = None, 
-                    indexes: list = None, index_part: int = 128, ismultiple_index: bool = True,
-                    partition: str = None, distribution: str = None, conditions: list[str] = None, 
-                    verbose: int = 0):
+    def alter_tablecol(self, tablename: str, colname: str, newname: str = None, newtype: str = None, 
+                       indexes: list = None, index_part: int = 128, ismultiple_index: bool = True,
+                       partition: str = None, distribution: str = None, conditions: list[str] = None, 
+                       verbose: int = 0):
 
         alter_columns = self.alter_column(tablename, colname, newname, newtype)
 

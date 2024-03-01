@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-28 18:28:35
+# @Last Modified time: 2024-03-01 12:09:14
 # @github: https://github.com/longfengpili
 
 
@@ -143,5 +143,5 @@ class TestMysql:
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_alter_table(self):
-        self.mysqldb.alter_table(self.tablename, colname='id', newname='id_new', newtype='real')
-        self.mysqldb.alter_table(self.tablename, colname='id_new', newname='id')
+        self.mysqldb.alter_tablecol(self.tablename, colname='id', newname='id_new', newtype='real')
+        self.mysqldb.alter_tablecol(self.tablename, colname='id_new', newname='id')

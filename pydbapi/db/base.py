@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-01 11:37:15
+# @Last Modified time: 2024-03-01 12:06:56
 # @github: https://github.com/longfengpili
 
 
@@ -261,13 +261,23 @@ class DBMixin(DBbase):
                 self.execute(sql, verbose=0)
             dblogger.info(f'【{tablename}】add columns succeeded !【{new_columns - old_columns}】')
 
-    def alter_tablename(self, ftablename: str, ttablename: str, verbose: int = 0):
+    def alter_tablename(self, ftablename: str, ttablename: str, retries: int = 3, verbose: int = 0):
         altersql = f'alter table {ftablename} rename to {ttablename};'
-        try:
-            self.execute(altersql, verbose=verbose)
-        except Exception as e:
-            dblogger.error(e)
-            self.alter_tablename(ftablename, ttablename)
+        attempt = 0
+
+        while attempt < retries:
+            try:
+                self.execute(altersql, verbose=verbose)
+                break
+            except Exception as e:  # noqa: F841
+                attempt += 1
+
+                try:
+                    self.get_columns(ttablename)
+                    dblogger.info(f"alter table {ftablename} to {ttablename} succeeded ~")
+                    break
+                except Exception as e1:
+                    dblogger.error(e1)
 
     def alter_column(self, tablename: str, colname: str, newname: str = None, newtype: str = None):
         old_columns = self.get_columns(tablename)

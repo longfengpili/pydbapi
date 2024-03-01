@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-01 11:34:01
+# @Last Modified time: 2024-03-01 12:08:55
 # @github: https://github.com/longfengpili
 
 
@@ -150,17 +150,8 @@ class TrinoDB(DBMixin, DBFileExec):
             mytrinologger.info(f'【{action}】{tablename} insert succeed !')
             return rows, action, result
 
-    def alter_tablename(self, ftablename: str, ttablename: str, verbose: int = 0):
-        # 覆写alter tablename
-        altersql = f'alter table {ftablename} rename to {ttablename};'
-        try:
-            self.execute(altersql, verbose=verbose)
-        except Exception as e:
-            if 'Read timed out' in str(e):
-                self.alter_tablename(ftablename, ttablename)
-
-    def alter_table(self, tablename: str, colname: str, newname: str = None, newtype: str = None, 
-                    partition: str = 'part_date', conditions: list[str] = None, verbose: int = 0):
+    def alter_tablecol(self, tablename: str, colname: str, newname: str = None, newtype: str = None, 
+                       partition: str = 'part_date', conditions: list[str] = None, verbose: int = 0):
         alter_columns = self.alter_column(tablename, colname, newname, newtype)
 
         # create middle table
