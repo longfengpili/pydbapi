@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-01 10:16:08
+# @Last Modified time: 2024-03-01 11:37:15
 # @github: https://github.com/longfengpili
 
 
@@ -137,8 +137,9 @@ class DBbase(object):
         except Exception as e:
             dblogger.error(e)
             if ehandling == 'raise':
-                conn.rollback()
-                raise e
+                if self.dbtype not in ('trino',):
+                    conn.rollback()
+                raise
         finally:
             if self.dbtype not in ('trino',):
                 cur.close()
