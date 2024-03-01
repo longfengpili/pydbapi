@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-01 12:18:46
+# @Last Modified time: 2024-03-01 12:27:47
 # @github: https://github.com/longfengpili
 
 
@@ -152,9 +152,11 @@ class TrinoDB(DBMixin, DBFileExec):
 
     def alter_tablecol(self, tablename: str, colname: str, newname: str = None, newtype: str = None, 
                        partition: str = 'part_date', conditions: list[str] = None, verbose: int = 0):
+        from pydbapi.col import ColumnModel
+        
         alter_columns = self.alter_column(tablename, colname, newname, newtype)
-        if not alter_columns:
-            mytrinologger.info(f"{newname}({newtype}) same, not needed to alter ~")
+        if isinstance(alter_columns, ColumnModel):
+            mytrinologger.info(f"{alter_columns} same, not needed to alter ~")
             return
 
         # create middle table

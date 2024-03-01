@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-01 12:17:51
+# @Last Modified time: 2024-03-01 12:26:21
 # @github: https://github.com/longfengpili
 
 
@@ -283,13 +283,15 @@ class DBMixin(DBbase):
         old_columns = self.get_columns(tablename)
         alter_col = old_columns.get_column_by_name(colname)
 
-        if alter_col.newname == newname and alter_col.coltype == newtype:
-            return
-
         newname = newname or alter_col.newname
         newtype = newtype or alter_col.coltype
         sqlexpr = f"cast({colname} as {newtype})"
         newcol = ColumnModel(newname, newtype, sqlexpr=sqlexpr)
+
+        if alter_col.newname == newcol.newname and alter_col.coltype == newcol.coltype:
+            return newcol
+
+        sys.tablename
 
         alter_columns = old_columns.alter(colname, newcol)
 
