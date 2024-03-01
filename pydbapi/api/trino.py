@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-01 12:27:47
+# @Last Modified time: 2024-03-01 13:34:40
 # @github: https://github.com/longfengpili
 
 
@@ -13,6 +13,7 @@ from trino.dbapi import connect
 from trino.auth import BasicAuthentication
 
 from pydbapi.db import DBMixin, DBFileExec
+from pydbapi.col import ColumnModel
 from pydbapi.sql import SqlCompile
 # from pydbapi.col import ColumnModel, ColumnsModel
 from pydbapi.conf import AUTO_RULES
@@ -152,8 +153,6 @@ class TrinoDB(DBMixin, DBFileExec):
 
     def alter_tablecol(self, tablename: str, colname: str, newname: str = None, newtype: str = None, 
                        partition: str = 'part_date', conditions: list[str] = None, verbose: int = 0):
-        from pydbapi.col import ColumnModel
-        
         alter_columns = self.alter_column(tablename, colname, newname, newtype)
         if isinstance(alter_columns, ColumnModel):
             mytrinologger.info(f"{alter_columns} same, not needed to alter ~")

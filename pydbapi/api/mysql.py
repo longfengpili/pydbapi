@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-01 12:27:39
+# @Last Modified time: 2024-03-01 13:34:58
 # @github: https://github.com/longfengpili
 
 
@@ -13,6 +13,7 @@ from datetime import date
 import pymysql
 
 from pydbapi.db import DBMixin, DBFileExec
+from pydbapi.col import ColumnModel
 from pydbapi.sql import SqlCompile
 from pydbapi.conf import AUTO_RULES
 
@@ -171,9 +172,6 @@ class MysqlDB(DBMixin, DBFileExec):
                        indexes: list = None, index_part: int = 128, ismultiple_index: bool = True,
                        partition: str = None, distribution: str = None, conditions: list[str] = None, 
                        verbose: int = 0):
-
-        from pydbapi.col import ColumnModel
-        
         alter_columns = self.alter_column(tablename, colname, newname, newtype)
         if isinstance(alter_columns, ColumnModel):
             mysqllogger.info(f"{alter_columns} same, not needed to alter ~")

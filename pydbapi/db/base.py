@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-01 12:31:00
+# @Last Modified time: 2024-03-01 13:21:20
 # @github: https://github.com/longfengpili
 
 
@@ -269,15 +269,16 @@ class DBMixin(DBbase):
             try:
                 self.execute(altersql, verbose=verbose)
                 break
-            except Exception as e:  # noqa: F841
+            except:  # noqa: E722
                 attempt += 1
+                time.sleep(5)
 
                 try:
                     self.get_columns(ttablename)
                     dblogger.info(f"alter table {ftablename} to {ttablename} succeeded ~")
                     break
-                except Exception as e1:
-                    dblogger.error(e1)
+                except:  # noqa: E722
+                    pass
 
     def alter_column(self, tablename: str, colname: str, newname: str = None, newtype: str = None):
         old_columns = self.get_columns(tablename)
