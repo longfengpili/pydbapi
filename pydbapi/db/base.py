@@ -2,13 +2,15 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-29 18:57:03
+# @Last Modified time: 2024-03-01 10:16:08
 # @github: https://github.com/longfengpili
 
 
 import re
 import sys
+import time
 import pandas as pd
+from datetime import date
 
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -71,14 +73,14 @@ class DBbase(object):
 
         return desc, columns
 
-    def fetch_query_results(self, cur, count, verbose):
+    def fetch_query_results(self, action, cur, count, verbose):
         desc, columns = self.cur_columns(cur)
         results = self.cur_results(cur, count)
 
         if (verbose == 1 or verbose >= 3) and results:
             dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
         elif verbose and not columns:
-            dblogger.warning("No results")
+            dblogger.warning(f"【{action}】No results")
 
         if results:
             results.insert(0, columns)
@@ -129,7 +131,7 @@ class DBbase(object):
                     self._execute_step(cur, sql, ehandling=ehandling)
 
                     if idx + 1 == len(sqls) or action in ['SELECT', 'WITH']:
-                        columns, results = self.fetch_query_results(cur, count, verbose)
+                        columns, results = self.fetch_query_results(action, cur, count, verbose)
 
             conn.commit()
         except Exception as e:
@@ -258,6 +260,14 @@ class DBMixin(DBbase):
                 self.execute(sql, verbose=0)
             dblogger.info(f'【{tablename}】add columns succeeded !【{new_columns - old_columns}】')
 
+    def alter_tablename(self, ftablename: str, ttablename: str, verbose: int = 0):
+        altersql = f'alter table {ftablename} rename to {ttablename};'
+        try:
+            self.execute(altersql, verbose=verbose)
+        except Exception as e:
+            dblogger.error(e)
+            self.alter_tablename(ftablename, ttablename)
+
     def alter_column(self, tablename: str, colname: str, newname: str = None, newtype: str = None):
         old_columns = self.get_columns(tablename)
         alter_col = old_columns.get_column_by_name(colname)
@@ -273,8 +283,6 @@ class DBMixin(DBbase):
 
     def alter_table_base(self, ftablename: str, mtablename: str, alter_columns: ColumnsModel, 
                          conditions: list[str] = None, verbose: int = 0):
-        import time
-        from datetime import date
         # tablename
         today = date.today()
         today_str = today.strftime('%Y%m%d')
@@ -282,8 +290,7 @@ class DBMixin(DBbase):
         tablename_backup = f"{ftablename}_backup_{today_str}_{time_str}_{self.user}"
 
         # alter ftablename to backup
-        altersql = f'alter table {ftablename} rename to {tablename_backup};'
-        self.execute(altersql, ehandling='error', verbose=verbose)
+        self.alter_tablename(ftablename, tablename_backup, verbose=verbose)
 
         # move data to mtablename
         conditions = conditions or [None]
@@ -292,5 +299,4 @@ class DBMixin(DBbase):
                         condition=condition, verbose=verbose)
 
         # alter mtablename to ftablename
-        altersql = f'alter table {mtablename} rename to {ftablename};'
-        self.execute(altersql, ehandling='error', verbose=verbose)
+        self.alter_tablename(mtablename, ftablename, verbose=verbose)
