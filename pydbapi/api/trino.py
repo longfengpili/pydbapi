@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-04 18:03:07
+# @Last Modified time: 2024-03-04 18:15:24
 # @github: https://github.com/longfengpili
 
 
@@ -162,5 +162,3 @@ class TrinoDB(DBMixin, DBFileExec):
 
             # alter table
             self.alter_tablecol_base(tablename, mtablename, alter_columns, conditions=conditions, verbose=verbose)
-        else:
-            mytrinologger.info(f"{colname} not need change ~")

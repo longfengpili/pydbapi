@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-04 18:03:47
+# @Last Modified time: 2024-03-04 18:15:30
 # @github: https://github.com/longfengpili
 
 
@@ -182,5 +182,3 @@ class MysqlDB(DBMixin, DBFileExec):
 
             # alter table
             self.alter_tablecol_base(tablename, mtablename, alter_columns, conditions=conditions, verbose=verbose)
-        else:
-            mysqllogger.info(f"{alter_columns} same, not needed to alter ~")

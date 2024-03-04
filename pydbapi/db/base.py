@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-04 17:56:27
+# @Last Modified time: 2024-03-04 18:22:37
 # @github: https://github.com/longfengpili
 
 
@@ -281,16 +281,20 @@ class DBMixin(DBbase):
         if attempt == retries:
             dblogger.error(f"All {retries} attempts to rename table {ftablename} to {ttablename} failed.")
 
-    def alter_column(self, tablename: str, colname: str, newname: str = None, newtype: str = None):
+    def alter_column(self, tablename: str, colname: str, newname: str = None, newtype: str = None, sqlexpr: str = None):
         old_columns = self.get_columns(tablename)
         alter_col = old_columns.get_column_by_name(colname)
 
+        if not alter_col:
+            dblogger.error(f"{colname} not in {tablename} !!!")
+            return
+
         newname = newname or alter_col.newname
         newtype = newtype or alter_col.coltype
-        sqlexpr = f"cast({colname} as {newtype})"
+        sqlexpr = sqlexpr or f"cast({colname} as {newtype})" if newtype != alter_col.coltype else None
         newcol = ColumnModel(newname, newtype, sqlexpr=sqlexpr)
-
-        if alter_col.newname == newcol.newname and alter_col.coltype == newcol.coltype:
+        if newcol == alter_col:
+            dblogger.info(f"{newcol} same, not need to change ~")
             return
 
         alter_columns = old_columns.alter(colname, newcol)
