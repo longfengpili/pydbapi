@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-04 11:31:02
+# @Last Modified time: 2024-03-04 18:03:07
 # @github: https://github.com/longfengpili
 
 
@@ -154,13 +154,13 @@ class TrinoDB(DBMixin, DBFileExec):
     def alter_tablecol(self, tablename: str, colname: str, newname: str = None, newtype: str = None, 
                        partition: str = 'part_date', conditions: list[str] = None, verbose: int = 0):
         alter_columns = self.alter_column(tablename, colname, newname, newtype)
-        if isinstance(alter_columns, ColumnModel):
-            mytrinologger.info(f"{alter_columns} same, not needed to alter ~")
-            return
 
-        # create middle table
-        mtablename = f"{tablename}_tmp"
-        self.create(mtablename, alter_columns, partition=partition, verbose=verbose)
+        if alter_columns:
+            # create tmp table
+            mtablename = f"{tablename}_tmp"
+            self.create(mtablename, alter_columns, partition=partition, verbose=verbose)
 
-        # alter table
-        self.alter_table_base(tablename, mtablename, alter_columns, conditions=conditions, verbose=verbose)
+            # alter table
+            self.alter_tablecol_base(tablename, mtablename, alter_columns, conditions=conditions, verbose=verbose)
+        else:
+            mytrinologger.info(f"{colname} not need change ~")

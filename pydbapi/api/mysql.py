@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-01 13:34:58
+# @Last Modified time: 2024-03-04 18:03:47
 # @github: https://github.com/longfengpili
 
 
@@ -173,14 +173,14 @@ class MysqlDB(DBMixin, DBFileExec):
                        partition: str = None, distribution: str = None, conditions: list[str] = None, 
                        verbose: int = 0):
         alter_columns = self.alter_column(tablename, colname, newname, newtype)
-        if isinstance(alter_columns, ColumnModel):
+
+        if alter_columns:
+            # create tmp table
+            mtablename = f"{tablename}_tmp"
+            self.create(mtablename, alter_columns, indexes=indexes, index_part=index_part, ismultiple_index=ismultiple_index,
+                        partition=partition, distribution=distribution, verbose=verbose)
+
+            # alter table
+            self.alter_tablecol_base(tablename, mtablename, alter_columns, conditions=conditions, verbose=verbose)
+        else:
             mysqllogger.info(f"{alter_columns} same, not needed to alter ~")
-            return
-
-        # create middle table
-        mtablename = f"{tablename}_tmp"
-        self.create(mtablename, alter_columns, indexes=indexes, index_part=index_part, ismultiple_index=ismultiple_index,
-                    partition=partition, distribution=distribution, verbose=verbose)
-
-        # alter table
-        self.alter_table_base(tablename, mtablename, alter_columns, conditions=conditions, verbose=verbose)

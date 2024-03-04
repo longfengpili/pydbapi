@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-04 17:41:24
+# @Last Modified time: 2024-03-04 17:56:27
 # @github: https://github.com/longfengpili
 
 
@@ -291,14 +291,14 @@ class DBMixin(DBbase):
         newcol = ColumnModel(newname, newtype, sqlexpr=sqlexpr)
 
         if alter_col.newname == newcol.newname and alter_col.coltype == newcol.coltype:
-            return newcol
+            return
 
         alter_columns = old_columns.alter(colname, newcol)
 
         return alter_columns
 
-    def alter_table_base(self, ftablename: str, mtablename: str, alter_columns: ColumnsModel, 
-                         conditions: list[str] = None, verbose: int = 0):
+    def alter_tablecol_base(self, ftablename: str, mtablename: str, alter_columns: ColumnsModel, 
+                            conditions: list[str] = None, verbose: int = 0):
         # tablename
         today = date.today()
         today_str = today.strftime('%Y%m%d')
