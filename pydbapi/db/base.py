@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-01 13:21:20
+# @Last Modified time: 2024-03-04 17:41:24
 # @github: https://github.com/longfengpili
 
 
@@ -134,12 +134,10 @@ class DBbase(object):
                         columns, results = self.fetch_query_results(action, cur, count, verbose)
 
             conn.commit()
-        except Exception as e:
-            dblogger.error(e)
-            if ehandling == 'raise':
-                if self.dbtype not in ('trino',):
-                    conn.rollback()
-                raise
+        except Exception:
+            if self.dbtype not in ('trino',):
+                conn.rollback()
+            raise
         finally:
             if self.dbtype not in ('trino',):
                 cur.close()
@@ -268,17 +266,20 @@ class DBMixin(DBbase):
         while attempt < retries:
             try:
                 self.execute(altersql, verbose=verbose)
-                break
-            except:  # noqa: E722
+            except Exception as e:
+                dblogger.error(f"Attempt {attempt + 1} failed: {e}")
+                time.sleep(5)  # 在重试之前等待
                 attempt += 1
-                time.sleep(5)
 
-                try:
-                    self.get_columns(ttablename)
-                    dblogger.info(f"alter table {ftablename} to {ttablename} succeeded ~")
-                    break
-                except:  # noqa: E722
-                    pass
+            try:
+                self.get_columns(ttablename)
+                dblogger.info(f"alter table {ftablename} to {ttablename} succeeded ~")
+                break
+            except Exception:
+                pass
+
+        if attempt == retries:
+            dblogger.error(f"All {retries} attempts to rename table {ftablename} to {ttablename} failed.")
 
     def alter_column(self, tablename: str, colname: str, newname: str = None, newtype: str = None):
         old_columns = self.get_columns(tablename)
