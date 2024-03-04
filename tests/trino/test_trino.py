@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-01 12:09:05
+# @Last Modified time: 2024-03-04 18:47:44
 # @github: https://github.com/longfengpili
 
 
@@ -201,5 +201,9 @@ class TestTrino:
         alter_cols = self.trinodb.alter_column(self.tablename, 'id', 'idx', 'int')
         print(alter_cols)
 
-    def test_alter_table(self):
+    def test_alter_tablecol(self):
         self.trinodb.alter_tablecol(self.tablename, colname='id', newname='idx', newtype='int', partition='birthday')
+
+    def test_alter_tablecol1(self):
+        self.trinodb.alter_tablecol(self.tablename, colname='idx', newname='idx', 
+                                    newtype='int', sqlexpr='idx * 10', partition='birthday')

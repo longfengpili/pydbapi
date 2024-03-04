@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-04 18:15:24
+# @Last Modified time: 2024-03-04 18:28:25
 # @github: https://github.com/longfengpili
 
 
@@ -152,8 +152,8 @@ class TrinoDB(DBMixin, DBFileExec):
             return rows, action, result
 
     def alter_tablecol(self, tablename: str, colname: str, newname: str = None, newtype: str = None, 
-                       partition: str = 'part_date', conditions: list[str] = None, verbose: int = 0):
-        alter_columns = self.alter_column(tablename, colname, newname, newtype)
+                       sqlexpr: str = None, partition: str = 'part_date', conditions: list[str] = None, verbose: int = 0):
+        alter_columns = self.alter_column(tablename, colname, newname, newtype, sqlexpr)
 
         if alter_columns:
             # create tmp table
