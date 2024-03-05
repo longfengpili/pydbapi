@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-01 12:09:14
+# @Last Modified time: 2024-03-05 18:21:25
 # @github: https://github.com/longfengpili
 
 
@@ -46,10 +46,6 @@ class TestMysql:
         #     result = eval(f"mysql4.{i}")
         #     print(f"【{i}】: {result}")
 
-    def test_cols(self):
-        result = self.mysqldb.get_columns(self.tablename)
-        print(result)
-
     def test_drop(self):
         rows, action, result = self.mysqldb.drop(self.tablename)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
@@ -64,6 +60,10 @@ class TestMysql:
         indexes = ['id', 'name']
         rows, action, result = self.mysqldb.create(self.tablename, self.columns, indexes, partition='birthday')
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+
+    def test_cols(self):
+        result = self.mysqldb.get_columns(self.tablename)
+        print(result)
 
     def test_insert(self):
         values = [[1, 'apple', 'beijing', '2012-01-23', '{"yuwen": 90, "shuxue": 20}'],

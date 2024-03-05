@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-04 18:22:37
+# @Last Modified time: 2024-03-05 18:38:16
 # @github: https://github.com/longfengpili
 
 
@@ -291,7 +291,8 @@ class DBMixin(DBbase):
 
         newname = newname or alter_col.newname
         newtype = newtype or alter_col.coltype
-        sqlexpr = sqlexpr or f"cast({colname} as {newtype})" if newtype != alter_col.coltype else None
+        sqlexpr = sqlexpr or f"cast({colname} as {newtype})" if newtype != alter_col.coltype \
+                             else f"{alter_col.newname}" if newname != alter_col.newname else None
         newcol = ColumnModel(newname, newtype, sqlexpr=sqlexpr)
         if newcol == alter_col:
             dblogger.info(f"{newcol} same, not need to change ~")
