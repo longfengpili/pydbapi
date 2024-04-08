@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-04 18:28:25
+# @Last Modified time: 2024-04-08 13:52:55
 # @github: https://github.com/longfengpili
 
 
@@ -42,21 +42,45 @@ class SqlTrinoCompile(SqlCompile):
         partition = f"with (partitioned_by = ARRAY['{partition.newname}'])"
         return partition
 
-    def create(self, columns, partition=None):
-        partition_sql = None
-        if partition:
-            partition_key = columns.get_column_by_name(partition)
-            if not partition_key:
-                raise ValueError(f"<{partition}> not in {columns}")
+    def table_properties(self, partition: str, format: str = 'ORC', transactional: str = 'true'):
+        '''
+        查看支持的属性
+        SELECT * FROM system.metadata.table_properties; 
+        '''
+        coltype = partition.coltype
+        if not (coltype.startswith('varchar') or coltype == 'date'):
+            raise TypeError(f"{partition} only support varchar, date !")
 
+        base_properties = f"format = '{format}',\n        transactional = {transactional}"
+
+        if partition:
+            partition_property = f"partitioned_by = ARRAY['{partition.newname}'],"
+            table_properties = f'''
+            with (
+                {partition_property}
+                {base_properties}
+            )
+            '''
+        else:
+            table_properties = f'''
+            with (
+                {base_properties}
+            )
+            '''
+
+        return table_properties.strip()
+
+    def create(self, columns, partition: str, transactional: str = 'true'):
+        partition_col = columns.get_column_by_name(partition)
+        if partition_col:
             columns.remove(partition)
-            columns.append(partition_key)
-            partition_sql = self.create_partition(partition_key)
+            columns.append(partition_col)
+        else:
+            raise ValueError(f"<{partition}> not in {columns}")
 
         sql = self.create_nonindex(columns)
-
-        if partition_sql:
-            sql = sql.replace(';', f'\n{partition_sql};')
+        table_properties = self.table_properties(partition=partition_col, transactional=transactional)
+        sql = sql.replace(';', f'\n{table_properties};')
 
         return sql
 
