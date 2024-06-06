@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-06-06 16:34:25
+# @Last Modified time: 2024-06-06 19:11:40
 # @github: https://github.com/longfengpili
 
 
@@ -94,7 +94,7 @@ class SqlCompile(object):
                 elif d.startswith('varchar') or d.startswith('str'):
                     v = v.replace("'", "''") if isinstance(v, str) else v
                     v = f"'{v}'"
-                elif d in ('date', 'datetime', 'timestamp') and re.match('\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2})?', v):
+                elif d in ('date', 'datetime', 'timestamp') and re.match(r'\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2})?', v):
                     v = f"'{v}'"
                 else:
                     v = f'{v}'
