@@ -5,3 +5,4 @@ trino
 colorlog
 tqdm
 IPython
+trino
