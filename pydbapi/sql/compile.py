@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-14 16:14:56
+# @Last Modified time: 2024-06-06 15:10:13
 # @github: https://github.com/longfengpili
 
 
@@ -85,18 +85,35 @@ class SqlCompile(object):
             columns {[ColumnsModel]} -- [列信息]
             values {[list]} -- [插入的数据]
         '''
-        def deal_values(values):
+        def deal_value(dtypes: list, value: list):
+            _value = []
+            for d, v in zip(dtypes, value):
+                if v is None:
+                    v = 'Null'
+                elif d.startswith('varchar') or d.startswith('str'):
+                    v = f"'{v}'"
+                elif d in ('date', 'datetime', 'timestamp') or isinstance(v, str):
+                    v = f"'{v}'"
+                else:
+                    v = f'{v}'
+
+                _value.append(v)
+            _value = '(' + ','.join(_value) + ')'
+            return _value
+
+        def deal_values(columns: ColumnsModel, values: list):
             j_values = []
             if not values:
                 raise ValueError(f"{values} is empty !!!")
             if not isinstance(values, list):
                 raise TypeError('values must be a list !')
-            j_values = [str(tuple(value)) for value in values]
+
+            dtypes = [col.coltype for col in columns]
+            j_values = [deal_value(dtypes, value) for value in values]
             j_values = ',\n'.join(j_values)
-            # j_values = j_values.replace('\'\'', 'null').replace('None', 'null')  # 空值替换为null
             return j_values
 
-        values = deal_values(values)
+        values = deal_values(columns, values)
 
         if not isinstance(columns, ColumnsModel):
             raise TypeError("colums must be a ColumnsModel !")

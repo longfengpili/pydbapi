@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-05 18:21:25
+# @Last Modified time: 2024-06-06 15:14:31
 # @github: https://github.com/longfengpili
 
 
@@ -45,6 +45,11 @@ class TestMysql:
         # for i in dir(mysql4):
         #     result = eval(f"mysql4.{i}")
         #     print(f"【{i}】: {result}")
+
+    def test_create_for_drop(self):
+        indexes = ['id', 'name']
+        rows, action, result = self.mysqldb.create(self.tablename, self.columns, indexes, partition='birthday')
+        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_drop(self):
         rows, action, result = self.mysqldb.drop(self.tablename)
