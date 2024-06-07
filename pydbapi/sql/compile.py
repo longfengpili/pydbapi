@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-06-06 19:11:40
+# @Last Modified time: 2024-06-07 10:22:29
 # @github: https://github.com/longfengpili
 
 
@@ -121,7 +121,6 @@ class SqlCompile(object):
             raise TypeError("colums must be a ColumnsModel !")
 
         sql = f'insert into {self.tablename}\n({columns.new_cols})\nvalues\n{values};'
-        sql = sql.replace('\'\'', 'Null').replace('None', 'Null')  # 空值替换为null
         return sql
 
     def _insert_by_value(self, columns, values, chunksize=1000):
