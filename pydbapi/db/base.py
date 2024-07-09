@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-05 18:38:16
+# @Last Modified time: 2024-07-09 13:58:31
 # @github: https://github.com/longfengpili
 
 
@@ -15,7 +15,7 @@ from datetime import date
 from tqdm.contrib.logging import logging_redirect_tqdm
 
 from pydbapi.sql import SqlParse, SqlCompile
-from pydbapi.col import ColumnModel, ColumnsModel
+from pydbapi.model import ColumnModel, ColumnsModel
 from pydbapi.conf import AUTO_RULES
 
 import logging

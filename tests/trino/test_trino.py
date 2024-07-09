@@ -2,12 +2,12 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-04 18:47:44
+# @Last Modified time: 2024-07-09 13:56:44
 # @github: https://github.com/longfengpili
 
 
 import pytest
-from pydbapi.col import ColumnModel, ColumnsModel
+from pydbapi.model import ColumnModel, ColumnsModel
 from pydbapi.api import TrinoDB
 from pydbapi.api.trino import SqlTrinoCompile
 

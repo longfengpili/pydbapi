@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-04-08 13:52:55
+# @Last Modified time: 2024-07-09 13:56:37
 # @github: https://github.com/longfengpili
 
 
@@ -13,9 +13,9 @@ from trino.dbapi import connect
 from trino.auth import BasicAuthentication
 
 from pydbapi.db import DBMixin, DBFileExec
-from pydbapi.col import ColumnModel
+from pydbapi.model import ColumnModel
 from pydbapi.sql import SqlCompile
-# from pydbapi.col import ColumnModel, ColumnsModel
+# from pydbapi.model import ColumnModel, ColumnsModel
 from pydbapi.conf import AUTO_RULES
 
 

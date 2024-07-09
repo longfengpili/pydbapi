@@ -2,12 +2,12 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-06-07 10:22:29
+# @Last Modified time: 2024-07-09 13:58:26
 # @github: https://github.com/longfengpili
 
 
 import re
-from pydbapi.col import ColumnsModel
+from pydbapi.model import ColumnsModel
 
 
 class SqlCompile(object):

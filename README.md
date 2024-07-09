@@ -51,7 +51,7 @@ row, action, result = db.execute(sql)
 ```
 
 ## Column
-`from pydbapi.col import ColumnModel`
+`from pydbapi.model import ColumnModel`
 + ColumnModel
     + 代码
         `col = ColumnModel(newname, coltype='varchar', sqlexpr=None, func=None, order=0)`

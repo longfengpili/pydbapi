@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-03-04 18:15:30
+# @Last Modified time: 2024-07-09 13:55:50
 # @github: https://github.com/longfengpili
 
 
@@ -13,7 +13,7 @@ from datetime import date
 import pymysql
 
 from pydbapi.db import DBMixin, DBFileExec
-from pydbapi.col import ColumnModel
+from pydbapi.model import ColumnModel
 from pydbapi.sql import SqlCompile
 from pydbapi.conf import AUTO_RULES
 

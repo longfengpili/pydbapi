@@ -2,14 +2,14 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-06-06 15:14:31
+# @Last Modified time: 2024-07-09 13:57:11
 # @github: https://github.com/longfengpili
 
 
 import os
 import pytest
 import json
-from pydbapi.col import ColumnModel, ColumnsModel
+from pydbapi.model import ColumnModel, ColumnsModel
 from pydbapi.api import MysqlDB
 from pydbapi.api.mysql import SqlMysqlCompile
 

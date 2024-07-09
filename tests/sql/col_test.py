@@ -2,11 +2,11 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-27 15:42:21
+# @Last Modified time: 2024-07-09 13:56:51
 # @github: https://github.com/longfengpili
 
 
-from pydbapi.col import ColumnModel, ColumnsModel
+from pydbapi.model import ColumnModel, ColumnsModel
 
 
 class TestSqlFileParse:
