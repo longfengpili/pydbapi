@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-07-09 14:05:19
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-10 11:45:59
+# @Last Modified time: 2024-07-10 16:32:14
 # @github: https://github.com/longfengpili
 
 
@@ -56,7 +56,7 @@ class ResModel:
     def to_csv(self, fpath: str):
         with Path(fpath).open(mode='w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
-            writer.writerow(self.cols)
+            writer.writerow(self.cols.all_cols)
             writer.writerows(self.values)
 
     def to_insert_values(self):
