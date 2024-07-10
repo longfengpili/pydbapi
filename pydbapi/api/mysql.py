@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-09 13:55:50
+# @Last Modified time: 2024-07-10 13:37:57
 # @github: https://github.com/longfengpili
 
 
@@ -13,7 +13,7 @@ from datetime import date
 import pymysql
 
 from pydbapi.db import DBMixin, DBFileExec
-from pydbapi.model import ColumnModel
+from pydbapi.model import ColumnModel, ColumnsModel
 from pydbapi.sql import SqlCompile
 from pydbapi.conf import AUTO_RULES
 
@@ -143,6 +143,11 @@ class MysqlDB(DBMixin, DBFileExec):
                     mysqllogger.info(f'connect {self.__class__.__name__}({self.user}@{self.host}:{self.port}/{self.database})')
                     MysqlDB._conn = conn
         return MysqlDB._conn
+
+    def cur_columns(self, cursor):
+        desc = cursor.description
+        columns = ColumnsModel(*tuple(map(lambda x: ColumnModel(x[0], 'varchar'), desc))) if desc else None
+        return columns
 
     def create(self, tablename, columns, indexes=None, index_part=128, ismultiple_index=True,
                partition=None, distribution=None, verbose=0):

@@ -50,6 +50,27 @@ sql = 'select * from [table];'
 row, action, result = db.execute(sql)
 ```
 
+## Result
++ 转换成dataframe
+```python
+from pydbapi.api import TrinoDB
+db = TrinoDB(host, user, password, database, catalog, port=8443, safe_rule=True)
+sql = 'select * from [table];'
+row, action, result = db.execute(sql)
+
+df = result.to_dataframe()
+df
+```
++ 输出到csv
+```python
+from pydbapi.api import TrinoDB
+db = TrinoDB(host, user, password, database, catalog, port=8443, safe_rule=True)
+sql = 'select * from [table];'
+row, action, result = db.execute(sql)
+
+result.to_csv(outfile)
+```
+
 ## Column
 `from pydbapi.model import ColumnModel`
 + ColumnModel

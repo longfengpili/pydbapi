@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-09 13:58:31
+# @Last Modified time: 2024-07-10 13:35:13
 # @github: https://github.com/longfengpili
 
 
@@ -12,21 +12,25 @@ import time
 import pandas as pd
 from datetime import date
 
+from abc import ABC, abstractmethod
+
 from tqdm.contrib.logging import logging_redirect_tqdm
 
 from pydbapi.sql import SqlParse, SqlCompile
-from pydbapi.model import ColumnModel, ColumnsModel
+from pydbapi.model import ColumnModel, ColumnsModel, ResModel
+
 from pydbapi.conf import AUTO_RULES
 
 import logging
 dblogger = logging.getLogger(__name__)
 
 
-class DBbase(object):
+class DBbase(ABC):
 
     def __init__(self, *args, **kwargs):
         self.dbtype = None
 
+    @abstractmethod
     def get_conn(self):
         pass
 
@@ -67,25 +71,24 @@ class DBbase(object):
         results = list(results) if results else []
         return results
 
+    @abstractmethod
     def cur_columns(self, cursor):
         desc = cursor.description
-        columns = tuple(map(lambda x: x[0].lower(), desc)) if desc else None  # 列名
+        columns = ColumnsModel(*tuple(map(lambda x: ColumnModel(x[0], 'varchar'), desc))) if desc else None
 
-        return desc, columns
+        return columns
 
     def fetch_query_results(self, action, cur, count, verbose):
-        desc, columns = self.cur_columns(cur)
+        columns = self.cur_columns(cur)
         results = self.cur_results(cur, count)
+        results = ResModel(columns, results)
 
         if (verbose == 1 or verbose >= 3) and results:
-            dblogger.info(f"\n{pd.DataFrame(results, columns=columns)}")
+            dblogger.info(f"\n{results.to_dataframe()}")
         elif verbose and not columns:
             dblogger.warning(f"【{action}】No results")
 
-        if results:
-            results.insert(0, columns)
-
-        return columns, results
+        return results
 
     def handle_progress_logging(self, step, verbose, sqls):
         if verbose == 1:
@@ -131,7 +134,7 @@ class DBbase(object):
                     self._execute_step(cur, sql, ehandling=ehandling)
 
                     if idx + 1 == len(sqls) or action in ['SELECT', 'WITH']:
-                        columns, results = self.fetch_query_results(action, cur, count, verbose)
+                        results = self.fetch_query_results(action, cur, count, verbose)
 
             conn.commit()
         except Exception:
@@ -144,7 +147,7 @@ class DBbase(object):
             # conn.close()  # 注释掉conn
 
         rows = cur.rowcount
-        rows = len(results[1:]) if rows == -1 and results else rows
+        rows = len(results) if rows == -1 and len(results) else rows
         return rows, action, results
 
 
@@ -208,8 +211,7 @@ class DBMixin(DBbase):
     def get_columns(self, tablename, verbose=0):
         sql = f"pragma table_info('{tablename}');" if self.dbtype == 'sqlite' else f"show columns from {tablename};"
         rows, action, results = self.execute(sql, verbose=verbose)
-
-        _, cols = results[0], results[1:]
+        cols = results.values
         nameidx = 1 if self.dbtype == 'sqlite' else 0
         typeidx = 2 if self.dbtype == 'sqlite' else 1
         columns = ColumnsModel(*[ColumnModel(col[nameidx], col[typeidx]) for col in cols])

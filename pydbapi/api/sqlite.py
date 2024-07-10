@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-29 10:46:43
+# @Last Modified time: 2024-07-10 13:41:48
 # @github: https://github.com/longfengpili
 
 
@@ -12,6 +12,7 @@ import sqlite3
 
 from pydbapi.db import DBMixin, DBFileExec
 from pydbapi.sql import SqlCompile
+from pydbapi.model import ColumnModel, ColumnsModel
 
 import logging
 sqlitelogger = logging.getLogger(__name__)
@@ -72,6 +73,12 @@ class SqliteDB(DBMixin, DBFileExec):
                     sqlitelogger.info(f'connect {self.__class__.__name__}({self.database})')
                     SqliteDB._conn = conn
         return SqliteDB._conn
+
+    def cur_columns(self, cursor):
+        desc = cursor.description
+        columns = ColumnsModel(*tuple(map(lambda x: ColumnModel(x[0], 'varchar'), desc))) if desc else None
+
+        return columns
 
     def create(self, tablename, columns, indexes=None, verbose=0):
         # tablename = f"{self.database}.{tablename}"

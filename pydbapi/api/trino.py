@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-09 13:56:37
+# @Last Modified time: 2024-07-10 10:11:19
 # @github: https://github.com/longfengpili
 
 
@@ -13,9 +13,8 @@ from trino.dbapi import connect
 from trino.auth import BasicAuthentication
 
 from pydbapi.db import DBMixin, DBFileExec
-from pydbapi.model import ColumnModel
+from pydbapi.model import ColumnModel, ColumnsModel
 from pydbapi.sql import SqlCompile
-# from pydbapi.model import ColumnModel, ColumnsModel
 from pydbapi.conf import AUTO_RULES
 
 
@@ -152,6 +151,11 @@ class TrinoDB(DBMixin, DBFileExec):
                     mytrinologger.info(f'connect {self.__class__.__name__}({self.user}@{self.host}:{self.port}/{self.catalog}.{self.database})')  # noqa: E501
                     TrinoDB._conn = conn
         return TrinoDB._conn
+
+    def cur_columns(self, cursor):
+        desc = cursor.description
+        columns = ColumnsModel(*tuple(map(lambda x: ColumnModel(x.name, x.type_code), desc))) if desc else None
+        return columns
 
     def create(self, tablename, columns, partition=None, verbose=0):
         # tablename = f"{self.database}.{tablename}"
