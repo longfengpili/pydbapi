@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-06-06 17:07:57
+# @Last Modified time: 2024-07-15 11:26:48
 # @github: https://github.com/longfengpili
 
 
@@ -15,7 +15,7 @@ import logging
 sqllogger = logging.getLogger(__name__)
 
 
-REG_BEHIND = r'(?=[,();:\s])'
+REG_BEHIND = r'(?=[,();:\s.])'
 
 
 class SqlParse(object):
@@ -189,7 +189,7 @@ class SqlFileParse(object):
             Exception -- [需要设置参数]
         '''
         filename = os.path.basename(self.filepath)
-        kwargs = {k: f"'{v}'" if isinstance(v, str) else v for k, v in kwargs.items()}  # str加引号处理
+        kwargs = {k: f"'{v}'" if isinstance(v, str) else v for k, v in kwargs.items() if v}  # str加引号处理
         arguments = self.arguments
 
         arguments_same = set(arguments) & set(kwargs)
