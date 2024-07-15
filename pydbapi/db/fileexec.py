@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-11-29 14:01:56
+# @Last Modified time: 2024-07-15 13:47:07
 # @github: https://github.com/longfengpili
 
 
@@ -31,10 +31,15 @@ class DBFileExec(DBbase):
         st = time.time()
         results = {}
         filename = os.path.basename(filepath)
-        dblogger.info(f"Start Job 【{filename}】".center(80, '='))
+
+        if verbose != 0:
+            dblogger.info(f"Start Job 【{filename}】".center(80, '='))
+
         arguments, sqls = self.get_filesqls(filepath, with_test=with_test, with_snum=with_snum, **kw)
         for desc, sql in sqls.items():
-            dblogger.info(f">>> START {desc}")
+            if verbose != 0:
+                dblogger.info(f">>> START {desc}")
+                
             sqlverbose = verbose or (2 if 'verbose2' in desc else 1
                                      if 'verbose1' in desc or filename.startswith('test')
                                      else 0)
