@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-15 11:26:48
+# @Last Modified time: 2024-07-15 13:42:31
 # @github: https://github.com/longfengpili
 
 
@@ -172,6 +172,7 @@ class SqlFileParse(object):
         arguments = {k: f"'{datetime.strftime(v, '%Y-%m-%d %H:%M:%S')}'" if isinstance(v, datetime)
                         else f"'{datetime.strftime(v, '%Y-%m-%d')}'" if isinstance(v, date)
                         else v for k, v in arguments.items()}  # 处理时间
+        # print(arguments)
         return arguments
 
     def replace_params(self, **kwargs):
@@ -189,7 +190,7 @@ class SqlFileParse(object):
             Exception -- [需要设置参数]
         '''
         filename = os.path.basename(self.filepath)
-        kwargs = {k: f"'{v}'" if isinstance(v, str) else v for k, v in kwargs.items() if v}  # str加引号处理
+        kwargs = {k: v for k, v in kwargs.items() if v}
         arguments = self.arguments
 
         arguments_same = set(arguments) & set(kwargs)
