@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-15 13:42:31
+# @Last Modified time: 2024-07-16 12:02:02
 # @github: https://github.com/longfengpili
 
 
@@ -87,7 +87,7 @@ class SqlParse(object):
         if not sql.lower().startswith('with'):
             raise Exception(f"Sql should startswith [with], but startswith [{sql[:4]}] !!!")
 
-        sqls = re.split('(?<=\)),\n+.*?\n*(?=.*?as *\n)', sql)
+        sqls = re.split(r'(?<=\)), *\n+.*?\n*(?=.*?as *\n)', sql)
         if sqls[-1].startswith('select'):
             sql_last = sqls[-2] + sqls[-1]
             sqls = sqls[:-2] + [sql_last]
@@ -97,23 +97,17 @@ class SqlParse(object):
     def combination_sqls(self):
         combination_sqls = []
         sqls = self.split_withsqls
-        length = len(sqls)
-        for i in range(length):
-            sql = sqls[i]
+        for idx, sql in enumerate(sqls):
             tablename = re.search(r'(?:with )?(.*?)(?: as)', sql)
             tablename = tablename.group(1) if tablename else ''
-            content = f"-- {tablename}_{i:03d}"
 
-            i += 1
-            sqls_front = sqls[:i]
+            content = f"-- {tablename}_{idx + 1:03d}"
+            sql_select = f'select * from {tablename} limit 10' if idx + 1 < len(sqls) else 'limit 10'
+
+            sqls_front = sqls[:idx+1]
             sqls_front = ',\n'.join(sqls_front)
-            if i < length:
-                sql_select = f'select * from {tablename}'
-                sqls_front += f"\n{sql_select}"
-
-            sqls_front = f'{content}\n' + f'{sqls_front} limit 10\n'
+            sqls_front = f'{content}\n{sqls_front}\n{sql_select}'
             combination_sqls.append(sqls_front)
-
         return combination_sqls
 
 
@@ -223,14 +217,12 @@ class SqlFileParse(object):
         sqls_tmp = re.findall(r'(?<!--)\s*###\s*\n(.*?)###', content, re.S)
         for idx, sql in enumerate(sqls_tmp):
             sqlparser = SqlParse(sql)
-            purpose = f"【{idx:0>3d}】{sqlparser.purpose}"
+            purpose = f"【{idx + 1:0>3d}】{sqlparser.purpose}"
             sql = re.sub('--【.*?\n', '', sql.strip())
 
             if with_test:
                 combination_sqls = sqlparser.combination_sqls
-                for idx, sql in enumerate(combination_sqls):
-                    if with_snum <= idx:
-                        sqls[f"{purpose}_{idx:03d}"] = sql
+                sqls[f"{purpose}_{with_snum:03d}"] = combination_sqls[with_snum-1]
             else:
                 sqls[purpose] = sql
         return arguments, sqls

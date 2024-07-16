@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-15 13:47:07
+# @Last Modified time: 2024-07-16 12:01:21
 # @github: https://github.com/longfengpili
 
 
@@ -37,9 +37,7 @@ class DBFileExec(DBbase):
 
         arguments, sqls = self.get_filesqls(filepath, with_test=with_test, with_snum=with_snum, **kw)
         for desc, sql in sqls.items():
-            if verbose != 0:
-                dblogger.info(f">>> START {desc}")
-                
+            dblogger.info(f">>> START {desc}")
             sqlverbose = verbose or (2 if 'verbose2' in desc else 1
                                      if 'verbose1' in desc or filename.startswith('test')
                                      else 0)
