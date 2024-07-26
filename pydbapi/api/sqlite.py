@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-10 13:41:48
+# @Last Modified time: 2024-07-26 18:32:01
 # @github: https://github.com/longfengpili
 
 
@@ -13,6 +13,7 @@ import sqlite3
 from pydbapi.db import DBMixin, DBFileExec
 from pydbapi.sql import SqlCompile
 from pydbapi.model import ColumnModel, ColumnsModel
+from pydbapi.conf import AUTO_RULES
 
 import logging
 sqlitelogger = logging.getLogger(__name__)
@@ -43,9 +44,10 @@ class SqliteCompile(SqlCompile):
 class SqliteDB(DBMixin, DBFileExec):
     _instance_lock = threading.Lock()
 
-    def __init__(self, database=None):
+    def __init__(self, database=None, safe_rule=True):
         self.database = database if database else os.path.join(os.path.expanduser('~'), 'sqlite3_test.db')
         super(SqliteDB, self).__init__()
+        self.auto_rules = AUTO_RULES if safe_rule else None
         self.dbtype = 'sqlite'
 
     # def __new__(cls, *args, **kwargs):
