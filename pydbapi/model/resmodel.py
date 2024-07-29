@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-07-09 14:05:19
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-10 16:32:14
+# @Last Modified time: 2024-07-29 11:20:42
 # @github: https://github.com/longfengpili
 
 
@@ -32,6 +32,9 @@ class ResModel:
             return len(self.values)
         return 0
 
+    def __bool__(self):
+        return all(self.values)
+
     def format_value(self, value: list):
         dtype = [col.coltype for col in self.cols]
         formatted_value = []
@@ -49,6 +52,8 @@ class ResModel:
         return '(' + ','.join(formatted_value) + ')'
 
     def to_dataframe(self):
+        # if not self.cols:
+        #     return self.values
         columns = self.cols.all_cols
         data = pd.DataFrame(self.values, columns=columns)
         return data

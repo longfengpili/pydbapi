@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-10 13:35:13
+# @Last Modified time: 2024-07-29 11:20:16
 # @github: https://github.com/longfengpili
 
 
@@ -83,10 +83,10 @@ class DBbase(ABC):
         results = self.cur_results(cur, count)
         results = ResModel(columns, results)
 
-        if (verbose == 1 or verbose >= 3) and results:
-            dblogger.info(f"\n{results.to_dataframe()}")
-        elif verbose and not columns:
+        if verbose and not columns:
             dblogger.warning(f"【{action}】No results")
+        elif (verbose == 1 or verbose >= 3) and results:
+            dblogger.info(f"\n{results.to_dataframe()}")
 
         return results
 
@@ -147,7 +147,7 @@ class DBbase(ABC):
             # conn.close()  # 注释掉conn
 
         rows = cur.rowcount
-        rows = len(results) if rows == -1 and len(results) else rows
+        rows = len(results) if rows == -1 and results else rows
         return rows, action, results
 
 
