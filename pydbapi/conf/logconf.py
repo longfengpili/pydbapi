@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-07-26 17:46:27
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-29 17:58:27
+# @Last Modified time: 2024-07-29 17:46:49
 # @github: https://github.com/longfengpili
 
 
@@ -10,6 +10,15 @@ import re
 import os
 import sys
 import colorlog
+
+
+# 判断是否在 IPython 环境中
+def is_ipython():
+    try:
+        from IPython import get_ipython
+        return get_ipython() is not None
+    except ImportError:
+        return False
 
 
 AUTO_RULES = ['test_xu', 'tmp']  # 可以自动执行表名（表名包含即可）
@@ -42,14 +51,24 @@ LOGGING_CONFIG = {
         # color
         'color': {
             '()': colorlog.ColoredFormatter,
-            'format': '%(asctime)s.%(msecs)03d - %(threadName)s - %(name)s - %(levelname)s - %(filename)s - %(lineno)d - %(log_color)s%(message)s',
+            'format': '%(asctime)s.%(msecs)03d - %(threadName)s - %(name)s - %(levelname_log_color)s%(levelname)s%(reset)s - %(filename)s - %(lineno)d - %(log_color)s%(message)s',  # noqa: E501
             'datefmt': '%Y-%m-%d %H:%M:%S',
+            'reset': True, 
             'log_colors': {
-                'CRITICAL': 'bold_red',
-                'ERROR': 'red',
-                'WARNING': 'purple',
+                'DEBUG': 'cyan',
                 'INFO': 'green',
-                'DEBUG': 'yellow'
+                'WARNING': 'yellow',
+                'ERROR': 'red',
+                'CRITICAL': 'red,bg_white',
+            },
+            'secondary_log_colors': {
+                'levelname': {
+                    'DEBUG': 'cyan',
+                    'INFO': 'green',
+                    'WARNING': 'yellow',
+                    'ERROR': 'red',
+                    'CRITICAL': 'red,bg_white',
+                }
             }
         },
     },
@@ -63,7 +82,7 @@ LOGGING_CONFIG = {
             'level': 'DEBUG',
             'filters': [],
             'class': 'logging.StreamHandler',  #
-            'formatter': 'color' if sys.stdout.isatty() or any("ipython" in arg for arg in sys.argv) else 'simple'
+            'formatter': 'color' if sys.stdout.isatty() or is_ipython() else 'simple'
         },
         # 默认的
         'default': {
