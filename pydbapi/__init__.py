@@ -2,7 +2,7 @@
 # @Author: chunyang.xu
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-12-11 17:24:46
+# @Last Modified time: 2024-08-06 10:41:12
 # @github: https://github.com/longfengpili
 
 
@@ -22,9 +22,6 @@ os.environ['NUMEXPR_MAX_THREADS'] = '16'
 #            'SqlParse', 'SqlCompile', 'SqlFileParse', 'ColumnModel', 'ColumnsModel']
 
 
-# 注册magic命令(如果使用mymagics.py, 则下边的函数不重要)
+# 注册magic命令
 def load_ipython_extension(ipython):
     ipython.register_magics(PydbapiMagics)
-
-# #  注册魔术命令, 在ipython文档中可以这样注册
-# get_ipython().register_magics(PydbapiMagics)

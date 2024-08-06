@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-11-02 13:36:08
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-12-04 10:37:07
+# @Last Modified time: 2024-08-06 10:50:05
 # @github: https://github.com/longfengpili
 
 
@@ -139,7 +139,7 @@ class PydbapiMagics(Magics):
         number, verbose, dataname = args.number, args.verbose, args.dataname
         
         rows, action, results = self.dbapi.execute(sql=cell, count=number, verbose=verbose)
-        data = pd.DataFrame(results[1:], columns=results[0])
+        data = results.to_dataframe()
         self.shell.user_ns[dataname] = data
 
         return data

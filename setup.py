@@ -2,13 +2,13 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-10 13:43:21
+# @Last Modified time: 2024-08-06 10:54:54
 # @github: https://github.com/longfengpili
 
 
 import setuptools
 
-VERSION = '0.0.126'
+VERSION = '0.0.127'
 PROJECT_NAME = 'pydbapi'
 
 with open('README.md', 'r', encoding='utf-8') as f:
@@ -28,6 +28,11 @@ setuptools.setup(
     url=f"https://pypi.org/project/{PROJECT_NAME}/",
     packages=setuptools.find_packages(exclude=["tests.*", "tests"]),
     install_requires=requires,
+    entry_points={
+        'ipython.magic': [
+            'load_ipython_extension = pydbapi:load_ipython_extension',
+        ],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
