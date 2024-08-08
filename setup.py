@@ -2,15 +2,16 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-08-06 14:18:47
+# @Last Modified time: 2024-08-08 11:53:52
 # @github: https://github.com/longfengpili
 
 
 import os
 import setuptools
+from pathlib import Path
 from setuptools.command.install import install
 
-VERSION = '0.0.129'
+VERSION = '0.0.130'
 PROJECT_NAME = 'pydbapi'
 
 with open('README.md', 'r', encoding='utf-8') as f:
@@ -18,6 +19,26 @@ with open('README.md', 'r', encoding='utf-8') as f:
 
 with open('requirements.txt', 'r', encoding='utf-8') as f:
     requires = f.readlines()
+
+
+class CustomInstallCommand(install):
+    """自定义安装命令以自动在 IPython 启动目录中添加启动脚本"""
+    
+    def run(self):
+        # 首先执行标准的安装过程
+        install.run(self)
+        
+        # IPython 启动目录及脚本
+        ipython_startup_dir = Path.home() / ".ipython" / "profile_default" / "startup"
+        startup_script_path = ipython_startup_dir / "00-pydbapi-startup.py"
+        
+        # 确保启动目录存在
+        if not os.path.exists(ipython_startup_dir):
+            os.makedirs(ipython_startup_dir)
+        
+        # 写入启动脚本
+        with open(startup_script_path, 'w') as f:
+            f.write("get_ipython().run_line_magic('load_ext', 'pydbapi')\n")
 
 
 setuptools.setup(
@@ -32,7 +53,7 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=["tests.*", "tests"]),
     install_requires=requires,
     entry_points={
-        'ipython.extension': [
+        'ipython.extensions': [
             'pydbapi = pydbapi:load_ipython_extension',
         ],
     },
@@ -45,5 +66,8 @@ setuptools.setup(
     project_urls={
         'Documentation': f'https://github.com/longfengpili/{PROJECT_NAME}/blob/master/README.md',
         'Source': f'https://github.com/longfengpili/{PROJECT_NAME}',
+    },
+    cmdclass={
+        'install': CustomInstallCommand,
     },
 )
