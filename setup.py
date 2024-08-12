@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-08-12 13:36:10
+# @Last Modified time: 2024-08-12 13:45:34
 # @github: https://github.com/longfengpili
 
 
@@ -57,7 +57,7 @@ setuptools.setup(
             'pydbapi = pydbapi:load_ipython_extension',
         ],
         'console_scripts': [
-            'pydbapimagic = pydbapi:load_ipython_extension',
+            'pydbapimagic = pydbapi:register_magic',
         ],
     },
     classifiers=[
