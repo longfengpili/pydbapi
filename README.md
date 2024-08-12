@@ -235,11 +235,9 @@ result.to_csv(outfile)
     * 查看  
     `%dbconfig DBTYPE`
 
-## 支持的的settings[【conf/settings.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/conf/settings.py)
+## 支持的的settings[【conf/settings.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/conf/logconf.py)
 + AUTO_RULES  
     可以自动执行表名（表名包含即可）
-+ REDSHIFT_AUTO_RULES   
-    Amazon Redshift 可以自动执行表名（表名包含即可）
 
 ## 调用日志格式
 1. 查看每步sql可以使用如下日志格式（如果还出错，同时加上上面的内容）

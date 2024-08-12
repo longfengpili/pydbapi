@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-29 11:20:16
+# @Last Modified time: 2024-08-12 14:00:32
 # @github: https://github.com/longfengpili
 
 
@@ -175,38 +175,39 @@ class DBMixin(DBbase):
         return False
 
     def drop(self, tablename, verbose=0):
-        if self._check_isauto(tablename):
-            sqlcompile = SqlCompile(tablename)
-            sql_for_drop = sqlcompile.drop()
-            rows, action, result = self.execute(sql_for_drop, verbose=verbose)
-            dblogger.info(f'【{action}】{tablename} drop succeed !')
-            return rows, action, result
+        self._check_isauto(tablename)
+        sqlcompile = SqlCompile(tablename)
+        sql_for_drop = sqlcompile.drop()
+        rows, action, result = self.execute(sql_for_drop, verbose=verbose)
+        dblogger.info(f'【{action}】{tablename} drop succeed !')
+        return rows, action, result
 
     def delete(self, tablename, condition, verbose=0):
-        if self._check_isauto(tablename):
-            sqlcompile = SqlCompile(tablename)
-            sql_for_delete = sqlcompile.delete(condition)
-            rows, action, result = self.execute(sql_for_delete, verbose=verbose)
-            dblogger.info(f'【{action}】{tablename} delete {rows} rows succeed !')
-            return rows, action, result
+        self._check_isauto(tablename)
+        sqlcompile = SqlCompile(tablename)
+        sql_for_delete = sqlcompile.delete(condition)
+        rows, action, result = self.execute(sql_for_delete, verbose=verbose)
+        dblogger.info(f'【{action}】{tablename} delete {rows} rows succeed !')
+        return rows, action, result
 
     def insert(self, tablename, columns, inserttype='value', values=None, chunksize=1000, 
                fromtable=None, condition=None, verbose=0):
         if values:
             vlength = len(values)
 
-        if self._check_isauto(tablename):
-            sqlcompile = SqlCompile(tablename)
-            sql_for_insert = sqlcompile.insert(columns, inserttype=inserttype, values=values,
-                                               chunksize=chunksize, fromtable=fromtable, condition=condition)
-            rows, action, result = self.execute(sql_for_insert, verbose=verbose)
+        self._check_isauto(tablename)
+        
+        sqlcompile = SqlCompile(tablename)
+        sql_for_insert = sqlcompile.insert(columns, inserttype=inserttype, values=values,
+                                           chunksize=chunksize, fromtable=fromtable, condition=condition)
+        rows, action, result = self.execute(sql_for_insert, verbose=verbose)
 
-            if values and rows != (vlength % chunksize or chunksize):
-                raise Exception('Insert Error !!!')
+        if values and rows != (vlength % chunksize or chunksize):
+            raise Exception('Insert Error !!!')
 
-            rows = vlength if values else rows
-            dblogger.info(f'【{action}】{tablename} insert {rows} rows succeed !')
-            return rows, action, result
+        rows = vlength if values else rows
+        dblogger.info(f'【{action}】{tablename} insert {rows} rows succeed !')
+        return rows, action, result
 
     def get_columns(self, tablename, verbose=0):
         sql = f"pragma table_info('{tablename}');" if self.dbtype == 'sqlite' else f"show columns from {tablename};"

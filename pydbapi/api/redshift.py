@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-02-28 15:37:51
+# @Last Modified time: 2024-08-12 13:58:11
 # @github: https://github.com/longfengpili
 
 
@@ -11,7 +11,7 @@ import psycopg2
 
 from pydbapi.db import DBMixin, DBFileExec
 from pydbapi.sql import SqlCompile
-from pydbapi.conf import REDSHIFT_AUTO_RULES
+from pydbapi.conf import AUTO_RULES
 
 
 import logging
@@ -50,7 +50,7 @@ class RedshiftDB(DBMixin, DBFileExec):
         self.password = password
         self.database = database
         super(RedshiftDB, self).__init__()
-        self.auto_rules = REDSHIFT_AUTO_RULES if safe_rule else None
+        self.auto_rules = AUTO_RULES if safe_rule else None
         self.dbtype = 'redshift'
 
     # def __new__(cls, *args, **kwargs):
