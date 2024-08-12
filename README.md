@@ -217,7 +217,7 @@ result.to_csv(outfile)
         * today: 获取执行的日期
 
 ## 魔法命令
-+ 注册方法
++ 注册方法  
 命令行中执行`pydbapimagic`
 
 + 参数
