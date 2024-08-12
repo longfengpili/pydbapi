@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-08-08 11:53:52
+# @Last Modified time: 2024-08-12 13:36:10
 # @github: https://github.com/longfengpili
 
 
@@ -11,7 +11,7 @@ import setuptools
 from pathlib import Path
 from setuptools.command.install import install
 
-VERSION = '0.0.130'
+VERSION = '0.0.131'
 PROJECT_NAME = 'pydbapi'
 
 with open('README.md', 'r', encoding='utf-8') as f:
@@ -55,6 +55,9 @@ setuptools.setup(
     entry_points={
         'ipython.extensions': [
             'pydbapi = pydbapi:load_ipython_extension',
+        ],
+        'console_scripts': [
+            'pydbapimagic = pydbapi:load_ipython_extension',
         ],
     },
     classifiers=[

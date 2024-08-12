@@ -217,6 +217,9 @@ result.to_csv(outfile)
         * today: 获取执行的日期
 
 ## 魔法命令
++ 注册方法
+命令行中执行`pydbapimagic`
+
 + 参数
     * 帮助  
     `%dbconfig`
@@ -231,20 +234,6 @@ result.to_csv(outfile)
         ```
     * 查看  
     `%dbconfig DBTYPE`
-+ 使用方法
-1. 使用`load_ext`   
-`%load_ext pydbapi`
-2. 配置startup文件夹
-    * 创建文件`mymagics.py`
-    * 文件中添加如下代码
-        ```python
-        from pydbapi import PydbapiMagics
-        
-        c = get_ipython()
-        # 注册魔术命令
-        c.register_magics(PydbapiMagics)
-        ```
-    * 文件添加至目录`/user/.ipython/profile_default/startup`
 
 ## 支持的的settings[【conf/settings.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/conf/settings.py)
 + AUTO_RULES  
