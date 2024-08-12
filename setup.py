@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-08-12 13:45:34
+# @Last Modified time: 2024-08-12 13:50:18
 # @github: https://github.com/longfengpili
 
 
@@ -54,10 +54,10 @@ setuptools.setup(
     install_requires=requires,
     entry_points={
         'ipython.extensions': [
-            'pydbapi = pydbapi:load_ipython_extension',
+            'pydbapi = pydbapi.api.pydbapimagic:load_ipython_extension',
         ],
         'console_scripts': [
-            'pydbapimagic = pydbapi:register_magic',
+            'pydbapimagic = pydbapi.api.pydbapimagic:register_magic',
         ],
     },
     classifiers=[
