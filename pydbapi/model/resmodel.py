@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-07-09 14:05:19
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-29 11:20:42
+# @Last Modified time: 2024-08-26 17:19:48
 # @github: https://github.com/longfengpili
 
 
@@ -33,7 +33,7 @@ class ResModel:
         return 0
 
     def __bool__(self):
-        return all(self.values)
+        return bool(self.values) and all(self.values)
 
     def format_value(self, value: list):
         dtype = [col.coltype for col in self.cols]
