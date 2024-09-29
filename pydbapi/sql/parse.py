@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-09-29 11:23:18
+# @Last Modified time: 2024-09-29 11:45:27
 # @github: https://github.com/longfengpili
 
 
@@ -139,7 +139,7 @@ class SqlParse(object):
 
         sql = self.sql
         for key, value in kwargs.items():
-            sql = re.sub(r"\${key}", f"{value}", sql)
+            sql = re.sub(rf"\${key}", f"{value}", sql)
 
         return sql
 
