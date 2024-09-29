@@ -98,6 +98,35 @@ result.to_csv(outfile)
         * get_column_by_name
             - `cols.get_column_by_name(name)`
             - 返回`ColumnModel`
+## SqlParse
+```python
+from pydbapi.sql import SqlParse
+-- 【purpose】
+-- comment
+sql = 'select * from tablename where part_date >= $part_date;'
+sqlparser = SqlParse(sql)
+```
+
++ **属性**  
+
+    - sql  
+    - split_sqls  
+    - purpose  
+    - action  
+    - comment  
+    - tablename  
+    - parameters  
+    - split_withsqls  
+    - combination_sqls  
+
++ **方法**  
+
+    + substitute_parameters
+    ```python
+    sql = sqlparser.substitute_parameters(part_date='2024-01-01')
+    ```
+
+
 ## 支持的操作
 + execute[【db/base.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/db/base.py)
     + 代码  
