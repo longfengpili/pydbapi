@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-09-29 10:43:41
+# @Last Modified time: 2024-09-29 11:23:18
 # @github: https://github.com/longfengpili
 
 
@@ -13,9 +13,6 @@ from typing import Any, Dict, List, Tuple
 
 import logging
 sqllogger = logging.getLogger(__name__)
-
-
-REG_BEHIND = r'(?=[,();:\s.])'
 
 
 class SqlParse(object):
@@ -68,19 +65,22 @@ class SqlParse(object):
     def tablename(self):
         sql = self.sql
         patterns = [
-            rf'create (?:temp |temporary )?table (?:if not exists |if exists )?(.*?){REG_BEHIND}',
-            rf'update (.*?){REG_BEHIND}',
-            rf'delete (?:from )?(.*?){REG_BEHIND}',
-            rf'insert into (.*?){REG_BEHIND}',
-            rf'(?<=on )(.*?){REG_BEHIND}',
-            rf'select .*? (?<=from )(.*?){REG_BEHIND}'
+            r'create (?:temp |temporary )?table (?:if not exists |if exists )?([\w.]+)',
+            r'update\s+([\w.]+)',
+            r'delete\s+(?:from\s+)?([\w.]+)',
+            r'insert\s+into\s+([\w.]+)',
+            r'from\s+([\w.]+)',
+            r'on\s+([\w.]+)',
+            r'join\s+([\w.]+)',  # 增加对 JOIN 语句的支持
+            r'\(\s*select\s+.*?\s+from\s+([\w.]+)',  # 支持 SELECT 子查询
+            r',\s*([\w.]+)'  # 支持多个表名的情况
         ]
-        
+
         for pattern in patterns:
-            match = re.search(pattern, sql, re.S)
+            match = re.search(pattern, sql, re.I)
             if match:
                 return match.group(1)
-        
+                
         return sql
 
     @property
@@ -117,7 +117,7 @@ class SqlParse(object):
     @property
     def parameters(self):
         sql = self.sql
-        parameters = re.findall(rf"\$(\w+){REG_BEHIND}", sql)
+        parameters = re.findall(r"\$(\w+)", sql)
         return set(parameters)
 
     def substitute_parameters(self, **kwargs):
@@ -139,7 +139,7 @@ class SqlParse(object):
 
         sql = self.sql
         for key, value in kwargs.items():
-            sql = re.sub(rf"\${key}{REG_BEHIND}", f"{value}", sql)
+            sql = re.sub(r"\${key}", f"{value}", sql)
 
         return sql
 
