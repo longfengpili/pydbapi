@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-27 15:42:09
+# @Last Modified time: 2024-09-27 18:20:49
 # @github: https://github.com/longfengpili
 
 
@@ -68,20 +68,11 @@ class TestSqlFileParse:
         sparser = SqlParse(sql)
         print(sparser.action, sparser.tablename, sparser.purpose)
 
-    # @pytest.mark.skip()
-    def test_params(self):
+    def test_get_arguments_infile(self):
         filepparser = SqlFileParse(self.filepath)
-        print(filepparser.parameters)
-
-    def test_arguments(self):
-        filepparser = SqlFileParse(self.filepath)
-        print(filepparser.arguments)
-
-    # @pytest.mark.skip()
-    def test_repalceparams(self):
-        filepparser = SqlFileParse(self.filepath)
-        content = filepparser.replace_params(date_min='2012-12-12', date_max='2012-12-12', fpid='12551515, 44546456')
-        print(content)
+        content = filepparser.get_content()
+        arguments = filepparser.get_arguments_infile(content)
+        print(arguments)
 
     def test_sqls(self):
         filepparser = SqlFileParse(self.filepath)

@@ -2,14 +2,14 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-16 12:02:02
+# @Last Modified time: 2024-09-29 10:43:41
 # @github: https://github.com/longfengpili
 
 
 import re
 import os
-
 from datetime import datetime, date, timedelta
+from typing import Any, Dict, List, Tuple
 
 import logging
 sqllogger = logging.getLogger(__name__)
@@ -32,11 +32,8 @@ class SqlParse(object):
     @property
     def sql(self):
         sql = re.sub('^--.*?\n', '\n', self.orisql.strip() + '\n')
-        # sql = re.sub('^--.*?\n', '\n', self.orisql.strip() + '\n', flags=re.M)
-        sql = sql.strip()
-        # sql = sql if sql and sql.endswith(';') else sql + ';' if sql else ''
-        sql = sql[:-1] if sql and sql.endswith(';') else sql if sql else ''
-        return sql
+        sql = re.sub('--.*?\n', '\n', sql)  # 去掉注释
+        return sql.strip().rstrip(';')
 
     @staticmethod
     def split_sqls(sql):
@@ -52,8 +49,8 @@ class SqlParse(object):
         orisql = self.orisql.strip()
         orisql = orisql if orisql.endswith(';') else orisql + ';'
         comment = re.search('^-- *(.*?)\n', orisql)
-        comment = comment.group(1) if comment else ''
-        return comment.strip()
+        comment = comment.group(1).strip() if comment else ''
+        return comment
 
     @property
     def action(self):
@@ -70,16 +67,21 @@ class SqlParse(object):
     @property
     def tablename(self):
         sql = self.sql
-        createt = re.search(rf'create (?:temp |temporary )?table (?:if not exists |if exists )?(.*?){REG_BEHIND}', sql)
-        updatet = re.search(rf'update (.*?){REG_BEHIND}', sql)
-        deletet = re.search(rf'delete (?:from )?(.*?){REG_BEHIND}', sql)
-        insertt = re.search(rf'insert into (.*?){REG_BEHIND}', sql)
-        ont = re.search(rf'(?<=on )(.*?){REG_BEHIND}', sql)
-        fromt = re.search(rf'select .*? (?<=from )(.*?){REG_BEHIND}', sql, re.S)
-        # print(createt, updatet, insertt, ont, fromt)
-        tablename = createt or updatet or deletet or insertt or fromt or ont
-        tablename = tablename.group(1) if tablename else sql
-        return tablename
+        patterns = [
+            rf'create (?:temp |temporary )?table (?:if not exists |if exists )?(.*?){REG_BEHIND}',
+            rf'update (.*?){REG_BEHIND}',
+            rf'delete (?:from )?(.*?){REG_BEHIND}',
+            rf'insert into (.*?){REG_BEHIND}',
+            rf'(?<=on )(.*?){REG_BEHIND}',
+            rf'select .*? (?<=from )(.*?){REG_BEHIND}'
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, sql, re.S)
+            if match:
+                return match.group(1)
+        
+        return sql
 
     @property
     def split_withsqls(self):
@@ -101,14 +103,45 @@ class SqlParse(object):
             tablename = re.search(r'(?:with )?(.*?)(?: as)', sql)
             tablename = tablename.group(1) if tablename else ''
 
+            # 生成注释内容和SELECT语句
             content = f"-- {tablename}_{idx + 1:03d}"
             sql_select = f'select * from {tablename} limit 10' if idx + 1 < len(sqls) else 'limit 10'
 
-            sqls_front = sqls[:idx+1]
-            sqls_front = ',\n'.join(sqls_front)
-            sqls_front = f'{content}\n{sqls_front}\n{sql_select}'
-            combination_sqls.append(sqls_front)
+            # 组合前面的SQL
+            combined_sql = ',\n'.join(sqls[:idx+1])
+            combined_sql = f'{content}\n{combined_sql}\n{sql_select}'
+
+            combination_sqls.append(combined_sql)
         return combination_sqls
+
+    @property
+    def parameters(self):
+        sql = self.sql
+        parameters = re.findall(rf"\$(\w+){REG_BEHIND}", sql)
+        return set(parameters)
+
+    def substitute_parameters(self, **kwargs):
+        '''[summary]
+
+        [description]
+            替换具体的参数值，传入的参数值会覆盖文件中设置的参数值
+        Arguments:
+            **kwargs {[参数]} -- [传入的参数值]
+
+        Returns:
+            [str] -- [替换过后的内容]
+
+        '''
+        params_diff = set(self.parameters) - set(kwargs)
+        if params_diff:
+            missing_params = ', '.join(params_diff)
+            raise Exception(f"Missing parameters: {missing_params}. Please provide values for all parameters.")
+
+        sql = self.sql
+        for key, value in kwargs.items():
+            sql = re.sub(rf"\${key}{REG_BEHIND}", f"{value}", sql)
+
+        return sql
 
 
 class SqlFileParse(object):
@@ -124,7 +157,7 @@ class SqlFileParse(object):
             content = f.read()
         return content
 
-    def parse_argument(self, argument, arguments):
+    def parse_argument(self, argument: str, arguments: Dict[str, Any]) -> Tuple[str, Any]:
         key, value = argument.split('=', 1)
         key, value = key.strip(), value.strip()
         try:
@@ -134,15 +167,7 @@ class SqlFileParse(object):
             raise NameError(f"{e}, please set it before '{key}' !!!")
         return key, value
 
-    @property
-    def parameters(self):
-        content = self.get_content()
-        content = re.sub('--.*?\n', '\n', content)  # 去掉注释
-        parameters = re.findall(rf"\$(\w+){REG_BEHIND}", content)
-        return set(parameters)
-
-    @property
-    def arguments(self):
+    def get_arguments_infile(self, content: str):
         '''[summary]
 
         [description]
@@ -154,12 +179,13 @@ class SqlFileParse(object):
             'today': date.today(),
             'now': datetime.now(),
         }
-        content = self.get_content()
-        content = re.sub('--.*?\n', '\n', content)  # 去掉注释
         arguments_infile = re.findall(r'(?<!--)\s*#【arguments】#\s*\n(.*?)#【arguments】#', content, re.S)
         arguments_infile = ';'.join(arguments_infile).replace('\n', ';')
         arguments_infile = [argument.strip() for argument in arguments_infile.split(';') if argument]
         for argument in arguments_infile:
+            if argument.startswith('--'):
+                continue
+
             key, value = self.parse_argument(argument, arguments)
             arguments[key] = value
 
@@ -169,7 +195,17 @@ class SqlFileParse(object):
         # print(arguments)
         return arguments
 
-    def replace_params(self, **kwargs):
+    def get_sqls_infile(self, content: str):
+        sqls = re.findall(r'(?<!--)\s*###\s*\n(.*?)###', content, re.S)
+        return sqls
+
+    def parse_file(self):
+        content = self.get_content()
+        arguments = self.get_arguments_infile(content)
+        sqls = self.get_sqls_infile(content)
+        return arguments, sqls
+
+    def update_arguments(self, arguments_infile: Dict[str, Any], **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         '''[summary]
 
         [description]
@@ -180,49 +216,49 @@ class SqlFileParse(object):
         Returns:
             [str] -- [替换过后的内容]
 
-        Raises:
-            Exception -- [需要设置参数]
         '''
+        # 获取文件名
         filename = os.path.basename(self.filepath)
+        
+        # 过滤掉值为空的参数
         kwargs = {k: v for k, v in kwargs.items() if v}
-        arguments = self.arguments
+        # 组合文件参数和传入参数
+        arguments_final = {**arguments_infile, **kwargs}
 
-        arguments_same = set(arguments) & set(kwargs)
-        argsamelog = None
+        # 记录最终参数的日志
+        if arguments_final:
+            arglog = f"【Final Arguments】【{filename}】 Use arguments {arguments_final}"
+        else:
+            arglog = f"【Final Arguments】【{filename}】 no arguments !!!"
+
+        # 计算文件参数和传入参数的交集，并记录日志
+        arguments_same = set(arguments_infile) & set(kwargs)
         if arguments_same:
             arguments_same = sorted(arguments_same)
-            file_arg = {arg: arguments.get(arg) for arg in arguments_same}
+            file_arg = {arg: arguments_infile.get(arg) for arg in arguments_same}
             argsamelog = f"Replace FileSetting {file_arg}"
-
-        arguments.update(kwargs)
-        arguments_lack = self.parameters - set(arguments)
-        if arguments_lack:
-            raise Exception(f"Need params 【{'】, 【'.join(arguments_lack)}】 !")
-
-        content = self.get_content()
-        for key, value in arguments.items():
-            content = re.sub(rf"\${key}{REG_BEHIND}", f"{value}", content)
-        arguments = {k: arguments.get(k) for k in self.parameters}
-
-        arglog = f"【Final Arguments】【{filename}】 Use arguments {arguments}" \
-                 if arguments else f"【Final Arguments】【{filename}】 no arguments !!!"
-        arglog = arglog + f", {argsamelog}" if argsamelog else arglog
+            arglog = f"{arglog}, {argsamelog}"
+        
         sqllogger.warning(arglog)
 
-        return arguments, content
+        return arguments_final
 
-    def get_filesqls(self, with_test: bool = False, with_snum: int = 0, **kwargs):
-        sqls = {}
-        arguments, content = self.replace_params(**kwargs)
-        sqls_tmp = re.findall(r'(?<!--)\s*###\s*\n(.*?)###', content, re.S)
-        for idx, sql in enumerate(sqls_tmp):
+    def get_filesqls(self, with_test: bool = False, with_snum: int = 0, **kwargs: Any) -> Tuple[Dict[str, Any], Dict[str, str]]:
+        fsqls = {}
+        content = self.get_content()
+        arguments_infile = self.get_arguments_infile(content)
+        farguments = self.update_arguments(arguments_infile, **kwargs)
+        sqls = self.get_sqls_infile(content)
+
+        for idx, sql in enumerate(sqls):
             sqlparser = SqlParse(sql)
             purpose = f"【{idx + 1:0>3d}】{sqlparser.purpose}"
-            sql = re.sub('--【.*?\n', '', sql.strip())
+            sql = sqlparser.substitute_parameters(**farguments)
 
             if with_test:
                 combination_sqls = sqlparser.combination_sqls
-                sqls[f"{purpose}_{with_snum:03d}"] = combination_sqls[with_snum-1]
+                fsqls[f"{purpose}_{with_snum:03d}"] = combination_sqls[with_snum-1]
             else:
-                sqls[purpose] = sql
-        return arguments, sqls
+                fsqls[purpose] = sql
+
+        return farguments, fsqls
