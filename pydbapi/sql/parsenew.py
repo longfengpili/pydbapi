@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-10-09 16:33:05
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-10-10 19:02:04
+# @Last Modified time: 2024-10-11 10:30:18
 # @github: https://github.com/longfengpili
 
 
@@ -21,10 +21,14 @@ class SqlParse:
 
     def __init__(self, orisql: str):
         self.orisql = orisql
+        self.verbose = 1
 
     @property
     def statements(self):
         statements = sqlparse.parse(self.orisql)
+        if len(statements) > 1 and self.verbose:
+            self.verbose = 0
+            sqllogger.warning(f'SQL has {len(statements)} statements ~')
         return statements
 
     @property
@@ -35,8 +39,6 @@ class SqlParse:
     def get_statement(self, idx: int = 0):
         statements = self.statements
         stmt = statements[idx]
-        if len(statements) > 1 and idx > 0:
-            sqllogger.warning(f'SQL has {len(statements)} statements, only parse NO.{idx + 1} statement ~')
         return stmt
 
     def get_first_comment(self):
