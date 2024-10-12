@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-10-09 16:33:05
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-10-12 10:12:45
+# @Last Modified time: 2024-10-12 14:13:22
 # @github: https://github.com/longfengpili
 
 
@@ -107,12 +107,14 @@ class SqlParse:
         if tables:
             return tables[0]
 
-    def get_subqueries(self, tokens: list, subtokens: list[Token] = None, subqueries: list[list[Token, ]] = None, keep_last: bool = True):
+    def get_subqueries(self, tokens: list, subtokens: list[Token] = None, subqueries: list[TokenList, ] = None, keep_last: bool = True):
         def append_subquery(subtokens: list, subqueries: list):
-            subtokens = TokenList(subtokens)
-            subtoken_first = subtokens.token_first(skip_cm=True)
+            _subqueries = subtokens.copy()
+            sub_tokenlist = TokenList(_subqueries)
+            subtoken_first = sub_tokenlist.token_first(skip_cm=True)
             if subtoken_first:
-                subqueries.append(subtokens)
+                subqueries.append(sub_tokenlist)
+            subtokens.clear()
 
         if subqueries is None:
             subqueries = []
@@ -125,19 +127,17 @@ class SqlParse:
                 continue
             elif token.ttype in (DML, DDL, CTE):
                 append_subquery(subtokens, subqueries)
+                subtokens.append(token)
                 if token.value.lower() == 'select':
                     islast = True
-                subtokens = [token]
             elif token.ttype == Punctuation and not islast:
                 append_subquery(subtokens, subqueries)
-                subtokens = []
             elif isinstance(token, Identifier):  # Identifier 也是 TokenList, 所有必须在下个判断之前
                 subtokens.append(token)
             elif isinstance(token, TokenList) or isinstance(token, IdentifierList):
                 self.get_subqueries(token.tokens, subtokens, subqueries)
             else:
                 subtokens.append(token)
-
         if keep_last:
             append_subquery(subtokens, subqueries)
 
