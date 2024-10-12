@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-09 13:56:44
+# @Last Modified time: 2024-10-12 10:57:16
 # @github: https://github.com/longfengpili
 
 
@@ -35,10 +35,12 @@ class TestTrino:
     def teardown_method(self, method):
         pass
 
+    @pytest.mark.drop
     def test_get_instance(self):
         print(self.trinodb)
         print(dir(self.trinodb))
 
+    @pytest.mark.drop
     def test_create_for_drop(self):
         tablename = f"{self.tablename}_for_drop"
         rows, action, result = self.trinodb.create(tablename, self.columns, partition='birthday')

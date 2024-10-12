@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-09-29 11:45:45
+# @Last Modified time: 2024-10-12 11:27:51
 # @github: https://github.com/longfengpili
 
 
@@ -11,7 +11,7 @@ import setuptools
 from pathlib import Path
 from setuptools.command.install import install
 
-VERSION = '0.0.134'
+VERSION = '0.0.135'
 PROJECT_NAME = 'pydbapi'
 
 with open('README.md', 'r', encoding='utf-8') as f:

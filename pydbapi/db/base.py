@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-08-12 14:00:32
+# @Last Modified time: 2024-10-12 11:05:06
 # @github: https://github.com/longfengpili
 
 
@@ -40,9 +40,8 @@ class DBbase(ABC):
         else:
             from tqdm import tqdm
 
-        sqls = SqlParse.split_sqls(sql)
-        # print(sqls)
-        sqls = [sql.strip() for sql in sqls if sql]
+        sqlparse = SqlParse(sql)
+        sqls = [stmt.value.strip(' ;') for stmt in sqlparse.statements]
         bar_format = '{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
         sqls = sqls if verbose <= 1 else tqdm(sqls, postfix=['START'], bar_format=bar_format)  # 如果verbose>=2则显示进度条
         return sqls
