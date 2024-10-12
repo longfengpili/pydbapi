@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-10-09 16:33:05
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-10-12 14:13:22
+# @Last Modified time: 2024-10-12 14:18:47
 # @github: https://github.com/longfengpili
 
 
@@ -124,6 +124,8 @@ class SqlParse:
 
         for token in tokens:
             if isinstance(token, Comment):
+                continue
+            elif token.ttype == Newline and not subtokens:
                 continue
             elif token.ttype in (DML, DDL, CTE):
                 append_subquery(subtokens, subqueries)
