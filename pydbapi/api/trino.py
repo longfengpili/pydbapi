@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-10 10:11:19
+# @Last Modified time: 2024-11-12 17:53:59
 # @github: https://github.com/longfengpili
 
 
@@ -87,7 +87,9 @@ class SqlTrinoCompile(SqlCompile):
 class TrinoDB(DBMixin, DBFileExec):
     _instance_lock = threading.Lock()
 
-    def __init__(self, host, user, password, database, catalog='hive', port=8443, safe_rule=True):
+    def __init__(self, host: str, user: str, password: str, database: str, 
+                 catalog: str = 'hive', port: int = 8443, safe_rule: bool = True, 
+                 **kwargs: dict):
         '''[summary]
         
         [init]
@@ -108,6 +110,7 @@ class TrinoDB(DBMixin, DBFileExec):
             catalog (str): [cataglog] (default: `'hive'`)
             port (number): [port] (default: `8443`)
             safe_rule (bool): [safe rule] (default: `True`)
+            kwargs (dict): [其他trino支持参数，可以询问开发同学，例如source、timezone等]
         '''
 
         self.host = host
@@ -116,6 +119,7 @@ class TrinoDB(DBMixin, DBFileExec):
         self.password = password
         self.catalog = catalog
         self.database = database
+        self.kwargs = kwargs
         super(TrinoDB, self).__init__()
         self.auto_rules = AUTO_RULES if safe_rule else None
         self.dbtype = 'trino'
@@ -146,8 +150,8 @@ class TrinoDB(DBMixin, DBFileExec):
                     auth = BasicAuthentication(self.user, self.password)
                     conn = connect(host=self.host, user=self.user, auth=auth, 
                                    catalog=self.catalog, schema=self.database,
-                                   port=self.port, http_scheme="https"
-                                   )
+                                   port=self.port, http_scheme="https",
+                                   **self.kwargs)
                     mytrinologger.info(f'connect {self.__class__.__name__}({self.user}@{self.host}:{self.port}/{self.catalog}.{self.database})')  # noqa: E501
                     TrinoDB._conn = conn
         return TrinoDB._conn
