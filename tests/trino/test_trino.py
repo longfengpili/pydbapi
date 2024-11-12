@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-10-12 10:57:16
+# @Last Modified time: 2024-11-12 18:33:11
 # @github: https://github.com/longfengpili
 
 
@@ -90,7 +90,7 @@ class TestTrino:
         dt varchar)
         with (partitioned_by = ARRAY['dt']);
         '''
-        rows, action, result = self.trinodb.execute(sql, verbose=1)
+        cur, rows, action, result = self.trinodb.execute(sql, verbose=1)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_create_by_sql2(self):
@@ -109,7 +109,7 @@ class TestTrino:
         select * from test1
         ;
         '''
-        rows, action, result = self.trinodb.execute(sql, verbose=1)
+        cur, rows, action, result = self.trinodb.execute(sql, verbose=1)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_insert_by_sql(self):
@@ -141,14 +141,14 @@ class TestTrino:
             select * from test1
             ;
         '''
-        rows, action, result = self.trinodb.execute(sql, verbose=1)
+        cur, rows, action, result = self.trinodb.execute(sql, verbose=1)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_drop_by_sql(self):
         sql = f'''
         drop table {self.tablename}_bysql
         '''
-        rows, action, result = self.trinodb.execute(sql)
+        cur, rows, action, result = self.trinodb.execute(sql)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_select_by_sql(self):
@@ -196,7 +196,7 @@ class TestTrino:
             ;
         '''
         # print(sql)
-        rows, action, result = self.trinodb.execute(sql, verbose=3)
+        cur, rows, action, result = self.trinodb.execute(sql, verbose=3)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_alter_col(self):

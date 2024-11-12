@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-12 17:53:59
+# @Last Modified time: 2024-11-12 18:25:01
 # @github: https://github.com/longfengpili
 
 
@@ -165,7 +165,7 @@ class TrinoDB(DBMixin, DBFileExec):
         # tablename = f"{self.database}.{tablename}"
         sqlcompile = SqlTrinoCompile(tablename)
         sql_for_create = sqlcompile.create(columns, partition=partition)
-        rows, action, result = self.execute(sql_for_create, verbose=verbose)
+        cur, rows, action, result = self.execute(sql_for_create, verbose=verbose)
         return rows, action, result
 
     def insert(self, tablename, columns, inserttype='value', values=None, chunksize=1000, 
@@ -177,7 +177,7 @@ class TrinoDB(DBMixin, DBFileExec):
             sqlcompile = SqlCompile(tablename)
             sql_for_insert = sqlcompile.insert(columns, inserttype=inserttype, values=values,
                                                chunksize=chunksize, fromtable=fromtable, condition=condition)
-            rows, action, result = self.execute(sql_for_insert, verbose=verbose)
+            cur, rows, action, result = self.execute(sql_for_insert, verbose=verbose)
 
             rows = vlength if values else rows
             mytrinologger.info(f'【{action}】{tablename} insert succeed !')

@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-10-12 11:05:06
+# @Last Modified time: 2024-11-12 18:30:05
 # @github: https://github.com/longfengpili
 
 
@@ -147,7 +147,7 @@ class DBbase(ABC):
 
         rows = cur.rowcount
         rows = len(results) if rows == -1 and results else rows
-        return rows, action, results
+        return cur, rows, action, results
 
 
 class DBMixin(DBbase):
@@ -177,7 +177,7 @@ class DBMixin(DBbase):
         self._check_isauto(tablename)
         sqlcompile = SqlCompile(tablename)
         sql_for_drop = sqlcompile.drop()
-        rows, action, result = self.execute(sql_for_drop, verbose=verbose)
+        cur, rows, action, result = self.execute(sql_for_drop, verbose=verbose)
         dblogger.info(f'【{action}】{tablename} drop succeed !')
         return rows, action, result
 
@@ -185,7 +185,7 @@ class DBMixin(DBbase):
         self._check_isauto(tablename)
         sqlcompile = SqlCompile(tablename)
         sql_for_delete = sqlcompile.delete(condition)
-        rows, action, result = self.execute(sql_for_delete, verbose=verbose)
+        cur, rows, action, result = self.execute(sql_for_delete, verbose=verbose)
         dblogger.info(f'【{action}】{tablename} delete {rows} rows succeed !')
         return rows, action, result
 
@@ -199,7 +199,7 @@ class DBMixin(DBbase):
         sqlcompile = SqlCompile(tablename)
         sql_for_insert = sqlcompile.insert(columns, inserttype=inserttype, values=values,
                                            chunksize=chunksize, fromtable=fromtable, condition=condition)
-        rows, action, result = self.execute(sql_for_insert, verbose=verbose)
+        cur, rows, action, result = self.execute(sql_for_insert, verbose=verbose)
 
         if values and rows != (vlength % chunksize or chunksize):
             raise Exception('Insert Error !!!')
@@ -210,7 +210,7 @@ class DBMixin(DBbase):
 
     def get_columns(self, tablename, verbose=0):
         sql = f"pragma table_info('{tablename}');" if self.dbtype == 'sqlite' else f"show columns from {tablename};"
-        rows, action, results = self.execute(sql, verbose=verbose)
+        cur, rows, action, results = self.execute(sql, verbose=verbose)
         cols = results.values
         nameidx = 1 if self.dbtype == 'sqlite' else 0
         typeidx = 2 if self.dbtype == 'sqlite' else 1
@@ -237,7 +237,7 @@ class DBMixin(DBbase):
         '''
         sqlcompile = SqlCompile(tablename)
         sql_for_select = sqlcompile.select_base(columns, condition=condition)
-        rows, action, result = self.execute(sql_for_select, verbose=verbose)
+        cur, rows, action, result = self.execute(sql_for_select, verbose=verbose)
         return rows, action, result
 
     def add_columns(self, tablename, columns, verbose=0):

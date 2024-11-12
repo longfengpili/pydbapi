@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-12-04 11:46:03
+# @Last Modified time: 2024-11-12 18:24:45
 # @github: https://github.com/longfengpili
 
 
@@ -70,5 +70,5 @@
 #         # tablename = f"{self.database}.{tablename}"
 #         sqlcompile = SqlSnowflakeCompile(tablename)
 #         sql_for_create = sqlcompile.create(columns, indexes)
-#         rows, action, result = self.execute(sql_for_create, verbose=verbose)
+#         cur, rows, action, result = self.execute(sql_for_create, verbose=verbose)
 #         return rows, action, result

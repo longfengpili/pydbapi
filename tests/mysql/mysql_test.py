@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-09 13:57:11
+# @Last Modified time: 2024-11-12 18:30:41
 # @github: https://github.com/longfengpili
 
 
@@ -144,7 +144,7 @@ class TestMysql:
             ;
         '''
         # print(sql)
-        rows, action, result = self.mysqldb.execute(sql, verbose=3)
+        cur, rows, action, result = self.mysqldb.execute(sql, verbose=3)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_alter_table(self):

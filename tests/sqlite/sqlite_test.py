@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-09 13:56:47
+# @Last Modified time: 2024-11-12 18:31:39
 # @github: https://github.com/longfengpili
 
 
@@ -45,7 +45,7 @@ class TestSqlite:
         --test
         select json_extract('{"a":2, "c":[4,5,{"f":7}]}', '$.c[0]');
         '''
-        rows, action, result = self.sqlite.execute(sql)
+        cur, rows, action, result = self.sqlite.execute(sql)
         print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
 
     def test_create(self):

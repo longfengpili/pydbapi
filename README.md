@@ -11,35 +11,35 @@ pip install pydbapi
 from pydbapi.api import SqliteDB
 db = SqliteDB(database=None)  # 或者传入路径
 sql = 'select * from [table];'
-row, action, result = db.execute(sql)
+cur, row, action, result = db.execute(sql)
 ```
 + Amazon Redshift
 ```python
 from pydbapi.api import RedshiftDB
 db = RedshiftDB(host, user, password, database, port='5439', safe_rule=True)
 sql = 'select * from [schema].[table];'
-row, action, result = db.execute(sql)
+cur, row, action, result = db.execute(sql)
 ```
 + Mysql
 ```python
 from pydbapi.api import MysqlDB
 db = MysqlDB(host, user, password, database, port=3306, safe_rule=True, isdoris=False)
 sql = 'select * from [table];'
-row, action, result = db.execute(sql)
+cur, row, action, result = db.execute(sql)
 ```
 + Trino
 ```python
 from pydbapi.api import TrinoDB
 db = TrinoDB(host, user, password, database, catalog, port=8443, safe_rule=True)
 sql = 'select * from [table];'
-row, action, result = db.execute(sql)
+cur, row, action, result = db.execute(sql)
 ```
 + Snowflake(删除)
 ```python
 from pydbapi.api import SnowflakeDB
 db = SnowflakeDB(user, password, account, warehouse, database, schema, safe_rule=True)
 sql = 'select * from [table];'
-row, action, result = db.execute(sql)
+cur, row, action, result = db.execute(sql)
 ```
 
 + instance模式
@@ -47,7 +47,7 @@ row, action, result = db.execute(sql)
 from pydbapi.api import SqliteDB
 db = SqliteDB.get_instance(database=None)  # 或者传入路径
 sql = 'select * from [table];'
-row, action, result = db.execute(sql)
+cur, row, action, result = db.execute(sql)
 ```
 
 ## Result
@@ -56,7 +56,7 @@ row, action, result = db.execute(sql)
 from pydbapi.api import TrinoDB
 db = TrinoDB(host, user, password, database, catalog, port=8443, safe_rule=True)
 sql = 'select * from [table];'
-row, action, result = db.execute(sql)
+cur, row, action, result = db.execute(sql)
 
 df = result.to_dataframe()
 df
@@ -66,7 +66,7 @@ df
 from pydbapi.api import TrinoDB
 db = TrinoDB(host, user, password, database, catalog, port=8443, safe_rule=True)
 sql = 'select * from [table];'
-row, action, result = db.execute(sql)
+cur, row, action, result = db.execute(sql)
 
 result.to_csv(outfile)
 ```
