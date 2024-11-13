@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-10 13:37:57
+# @Last Modified time: 2024-11-13 10:27:57
 # @github: https://github.com/longfengpili
 
 
@@ -156,22 +156,22 @@ class MysqlDB(DBMixin, DBFileExec):
         sql_for_create = sqlcompile.create(columns, indexes, index_part=index_part,
                                            ismultiple_index=ismultiple_index, partition=partition,
                                            distribution=distribution, isdoris=self.isdoris)
-        rows, action, result = self.execute(sql_for_create, verbose=verbose)
-        return rows, action, result
+        cursor, action, result = self.execute(sql_for_create, verbose=verbose)
+        return cursor, action, result
 
     def dumpdata(self, tablename, columns, dumpfile, condition=None, verbose=0):
         sqlcompile = SqlMysqlCompile(tablename)
         sql_for_dump = sqlcompile.dumpsql(columns, dumpfile, condition=condition)
-        rows, action, result = self.execute(sql_for_dump, verbose=verbose)
+        cursor, action, result = self.execute(sql_for_dump, verbose=verbose)
         mysqllogger.info(f"【{action}】{tablename} dumpdata {rows} rows succeed, outfile: {dumpfile} !")
-        return rows, action, result
+        return cursor, action, result
 
     def loaddata(self, tablename, columns, loadfile, fieldterminated=',', verbose=0):
         sqlcompile = SqlMysqlCompile(tablename)
         sql_for_load = sqlcompile.loadsql(columns, loadfile, fieldterminated=fieldterminated)
-        rows, action, result = self.execute(sql_for_load, verbose=verbose)
+        cursor, action, result = self.execute(sql_for_load, verbose=verbose)
         mysqllogger.info(f"【{action}】{tablename} loaddata {rows} rows succeed, loadfile: {loadfile} !")
-        return rows, action, result
+        return cursor, action, result
 
     def alter_tablecol(self, tablename: str, colname: str, newname: str = None, newtype: str = None, 
                        indexes: list = None, index_part: int = 128, ismultiple_index: bool = True,

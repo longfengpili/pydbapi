@@ -2,14 +2,13 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-10-12 11:05:06
+# @Last Modified time: 2024-11-13 10:42:31
 # @github: https://github.com/longfengpili
 
 
 import re
 import sys
 import time
-import pandas as pd
 from datetime import date
 
 from abc import ABC, abstractmethod
@@ -77,12 +76,12 @@ class DBbase(ABC):
 
         return columns
 
-    def fetch_query_results(self, action, cur, count, verbose):
-        columns = self.cur_columns(cur)
-        results = self.cur_results(cur, count)
+    def fetch_query_results(self, action, cursor, count, verbose):
+        columns = self.cur_columns(cursor)
+        results = self.cur_results(cursor, count)
         results = ResModel(columns, results)
 
-        if verbose and not columns:
+        if verbose and not columns and action != 'insert':
             dblogger.warning(f"【{action}】No results")
         elif (verbose == 1 or verbose >= 3) and results:
             dblogger.info(f"\n{results.to_dataframe()}")
@@ -111,13 +110,14 @@ class DBbase(ABC):
             verbose {[int]} -- [打印进程状态] （0：不打印， 1：文字进度， 2：进度条）
 
         Returns:
-            rows {[int]} -- [影响的行数]
-            results {[list]} -- [返回的结果]
+            cursor {[cursor]} -- [游标，可以返回游标的各种信息]
+            action {[str]} -- [方法]
+            results {[ResModel]} -- [返回的结果]
         '''
         
         results = None
         conn = self.get_conn()
-        cur = conn.cursor()
+        cursor = conn.cursor()
         sqls = self.prepare_sql_statements(sql, verbose)
         try: 
             with logging_redirect_tqdm():
@@ -130,10 +130,10 @@ class DBbase(ABC):
 
                     step = f"【{idx:0>2d}_PROGRESS】({action}){tablename}::{comment}"
                     self.handle_progress_logging(step, verbose, sqls)
-                    self._execute_step(cur, sql, ehandling=ehandling)
+                    self._execute_step(cursor, sql, ehandling=ehandling)
 
                     if idx + 1 == len(sqls) or action in ['SELECT', 'WITH']:
-                        results = self.fetch_query_results(action, cur, count, verbose)
+                        results = self.fetch_query_results(action, cursor, count, verbose)
 
             conn.commit()
         except Exception:
@@ -142,12 +142,10 @@ class DBbase(ABC):
             raise
         finally:
             if self.dbtype not in ('trino',):
-                cur.close()
+                cursor.close()
             # conn.close()  # 注释掉conn
 
-        rows = cur.rowcount
-        rows = len(results) if rows == -1 and results else rows
-        return rows, action, results
+        return cursor, action, results
 
 
 class DBMixin(DBbase):
@@ -177,17 +175,17 @@ class DBMixin(DBbase):
         self._check_isauto(tablename)
         sqlcompile = SqlCompile(tablename)
         sql_for_drop = sqlcompile.drop()
-        rows, action, result = self.execute(sql_for_drop, verbose=verbose)
+        cursor, action, result = self.execute(sql_for_drop, verbose=verbose)
         dblogger.info(f'【{action}】{tablename} drop succeed !')
-        return rows, action, result
+        return cursor, action, result
 
     def delete(self, tablename, condition, verbose=0):
         self._check_isauto(tablename)
         sqlcompile = SqlCompile(tablename)
         sql_for_delete = sqlcompile.delete(condition)
-        rows, action, result = self.execute(sql_for_delete, verbose=verbose)
+        cursor, action, result = self.execute(sql_for_delete, verbose=verbose)
         dblogger.info(f'【{action}】{tablename} delete {rows} rows succeed !')
-        return rows, action, result
+        return cursor, action, result
 
     def insert(self, tablename, columns, inserttype='value', values=None, chunksize=1000, 
                fromtable=None, condition=None, verbose=0):
@@ -199,18 +197,19 @@ class DBMixin(DBbase):
         sqlcompile = SqlCompile(tablename)
         sql_for_insert = sqlcompile.insert(columns, inserttype=inserttype, values=values,
                                            chunksize=chunksize, fromtable=fromtable, condition=condition)
-        rows, action, result = self.execute(sql_for_insert, verbose=verbose)
+        cursor, action, result = self.execute(sql_for_insert, verbose=verbose)
 
+        rows = cursor.rowcount
         if values and rows != (vlength % chunksize or chunksize):
             raise Exception('Insert Error !!!')
 
         rows = vlength if values else rows
         dblogger.info(f'【{action}】{tablename} insert {rows} rows succeed !')
-        return rows, action, result
+        return cursor, action, result
 
     def get_columns(self, tablename, verbose=0):
         sql = f"pragma table_info('{tablename}');" if self.dbtype == 'sqlite' else f"show columns from {tablename};"
-        rows, action, results = self.execute(sql, verbose=verbose)
+        cursor, action, results = self.execute(sql, verbose=verbose)
         cols = results.values
         nameidx = 1 if self.dbtype == 'sqlite' else 0
         typeidx = 2 if self.dbtype == 'sqlite' else 1
@@ -237,8 +236,8 @@ class DBMixin(DBbase):
         '''
         sqlcompile = SqlCompile(tablename)
         sql_for_select = sqlcompile.select_base(columns, condition=condition)
-        rows, action, result = self.execute(sql_for_select, verbose=verbose)
-        return rows, action, result
+        cursor, action, result = self.execute(sql_for_select, verbose=verbose)
+        return cursor, action, result
 
     def add_columns(self, tablename, columns, verbose=0):
         old_columns = self.get_columns(tablename)

@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-12 17:53:59
+# @Last Modified time: 2024-11-13 10:44:34
 # @github: https://github.com/longfengpili
 
 
@@ -165,8 +165,8 @@ class TrinoDB(DBMixin, DBFileExec):
         # tablename = f"{self.database}.{tablename}"
         sqlcompile = SqlTrinoCompile(tablename)
         sql_for_create = sqlcompile.create(columns, partition=partition)
-        rows, action, result = self.execute(sql_for_create, verbose=verbose)
-        return rows, action, result
+        cursor, action, result = self.execute(sql_for_create, verbose=verbose)
+        return cursor, action, result
 
     def insert(self, tablename, columns, inserttype='value', values=None, chunksize=1000, 
                fromtable=None, condition=None, verbose=0):
@@ -177,11 +177,12 @@ class TrinoDB(DBMixin, DBFileExec):
             sqlcompile = SqlCompile(tablename)
             sql_for_insert = sqlcompile.insert(columns, inserttype=inserttype, values=values,
                                                chunksize=chunksize, fromtable=fromtable, condition=condition)
-            rows, action, result = self.execute(sql_for_insert, verbose=verbose)
+            cursor, action, result = self.execute(sql_for_insert, verbose=verbose)
 
+            rows = cursor.rowcount
             rows = vlength if values else rows
             mytrinologger.info(f'【{action}】{tablename} insert succeed !')
-            return rows, action, result
+            return cursor, action, result
 
     def alter_tablecol(self, tablename: str, colname: str, newname: str = None, newtype: str = None, 
                        sqlexpr: str = None, partition: str = 'part_date', conditions: list[str] = None, verbose: int = 0):

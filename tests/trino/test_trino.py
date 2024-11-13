@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-10-12 10:57:16
+# @Last Modified time: 2024-11-13 10:29:11
 # @github: https://github.com/longfengpili
 
 
@@ -43,13 +43,13 @@ class TestTrino:
     @pytest.mark.drop
     def test_create_for_drop(self):
         tablename = f"{self.tablename}_for_drop"
-        rows, action, result = self.trinodb.create(tablename, self.columns, partition='birthday')
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.trinodb.create(tablename, self.columns, partition='birthday')
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_drop(self):
         tablename = f"{self.tablename}_for_drop"
-        rows, action, result = self.trinodb.drop(tablename)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.trinodb.drop(tablename)
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_get_columns(self):
         try:
@@ -60,8 +60,8 @@ class TestTrino:
             print(e)
 
     def test_create(self):
-        rows, action, result = self.trinodb.create(self.tablename, self.columns, partition='birthday')
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.trinodb.create(self.tablename, self.columns, partition='birthday')
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_insertsql(self):
         values = [['1', 'apple', 'beijing', '2012-01-23', '{"yuwen": 90, "shuxue": 20}'],
@@ -79,8 +79,8 @@ class TestTrino:
                   ['3', 'chocolate', 'yunnan', '2020-06-14 23:00:05', '{"yuwen": 90, "shuxue": 90}'],
                   ['4', 'pizza', 'taiwan', '2020-05-15 23:08:25', '{"yuwen": 10, "shuxue": 21}'],
                   ['5', 'pizza', 'hebei', '2020-08-12 14:05:36', '{"yuwen": 30, "shuxue": 23}']]
-        rows, action, result = self.trinodb.insert(self.tablename, self.columns, values=values, chunksize=1, verbose=1)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.trinodb.insert(self.tablename, self.columns, values=values, chunksize=1, verbose=1)
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_create_by_sql1(self):
         sql = f'''
@@ -90,8 +90,8 @@ class TestTrino:
         dt varchar)
         with (partitioned_by = ARRAY['dt']);
         '''
-        rows, action, result = self.trinodb.execute(sql, verbose=1)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.trinodb.execute(sql, verbose=1)
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_create_by_sql2(self):
         sql = f'''
@@ -109,8 +109,8 @@ class TestTrino:
         select * from test1
         ;
         '''
-        rows, action, result = self.trinodb.execute(sql, verbose=1)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.trinodb.execute(sql, verbose=1)
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_insert_by_sql(self):
         sql = f'''
@@ -141,15 +141,15 @@ class TestTrino:
             select * from test1
             ;
         '''
-        rows, action, result = self.trinodb.execute(sql, verbose=1)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.trinodb.execute(sql, verbose=1)
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_drop_by_sql(self):
         sql = f'''
         drop table {self.tablename}_bysql
         '''
-        rows, action, result = self.trinodb.execute(sql)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.trinodb.execute(sql)
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_select_by_sql(self):
         sql = f'''
@@ -196,8 +196,8 @@ class TestTrino:
             ;
         '''
         # print(sql)
-        rows, action, result = self.trinodb.execute(sql, verbose=3)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.trinodb.execute(sql, verbose=3)
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_alter_col(self):
         alter_cols = self.trinodb.alter_column(self.tablename, 'id', 'idx', 'int')

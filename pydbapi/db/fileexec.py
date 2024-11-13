@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-16 12:01:21
+# @Last Modified time: 2024-11-13 10:27:46
 # @github: https://github.com/longfengpili
 
 
@@ -42,7 +42,7 @@ class DBFileExec(DBbase):
                                      if 'verbose1' in desc or filename.startswith('test')
                                      else 0)
             sqlehandling = ehandling or ('pass' if 'epass' in desc else 'raise')
-            rows, action, result = self.execute(sql, ehandling=sqlehandling, verbose=sqlverbose)
+            cursor, action, result = self.execute(sql, ehandling=sqlehandling, verbose=sqlverbose)
             results[desc] = result
             # dblogger.info(f"End {desc}")
         et = time.time()

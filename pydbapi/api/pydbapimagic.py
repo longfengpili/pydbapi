@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-11-02 13:36:08
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-08-12 13:48:05
+# @Last Modified time: 2024-11-13 10:27:55
 # @github: https://github.com/longfengpili
 
 from pathlib import Path
@@ -157,7 +157,7 @@ class PydbapiMagics(Magics):
         args = parse_argstring(self.pydbapi, line)
         number, verbose, dataname = args.number, args.verbose, args.dataname
         
-        rows, action, results = self.dbapi.execute(sql=cell, count=number, verbose=verbose)
+        cursor, action, results = self.dbapi.execute(sql=cell, count=number, verbose=verbose)
         data = results.to_dataframe()
         self.shell.user_ns[dataname] = data
 

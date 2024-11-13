@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-09 13:57:11
+# @Last Modified time: 2024-11-13 10:29:09
 # @github: https://github.com/longfengpili
 
 
@@ -48,12 +48,12 @@ class TestMysql:
 
     def test_create_for_drop(self):
         indexes = ['id', 'name']
-        rows, action, result = self.mysqldb.create(self.tablename, self.columns, indexes, partition='birthday')
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.mysqldb.create(self.tablename, self.columns, indexes, partition='birthday')
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_drop(self):
-        rows, action, result = self.mysqldb.drop(self.tablename)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.mysqldb.drop(self.tablename)
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_createsql(self):
         indexes = ['id', 'name']
@@ -63,8 +63,8 @@ class TestMysql:
 
     def test_create(self):
         indexes = ['id', 'name']
-        rows, action, result = self.mysqldb.create(self.tablename, self.columns, indexes, partition='birthday')
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.mysqldb.create(self.tablename, self.columns, indexes, partition='birthday')
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_cols(self):
         result = self.mysqldb.get_columns(self.tablename)
@@ -76,8 +76,8 @@ class TestMysql:
                   [3, 'chocolate', 'yunnan', '2020-06-14 23:00:05', '{"yuwen": 90, "shuxue": 90}'],
                   [4, 'pizza', 'taiwan', '2020-05-15 23:08:25', '{"yuwen": 10, "shuxue": 21}'],
                   [5, 'pizza', 'hebei', '2020-08-12 14:05:36', '{"yuwen": 30, "shuxue": 23}']]
-        rows, action, result = self.mysqldb.insert(self.tablename, self.columns, values=values, chunksize=2, verbose=1)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.mysqldb.insert(self.tablename, self.columns, values=values, chunksize=2, verbose=1)
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_selectsql(self):
         sqlcompile = SqlMysqlCompile(self.tablename)
@@ -91,13 +91,13 @@ class TestMysql:
 
     @pytest.mark.skip()
     def test_dumpdata(self):
-        rows, action, result = self.mysqldb.dumpdata(self.tablename, self.columns, '/tmp/pydbapitest.csv', condition='name="apple"')
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.mysqldb.dumpdata(self.tablename, self.columns, '/tmp/pydbapitest.csv', condition='name="apple"')
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     @pytest.mark.skip()
     def test_loaddata(self):
-        rows, action, result = self.mysqldb.loaddata(self.tablename, self.columns, '/tmp/pydbapitest.csv')
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.mysqldb.loaddata(self.tablename, self.columns, '/tmp/pydbapitest.csv')
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_select_by_sql(self):
         sql = f'''
@@ -144,8 +144,8 @@ class TestMysql:
             ;
         '''
         # print(sql)
-        rows, action, result = self.mysqldb.execute(sql, verbose=3)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.mysqldb.execute(sql, verbose=3)
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_alter_table(self):
         self.mysqldb.alter_tablecol(self.tablename, colname='id', newname='id_new', newtype='real')

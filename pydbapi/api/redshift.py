@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-08-12 13:58:11
+# @Last Modified time: 2024-11-13 10:27:54
 # @github: https://github.com/longfengpili
 
 
@@ -83,5 +83,5 @@ class RedshiftDB(DBMixin, DBFileExec):
         # tablename = f"{self.database}.{tablename}"
         sqlcompile = SqlRedshiftCompile(tablename)
         sql_for_create = sqlcompile.create(columns, indexes)
-        rows, action, result = self.execute(sql_for_create, verbose=verbose)
-        return rows, action, result
+        cursor, action, result = self.execute(sql_for_create, verbose=verbose)
+        return cursor, action, result

@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-09 13:56:47
+# @Last Modified time: 2024-11-13 10:29:13
 # @github: https://github.com/longfengpili
 
 
@@ -45,22 +45,22 @@ class TestSqlite:
         --test
         select json_extract('{"a":2, "c":[4,5,{"f":7}]}', '$.c[0]');
         '''
-        rows, action, result = self.sqlite.execute(sql)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.sqlite.execute(sql)
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_create(self):
         indexes = ['id', 'name']
-        rows, action, result = self.sqlite.create(self.tablename, self.columns, indexes)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.sqlite.create(self.tablename, self.columns, indexes)
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_drop(self):
-        rows, action, result = self.sqlite.drop(self.tablename)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.sqlite.drop(self.tablename)
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_create1(self):
         indexes = ['id', 'name']
-        rows, action, result = self.sqlite.create(self.tablename, self.columns, indexes)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.sqlite.create(self.tablename, self.columns, indexes)
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_insert(self):
         values = [[1, 'apple', 'beijing', '2012-01-23', '{"yuwen": 90, "shuxue": 20}'],
@@ -69,14 +69,14 @@ class TestSqlite:
                   [4, 'pizza', 'taiwan', '2020-05-15 23:08:25', '{"yuwen": 10, "shuxue": 21}'],
                   [5, 'pizza', 'hebei', '2020-08-12 14:05:36', '{"yuwen": 30, "shuxue": 23}']]
         values *= 20
-        rows, action, result = self.sqlite.insert(self.tablename, self.columns, values=values, verbose=1, chunksize=10)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.sqlite.insert(self.tablename, self.columns, values=values, verbose=1, chunksize=10)
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_select(self):
         yuwen = ColumnModel('yuwen', sqlexpr="score", order=1)
         columns = ColumnsModel(self.id, self.name, yuwen)
-        rows, action, result = self.sqlite.select(self.tablename, columns)
-        print(f"【rows】: {rows}, 【action】: {action}, 【result】: {result}")
+        cursor, action, result = self.sqlite.select(self.tablename, columns)
+        print(f"【cur】: {cursor}, 【action】: {action}, 【result】: {result}")
 
     def test_getcol(self):
         columns = self.sqlite.get_columns(self.tablename)
