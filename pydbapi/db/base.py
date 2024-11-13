@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-13 10:42:31
+# @Last Modified time: 2024-11-13 10:48:49
 # @github: https://github.com/longfengpili
 
 
@@ -184,7 +184,7 @@ class DBMixin(DBbase):
         sqlcompile = SqlCompile(tablename)
         sql_for_delete = sqlcompile.delete(condition)
         cursor, action, result = self.execute(sql_for_delete, verbose=verbose)
-        dblogger.info(f'【{action}】{tablename} delete {rows} rows succeed !')
+        dblogger.info(f'【{action}】{tablename} delete {cursor.rowcount} rows succeed !')
         return cursor, action, result
 
     def insert(self, tablename, columns, inserttype='value', values=None, chunksize=1000, 
