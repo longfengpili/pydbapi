@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-27 15:34:11
+# @Last Modified time: 2024-11-13 11:24:13
 # @github: https://github.com/longfengpili
 
 
@@ -24,6 +24,6 @@ def mklogdir(path):
 
 
 class MakeFileHandler(logging.handlers.TimedRotatingFileHandler):
-    def __init__(self, filename, when='h', interval=1, backupCount=0, encoding=None, delay=False, utc=False, atTime=None):
+    def __init__(self, filename, when='h', interval=1, backupCount=0, encoding=None, delay=True, utc=False, atTime=None):
         mklogdir(os.path.dirname(filename))
         super(MakeFileHandler, self).__init__(filename, when, interval, backupCount, encoding, delay, utc, atTime)
