@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-10-11 14:52:55
+# @Last Modified time: 2024-11-18 17:03:22
 # @github: https://github.com/longfengpili
 
 
@@ -118,10 +118,8 @@ class SqlFileParse(object):
 
     def get_filesqls(self, with_test: bool = False, with_snum: int = 0, **kwargs: Any) -> Tuple[Dict[str, Any], Dict[str, str]]:
         fsqls = {}
-        content = self.get_content()
-        arguments_infile = self.get_arguments_infile(content)
+        arguments_infile, sqls = self.parse_file()
         farguments = self.update_arguments(arguments_infile, **kwargs)
-        sqls = self.get_sqls_infile(content)
 
         for idx, sql in enumerate(sqls):
             sqlparser = SqlParse(sql)
@@ -129,10 +127,10 @@ class SqlFileParse(object):
             sql = sqlparser.substitute_parameters(**farguments)
 
             if with_test:
-                first_stmt = sqlparser.get_statement()
-                subqueries = sqlparser.get_subqueries(first_stmt.tokens, keep_last=False)
+                # first_stmt = sqlparser.get_statement()
+                # subqueries = sqlparser.get_subqueries(first_stmt.tokens, keep_last=False)
                 combination_sqls = sqlparser.combination_sqls
-                print(len(combination_sqls))
+                # print(len(combination_sqls))
                 fsqls[f"{purpose}_{with_snum:03d}"] = combination_sqls[with_snum-1]
             else:
                 fsqls[purpose] = sql
