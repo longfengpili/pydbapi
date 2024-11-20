@@ -2,13 +2,13 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-27 15:41:50
+# @Last Modified time: 2024-11-20 18:39:09
 # @github: https://github.com/longfengpili
 
 
 import pytest
 
-from pydbapi.sql import SqlParse
+from pydbapi.sql import SqlStatement
 from pydbapi.conf.logconf import LOGGING_CONFIG
 import logging.config
 logging.config.dictConfig(LOGGING_CONFIG)
@@ -47,14 +47,14 @@ class TestSql:
         '''
 
     def test_get_action(self):
-        parser = SqlParse(self.sql)
+        parser = SqlStatement(self.sql)
         dblogger.warning(parser.action)
         print(parser.action)
 
     def test_get_tablename(self):
-        parser = SqlParse(self.sql)
+        parser = SqlStatement(self.sql)
         print(parser.tablename)
 
     def test_get_comment(self):
-        parser = SqlParse(self.sql)
+        parser = SqlStatement(self.sql)
         print(parser.comment)

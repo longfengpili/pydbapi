@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-10-09 16:33:05
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-20 16:45:15
+# @Last Modified time: 2024-11-20 18:08:47
 # @github: https://github.com/longfengpili
 
 
@@ -27,6 +27,19 @@ class SqlStatement:
         _repr = f"[{self.action}]{self.tablename}"
         _repr = f"{_repr}::{self.comment}" if self.comment else _repr
         return _repr
+
+    def __sub__(self, sqlstmt: str):
+        self._sql = self._sql.strip(';')
+        if self._sql.endswith(sqlstmt):
+            self._sql = self._sql[:-len(sqlstmt)]
+        self._parsed = sqlparse.parse(self._sql)[0]
+        return self
+
+    def __add__(self, sqlstmt: str):
+        sql = self._sql.strip(';')
+        self._sql = f"{sql}\n{sqlstmt};"
+        self._parsed = sqlparse.parse(self._sql)[0]
+        return self
 
     @classmethod
     def from_sqlsnippets(cls, *sqlsnippets: tuple[str, ]) -> 'SqlStatement':
@@ -155,34 +168,45 @@ class SqlStatement:
         return subqueries
 
     def get_combination_sql(self, idx: int = 0):
-        combination_sqls = []
         subqueries = self.subqueries
-        for idx, identifier in enumerate(subqueries):
-            tablename = identifier.get_real_name()
+        last_subquery = subqueries[idx]
+        tablename = last_subquery.get_real_name()
 
-            # 生成注释内容和SELECT语句
-            comment = f"-- {tablename}_{idx + 1:03d}"
-            selectsql = f'select * from {tablename} limit 10'
-            # 组合前面的SQL
-            sqlsnippets = ',\n'.join([subquery.value for subquery in subqueries[:idx+1]])
+        # 生成注释内容和SELECT语句
+        comment = f"-- {tablename}_{idx + 1:03d}"
+        selectsql = f'select * from {tablename} limit 10'
+        # 组合前面的SQL
+        sqlsnippets = ',\n'.join([subquery.value for subquery in subqueries[:idx+1]])
+        combined_sql = SqlStatement.from_sqlsnippets(comment, sqlsnippets, selectsql)
 
-            combined_sql = SqlStatement.from_sqlsnippets(comment, sqlsnippets, selectsql)
-
-            combination_sqls.append(combined_sql)
-        return combination_sqls
+        return combined_sql
 
 
-class SqlParse:
+class SqlStatements:
 
     def __init__(self, sql: str):
         self.sql = sql
         self._statements = None
 
     def __str__(self):
-        return f"[Statement: {len(self._statements)}]{self._statements[0]}..."
+        statements = self.statements
+        return f"[Statement: {len(statements)}]{statements[0]}..."
 
     def __repr__(self):
-        return f"[Statement: {len(self._statements)}]{self._statements[0]}..."
+        statements = self.statements
+        return f"[Statement: {len(statements)}]{statements[0]}..."
+
+    def __iter__(self):
+        return iter(self.statements)
+
+    def __len__(self):
+        return len(self.statements)
+
+    @classmethod
+    def from_sqlstatements(cls, *statements):
+        sqls = [stmt._sql for stmt in statements]
+        sql = ';'.join(sqls)
+        return cls(sql)
 
     @property
     def statements(self) -> list[SqlStatement, ]:

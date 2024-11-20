@@ -2,12 +2,12 @@
 # @Author: longfengpili
 # @Date:   2024-11-19 16:04:33
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-19 16:20:13
+# @Last Modified time: 2024-11-20 17:34:43
 # @github: https://github.com/longfengpili
 
 import pytest
 
-from pydbapi.sql.parse_new import SqlParse
+from pydbapi.sql.parse import SqlStatements
 
 
 class TestSqlStatement:
@@ -35,5 +35,5 @@ class TestSqlStatement:
         pass
 
     def test_statments(self):
-        sp = SqlParse(self.sql)
+        sp = SqlStatements(self.sql)
         print(sp.statements)

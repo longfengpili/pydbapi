@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-13 10:27:54
+# @Last Modified time: 2024-11-20 18:42:44
 # @github: https://github.com/longfengpili
 
 
@@ -36,7 +36,9 @@ class SqlRedshiftCompile(SqlCompile):
             raise TypeError(f"indexes must be a list !")
         if indexes:
             indexes = ','.join(indexes)
-            sql = f"{sql.replace(';', '')}\ninterleaved sortkey({indexes});"
+            index = f"interleaved sortkey({indexes})"
+            sql += index
+
         return sql
 
 

@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-13 10:44:34
+# @Last Modified time: 2024-11-20 18:40:50
 # @github: https://github.com/longfengpili
 
 
@@ -79,7 +79,7 @@ class SqlTrinoCompile(SqlCompile):
 
         sql = self.create_nonindex(columns)
         table_properties = self.table_properties(partition=partition_col, transactional=transactional)
-        sql = sql.replace(';', f'\n{table_properties};')
+        sql += table_properties
 
         return sql
 

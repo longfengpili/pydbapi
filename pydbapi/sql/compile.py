@@ -2,12 +2,13 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-07-09 13:58:26
+# @Last Modified time: 2024-11-20 18:38:21
 # @github: https://github.com/longfengpili
 
 
 import re
 from pydbapi.model import ColumnsModel
+from pydbapi.sql import SqlStatement
 
 
 class SqlCompile(object):
@@ -48,7 +49,7 @@ class SqlCompile(object):
         if order:
             sql = sql + '\n' + order
         sql = sql + '\n;'
-        return sql
+        return SqlStatement(sql)
 
     def create_nonindex(self, columns):
         '''[summary]
@@ -70,11 +71,11 @@ class SqlCompile(object):
             raise TypeError("colums must be a ColumnsModel !")
 
         sql = f'create table if not exists {self.tablename}\n{columns.create_cols};'
-        return sql
+        return SqlStatement(sql)
 
     def drop(self):
         sql = f'drop table if exists {self.tablename};'
-        return sql
+        return SqlStatement(sql)
 
     def _insert_value(self, columns, values):
         '''[summary]
@@ -137,34 +138,32 @@ class SqlCompile(object):
             sql.append(_sql)
 
         sql = ''.join(sql)
-        # print(sql)
-        return sql
+        return SqlStatement(sql)
 
     def _insert_by_select(self, fromtable, columns, condition=None):
         selectsql = self.select_base(columns, fromtable, condition=condition)
 
-        sql = f'''insert into {self.tablename}\n({columns.new_cols})\n{selectsql}'''
-        return sql
+        sql = f'''insert into {self.tablename}\n({columns.new_cols})\n{selectsql.sql}'''
+        return SqlStatement(sql)
 
     def insert(self, columns, inserttype='value', values=None, chunksize=1000, fromtable=None, condition=None):
         if inserttype == 'value':
             if not values:
                 raise Exception(f"InsertType is {inserttype}, values must be not None")
-            sql = self._insert_by_value(columns, values, chunksize=chunksize)
-            # print(sql)
+            stmt = self._insert_by_value(columns, values, chunksize=chunksize)
         elif inserttype == 'select':
             if not fromtable:
                 raise Exception(f"InsertType is {inserttype}, fromtable must be not None")
-            sql = self._insert_by_select(fromtable, columns, condition=condition)
+            stmt = self._insert_by_select(fromtable, columns, condition=condition)
         else:
             raise Exception(f"Not supported {inserttype}, insertType must be value or select")
-        return sql
+        return stmt
 
     def delete(self, condition):
         sql = f'''delete from {self.tablename} where {condition};'''
-        return sql
+        return SqlStatement(sql)
 
     def add_column(self, colname, coltype):
         coltype = f"{coltype}(32)" if coltype == 'varchar' else coltype
         sql = f'alter table {self.tablename} add column {colname} {coltype};'
-        return sql
+        return SqlStatement(sql)

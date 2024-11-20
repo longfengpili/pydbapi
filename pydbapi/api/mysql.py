@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-13 10:49:11
+# @Last Modified time: 2024-11-20 18:14:45
 # @github: https://github.com/longfengpili
 
 
@@ -73,24 +73,24 @@ class SqlMysqlCompile(SqlCompile):
 
         if indexes:
             indexes = self.create_indexes(columns, indexes, index_part=index_part, ismultiple=ismultiple_index)
-            sql = sql.replace(');', f",\n{indexes});")
+            sql = sql - ')' + f",{indexes})"
 
         if partition:
             partition = columns.get_column_by_name(partition)
             partition = self.create_partition(partition)
-            sql = sql.replace(';', f'\n{partition};')
+            sql += partition
 
         if isdoris:
             distributed_col = distribution or columns.index(0).newname
             distributed = f"distributed by hash({distributed_col})"
-            sql = sql.replace(';', f'\n{distributed};')
+            sql += distributed
 
         return sql
 
     def dumpsql(self, columns, dumpfile, fromtable=None, condition=None):
         selectsql = self.select_base(columns, fromtable=fromtable, condition=condition)
         intosql = f'into outfile "{dumpfile}" fields terminated by ",";'
-        dumpsql = selectsql.replace(";", intosql)
+        dumpsql = selectsql + intosql
         return dumpsql
 
     def loadsql(self, columns, loadfile, intotable=None, fieldterminated=','):

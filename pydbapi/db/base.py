@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-13 10:48:49
+# @Last Modified time: 2024-11-20 17:50:14
 # @github: https://github.com/longfengpili
 
 
@@ -15,7 +15,7 @@ from abc import ABC, abstractmethod
 
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from pydbapi.sql import SqlParse, SqlCompile
+from pydbapi.sql import SqlStatement, SqlStatements, SqlCompile
 from pydbapi.model import ColumnModel, ColumnsModel, ResModel
 
 from pydbapi.conf import AUTO_RULES
@@ -39,11 +39,17 @@ class DBbase(ABC):
         else:
             from tqdm import tqdm
 
-        sqlparse = SqlParse(sql)
-        sqls = [stmt.value.strip(' ;') for stmt in sqlparse.statements]
+        print(type(sql))
+        if isinstance(sql, str):
+            sqlstmts = SqlStatements(sql)
+        elif isinstance(sql, SqlStatement):
+            sqlstmts = SqlStatements.from_sqlstatements(sql)
+        else:
+            sqlstmts = sql
+        print(sqlstmts)
         bar_format = '{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
-        sqls = sqls if verbose <= 1 else tqdm(sqls, postfix=['START'], bar_format=bar_format)  # 如果verbose>=2则显示进度条
-        return sqls
+        sqlstmts = sqlstmts if verbose <= 1 else tqdm(sqlstmts, postfix=['START'], bar_format=bar_format)  # 如果verbose>=2则显示进度条
+        return sqlstmts
 
     def _execute_step(self, cursor, sql, ehandling='raise'):
         '''[summary]
@@ -118,21 +124,20 @@ class DBbase(ABC):
         results = None
         conn = self.get_conn()
         cursor = conn.cursor()
-        sqls = self.prepare_sql_statements(sql, verbose)
+        sqlstmts = self.prepare_sql_statements(sql, verbose)
         try: 
             with logging_redirect_tqdm():
-                for idx, _sql in enumerate(sqls):
-                    parser = SqlParse(_sql)
-                    comment, sql, action, tablename = parser.comment, parser.sql, parser.action, parser.tablename
+                for idx, stmt in enumerate(sqlstmts):
+                    comment, sql, action, tablename = stmt.comment, stmt.sql, stmt.action, stmt.tablename
                     if not sql:
                         # dblogger.info(f'【{idx:0>2d}_PROGRESS】 no run !!!\n{_sql}')
                         continue
 
                     step = f"【{idx:0>2d}_PROGRESS】({action}){tablename}::{comment}"
-                    self.handle_progress_logging(step, verbose, sqls)
+                    self.handle_progress_logging(step, verbose, sqlstmts)
                     self._execute_step(cursor, sql, ehandling=ehandling)
 
-                    if idx + 1 == len(sqls) or action in ['SELECT', 'WITH']:
+                    if idx + 1 == len(sqlstmts) or action in ['SELECT', 'WITH']:
                         results = self.fetch_query_results(action, cursor, count, verbose)
 
             conn.commit()

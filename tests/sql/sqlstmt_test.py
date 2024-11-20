@@ -2,13 +2,13 @@
 # @Author: longfengpili
 # @Date:   2024-11-19 14:22:01
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-20 10:40:27
+# @Last Modified time: 2024-11-20 17:33:59
 # @github: https://github.com/longfengpili
 
 
 import pytest
 
-from pydbapi.sql.parse_new import SqlStatement
+from pydbapi.sql.parse import SqlStatement
 
 
 class TestSqlStatement:
@@ -112,6 +112,7 @@ class TestSqlStatement:
     def test_combination_sqls(self):
         sqlstmt = SqlStatement(self.sql6)
         print(sqlstmt)
-        for idx, subquery in enumerate(sqlstmt.combination_sqls):
-            print(f"{idx}".center(50, '='))
-            print(subquery)
+        combination_sql = sqlstmt.get_combination_sql(2)
+        print(combination_sql)
+        print(combination_sql.sql)
+

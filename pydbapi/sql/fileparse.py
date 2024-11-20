@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-20 16:44:18
+# @Last Modified time: 2024-11-20 17:17:51
 # @github: https://github.com/longfengpili
 
 
@@ -12,7 +12,7 @@ from pathlib import Path
 from datetime import datetime, date, timedelta
 from typing import Any, Dict, List, Tuple
 
-from .parse import SqlParse
+from .parse import SqlStatements
 
 import logging
 sqllogger = logging.getLogger(__name__)
@@ -119,14 +119,14 @@ class SqlFileParse(object):
         return farguments
 
     def get_filesqls(self, **kwargs) -> Tuple[Dict[str, Any], Dict[str, str]]:
-        fsqls = {}
+        fsqlstatements = {}
         arguments_infile, sqls = self.parse_file()
         farguments = self.update_arguments(arguments_infile, **kwargs)
 
         filename = self.file.stem
         for idx, sql in enumerate(sqls):
             purpose = f"【{idx + 1:0>3d}】{filename}"
-            parsed = SqlParse(sql)
+            parsed = SqlStatements(sql)
             parsed = parsed.substitute_params(**farguments)
-            fsqls[purpose] = parsed
-        return farguments, fsqls
+            fsqlstatements[purpose] = parsed
+        return farguments, fsqlstatements

@@ -2,14 +2,14 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-20 11:57:35
+# @Last Modified time: 2024-11-20 17:12:59
 # @github: https://github.com/longfengpili
 
 
 import os
 
 import pytest
-from pydbapi.sql import SqlFileParse, SqlParse
+from pydbapi.sql import SqlFileParse, SqlStatements
 import pandas as pd
 
 files = os.listdir('./')
