@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-20 17:50:14
+# @Last Modified time: 2024-11-20 18:45:24
 # @github: https://github.com/longfengpili
 
 
@@ -39,14 +39,13 @@ class DBbase(ABC):
         else:
             from tqdm import tqdm
 
-        print(type(sql))
         if isinstance(sql, str):
             sqlstmts = SqlStatements(sql)
         elif isinstance(sql, SqlStatement):
             sqlstmts = SqlStatements.from_sqlstatements(sql)
         else:
             sqlstmts = sql
-        print(sqlstmts)
+
         bar_format = '{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
         sqlstmts = sqlstmts if verbose <= 1 else tqdm(sqlstmts, postfix=['START'], bar_format=bar_format)  # 如果verbose>=2则显示进度条
         return sqlstmts
