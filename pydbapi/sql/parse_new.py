@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-10-09 16:33:05
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-20 10:40:48
+# @Last Modified time: 2024-11-20 10:46:09
 # @github: https://github.com/longfengpili
 
 
@@ -166,10 +166,29 @@ class SqlStatement:
             selectsql = f'select * from {tablename} limit 10'
             # 组合前面的SQL
             sqlsnippets = ',\n'.join([subquery.value for subquery in subqueries[:idx+1]])
-            
+
             combined_sql = SqlStatement.from_sqlsnippets(comment, sqlsnippets, selectsql)
 
             combination_sqls.append(combined_sql)
         return combination_sqls
 
 
+class SqlParse:
+
+    def __init__(self, sql: str):
+        self.sql = sql
+        self._statements = None
+
+    @property
+    def statements(self) -> list[SqlStatement, ]:
+        if self._statements is None:
+            sqls = [sql.strip() for sql in self.sql.split(';')]
+            self._statements = [SqlStatement(sql) for sql in sqls if sql]
+            if len(self._statements) > 1:
+                sqllogger.warning(f'SQL has {len(self._statements)} statements ~')
+        return self._statements
+
+    def get_statement(self, idx: int = 0):
+        statements = self.statements
+        stmt = statements[idx]
+        return stmt
