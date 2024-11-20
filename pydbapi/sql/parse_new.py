@@ -2,14 +2,14 @@
 # @Author: longfengpili
 # @Date:   2024-10-09 16:33:05
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-19 15:55:17
+# @Last Modified time: 2024-11-20 10:40:48
 # @github: https://github.com/longfengpili
 
 
 import re
 
 import sqlparse
-from sqlparse.sql import Statement, Token, TokenList, Identifier, IdentifierList, Comment
+from sqlparse.sql import Token, TokenList, Identifier, IdentifierList, Comment
 from sqlparse.tokens import DML, DDL, CTE
 from sqlparse.tokens import Keyword, Newline, Punctuation
 
@@ -21,11 +21,21 @@ class SqlStatement:
 
     def __init__(self, sql: str):
         self._sql = sql
+        self._parsed = sqlparse.parse(self._sql)[0]
+
+    def __repr__(self):
+        _repr = f"[{self.action}]{self.tablename}"
+        _repr = f"{_repr}::{self.comment}" if self.comment else _repr
+        return _repr
+
+    @classmethod
+    def from_sqlsnippets(cls, *sqlsnippets: tuple[str, ]) -> 'SqlStatement':
+        sql = '\n'.join(sqlsnippets)
+        return cls(sql)
 
     @property
     def tokens(self):
-        sp = sqlparse.parse(self._sql)[0]
-        return sp.tokens
+        return self._parsed.tokens
 
     @property
     def sql(self):
@@ -42,15 +52,15 @@ class SqlStatement:
                 comment = re.search(r'^[-#]*(.*?)$', comment, re.S)
                 if comment:
                     comment = comment.group(1).strip()
+                    comment = comment.replace('\n', ' ')
                 return comment
-        return 'NoComment'
+        # return 'NoComment'
 
     @property
     def action(self):
         for token in self.tokens:
             if token.ttype in (DML, DDL, CTE):
-                return token.value
-        return 'NoAction'
+                return token.value.lower()
 
     @property
     def tablename(self):
@@ -69,11 +79,9 @@ class SqlStatement:
             else:
                 pass
 
-        return 'NoTablename'
-
     @property
     def params(self):
-        params = re.findall(r"\$(\w+)", self.sql)
+        params = re.findall(r"\$(\w+)", self._sql)
         return set(params)
 
     def substitute_params(self, **kwargs):
@@ -97,4 +105,71 @@ class SqlStatement:
             self._sql = re.sub(rf"\${key}", f"{value}", self._sql)
 
         return self
+
+    def get_subqueries(self, tokens: list[Token], 
+                       subtokens: list[Token] = None, 
+                       subqueries: list[TokenList, ] = None, 
+                       keep_last: bool = True) -> list[TokenList]:
+        def append_subquery(subtokens: list, subqueries: list):
+            _subqueries = subtokens.copy()  # subtokens会clear，所以需要复制到另外的变量
+            identifier = Identifier(_subqueries)
+            tokenfirst = identifier.token_first(skip_cm=True)
+            if tokenfirst:
+                subqueries.append(identifier)
+            subtokens.clear()
+
+        if subqueries is None:
+            subqueries = []
+        if subtokens is None:
+            subtokens = []
+        islast = False
+
+        for token in tokens:
+            # print(f"{type(token)}::{token.ttype}::{token.value}")  
+            if isinstance(token, Comment) or (token.ttype == Newline and not subtokens):
+                continue
+
+            if token.ttype in (DML, DDL, CTE):
+                append_subquery(subtokens, subqueries)
+                subtokens.append(token)
+                if token.value.lower() == 'select':
+                    islast = True
+            elif token.ttype == Punctuation and not islast:
+                append_subquery(subtokens, subqueries)
+            elif isinstance(token, Identifier):  # Identifier 也是 TokenList, 所有必须在下个判断之前
+                subtokens.append(token)
+            elif isinstance(token, (TokenList, IdentifierList)):
+                self.get_subqueries(token.tokens, subtokens, subqueries)
+            else:
+                subtokens.append(token)
+
+        if keep_last: 
+            append_subquery(subtokens, subqueries)
+
+        return subqueries
+
+    @property
+    def subqueries(self):
+        tokens = self.tokens
+        subqueries = self.get_subqueries(tokens, keep_last=False)
+        return subqueries
+
+    @property
+    def combination_sqls(self):
+        combination_sqls = []
+        subqueries = self.subqueries
+        for idx, identifier in enumerate(subqueries):
+            tablename = identifier.get_real_name()
+
+            # 生成注释内容和SELECT语句
+            comment = f"-- {tablename}_{idx + 1:03d}"
+            selectsql = f'select * from {tablename} limit 10'
+            # 组合前面的SQL
+            sqlsnippets = ',\n'.join([subquery.value for subquery in subqueries[:idx+1]])
+            
+            combined_sql = SqlStatement.from_sqlsnippets(comment, sqlsnippets, selectsql)
+
+            combination_sqls.append(combined_sql)
+        return combination_sqls
+
 
