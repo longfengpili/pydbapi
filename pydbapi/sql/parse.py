@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-10-09 16:33:05
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-20 10:46:09
+# @Last Modified time: 2024-11-20 16:45:15
 # @github: https://github.com/longfengpili
 
 
@@ -154,8 +154,7 @@ class SqlStatement:
         subqueries = self.get_subqueries(tokens, keep_last=False)
         return subqueries
 
-    @property
-    def combination_sqls(self):
+    def get_combination_sql(self, idx: int = 0):
         combination_sqls = []
         subqueries = self.subqueries
         for idx, identifier in enumerate(subqueries):
@@ -179,6 +178,12 @@ class SqlParse:
         self.sql = sql
         self._statements = None
 
+    def __str__(self):
+        return f"[Statement: {len(self._statements)}]{self._statements[0]}..."
+
+    def __repr__(self):
+        return f"[Statement: {len(self._statements)}]{self._statements[0]}..."
+
     @property
     def statements(self) -> list[SqlStatement, ]:
         if self._statements is None:
@@ -192,3 +197,13 @@ class SqlParse:
         statements = self.statements
         stmt = statements[idx]
         return stmt
+
+    def get_combination_sql(self, idx: int = 0):
+        stmt = self.get_statement()
+        combination_sql = stmt.combination_sqls[idx]
+        return combination_sql
+
+    def substitute_params(self, **kwargs):
+        stmts = self.statements
+        self._statements = [stmt.substitute_params(**kwargs) for stmt in stmts if stmt]
+        return self

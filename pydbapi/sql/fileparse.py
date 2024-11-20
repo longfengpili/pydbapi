@@ -2,12 +2,13 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-18 17:03:22
+# @Last Modified time: 2024-11-20 16:44:18
 # @github: https://github.com/longfengpili
 
 
 import re
 import os
+from pathlib import Path
 from datetime import datetime, date, timedelta
 from typing import Any, Dict, List, Tuple
 
@@ -19,14 +20,15 @@ sqllogger = logging.getLogger(__name__)
 
 class SqlFileParse(object):
 
-    def __init__(self, filepath):
-        self.filepath = filepath
+    def __init__(self, file: str):
+        self.file = Path(file)
 
     def get_content(self):
-        if not os.path.isfile(self.filepath):
-            raise Exception(f'File 【{self.filepath}】 not exists !')
+        file = self.file
+        if not file.exists():
+            raise Exception(f'File 【{file.stem}】 not exists !')
 
-        with open(self.filepath, 'r', encoding='utf-8') as f:
+        with open(self.file, 'r', encoding='utf-8') as f:
             content = f.read()
         return content
 
@@ -91,16 +93,16 @@ class SqlFileParse(object):
 
         '''
         # 获取文件名
-        filename = os.path.basename(self.filepath)
+        filename = self.file.stem
         
         # 过滤掉值为空的参数
         kwargs = {k: v for k, v in kwargs.items() if v}
         # 组合文件参数和传入参数
-        arguments_final = {**arguments_infile, **kwargs}
+        farguments = {**arguments_infile, **kwargs}
 
         # 记录最终参数的日志
-        if arguments_final:
-            arglog = f"【Final Arguments】【{filename}】 Use arguments {arguments_final}"
+        if farguments:
+            arglog = f"【Final Arguments】【{filename}】 Use arguments {farguments}"
         else:
             arglog = f"【Final Arguments】【{filename}】 no arguments !!!"
 
@@ -114,25 +116,17 @@ class SqlFileParse(object):
         
         sqllogger.warning(arglog)
 
-        return arguments_final
+        return farguments
 
-    def get_filesqls(self, with_test: bool = False, with_snum: int = 0, **kwargs: Any) -> Tuple[Dict[str, Any], Dict[str, str]]:
+    def get_filesqls(self, **kwargs) -> Tuple[Dict[str, Any], Dict[str, str]]:
         fsqls = {}
         arguments_infile, sqls = self.parse_file()
         farguments = self.update_arguments(arguments_infile, **kwargs)
 
+        filename = self.file.stem
         for idx, sql in enumerate(sqls):
-            sqlparser = SqlParse(sql)
-            purpose = f"【{idx + 1:0>3d}】{sqlparser.purpose}"
-            sql = sqlparser.substitute_parameters(**farguments)
-
-            if with_test:
-                # first_stmt = sqlparser.get_statement()
-                # subqueries = sqlparser.get_subqueries(first_stmt.tokens, keep_last=False)
-                combination_sqls = sqlparser.combination_sqls
-                # print(len(combination_sqls))
-                fsqls[f"{purpose}_{with_snum:03d}"] = combination_sqls[with_snum-1]
-            else:
-                fsqls[purpose] = sql
-
+            purpose = f"【{idx + 1:0>3d}】{filename}"
+            parsed = SqlParse(sql)
+            parsed = parsed.substitute_params(**farguments)
+            fsqls[purpose] = parsed
         return farguments, fsqls
