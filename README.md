@@ -319,11 +319,3 @@ sqlstmts = SqlStatements(sql)
 ## 支持的的settings[【conf/settings.py】](https://github.com/longfengpili/pydbapi/blob/master/pydbapi/conf/logconf.py)
 + AUTO_RULES  
     可以自动执行表名（表名包含即可）
-
-## 调用日志格式
-1. 查看每步sql可以使用如下日志格式（如果还出错，同时加上下面的内容）
-```python
-import logging
-dblogger = logging.getLogger('pydbapi.db.base')
-dblogger.setLevel(logging.DEBUG)
-```
