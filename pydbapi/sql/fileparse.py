@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-21 10:43:35
+# @Last Modified time: 2024-11-21 15:19:50
 # @github: https://github.com/longfengpili
 
 
@@ -119,14 +119,19 @@ class SqlFileParse(object):
 
         return farguments
 
-    def get_filesqls(self, **kwargs) -> Tuple[Dict[str, Any], Dict[str, str]]:
+    def get_filesqls(self, with_test: bool = False, with_snum: int = 1, **kwargs) -> Tuple[Dict[str, Any], Dict[str, str]]:
         fsqlstatements = {}
         arguments_infile, sqlstmtses = self.parse_file()
         farguments = self.update_arguments(arguments_infile, **kwargs)
 
         filename = self.file.stem
+        if with_test:
+            sqlstmtses = sqlstmtses[:1]
+
         for idx, sqlstmts in enumerate(sqlstmtses):
             purpose = f"【{idx + 1:0>3d}】{filename}"
             sqlstmts = sqlstmts.substitute_params(**farguments)
+            if with_test:
+                sqlstmts = sqlstmts.get_with_testsql(with_snum)
             fsqlstatements[purpose] = sqlstmts
         return farguments, fsqlstatements

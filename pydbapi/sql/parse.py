@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-10-09 16:33:05
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-21 11:39:19
+# @Last Modified time: 2024-11-21 15:19:31
 # @github: https://github.com/longfengpili
 
 
@@ -52,7 +52,13 @@ class SqlStatement:
 
     @property
     def sql(self):
-        sql = sqlparse.format(self._sql, keyword_case='lower', strip_comments=True, use_space_around_operators=True)
+        # keyword_case='lower'：将 SQL 关键字转为小写。
+        # strip_comments=True：去除所有注释。
+        # use_space_around_operators=True：在运算符周围加空格。
+        formatted_sql = sqlparse.format(self._sql, keyword_case='lower', strip_comments=True, use_space_around_operators=True)
+        # 手动移除空白行
+        non_blank_lines = [line for line in formatted_sql.splitlines() if line.strip() != '']
+        sql = '\n'.join(non_blank_lines)
         return sql.strip(';')
 
     @property
@@ -158,16 +164,18 @@ class SqlStatement:
         subqueries = self.get_subqueries(self.tokens, keep_last=False)
         return subqueries
 
-    def get_combination_sql(self, idx: int = 0):
+    def get_with_testsql(self, idx: int = 1):
         subqueries = self.subqueries
+        if not subqueries:
+            raise ValueError("No subqueries")
         last_subquery = subqueries[idx]
         tablename = last_subquery.get_real_name()
 
         # 生成注释内容和SELECT语句
-        comment = f"-- {tablename}_{idx + 1:03d}"
+        comment = f"-- {tablename}_{idx:03d}"
         selectsql = f'select * from {tablename} limit 10'
         # 组合前面的SQL
-        sqlsnippets = ',\n'.join([subquery.value for subquery in subqueries[:idx+1]])
+        sqlsnippets = ',\n'.join([subquery.value for subquery in subqueries[:idx]])
 
         return SqlStatement.from_sqlsnippets(comment, sqlsnippets, selectsql)
 
@@ -191,7 +199,15 @@ class SqlStatements:
         return len(self.statements)
 
     def __getitem__(self, index):
-        return self.statements[index]
+        if isinstance(index, slice):
+            # 返回新的 `SqlStatements` 包含切片结果
+            sliced_statements = self.statements[index]
+            sql_strings = ';\n'.join([stmt.sql for stmt in sliced_statements])
+            return SqlStatements(sql_strings)
+        elif isinstance(index, int):
+            return self.statements[index]
+        else:
+            raise TypeError("Invalid argument type.")
 
     def __add__(self, sqlstmt: str):
         if len(self) == 1:
@@ -207,7 +223,8 @@ class SqlStatements:
 
     def __getattr__(self, item: str):
         if len(self) == 1:
-            attribute = getattr(self.statements[0], item)
+            single_statement = self.statements[0]
+            attribute = getattr(single_statement, item)
             if callable(attribute):
                 def wrapped(*args, **kwargs):
                     return attribute(*args, **kwargs)
@@ -222,9 +239,6 @@ class SqlStatements:
             if len(self._statements) > 1:
                 sqllogger.warning(f'SQL has {len(self._statements)} statements ~')
         return self._statements
-
-    def get_combination_sql(self, idx: int = 0) -> SqlStatement:
-        return self.self.statements[0].combination_sqls[idx]
 
     def substitute_params(self, **kwargs):
         self._statements = [stmt.substitute_params(**kwargs) for stmt in self.statements if stmt]

@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-11-19 14:22:01
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-21 11:27:18
+# @Last Modified time: 2024-11-21 15:20:12
 # @github: https://github.com/longfengpili
 
 
@@ -109,10 +109,10 @@ class TestSqlStatement:
             print(type(subquery))
             print(subquery.get_real_name())
 
-    def test_combination_sqls(self):
+    def test_with_testsql(self):
         sqlstmt = SqlStatement(self.sql6)
         print(sqlstmt)
-        combination_sql = sqlstmt.get_combination_sql(2)
+        combination_sql = sqlstmt.get_with_testsql(2)
         print(combination_sql)
         print(combination_sql.sql)
 
@@ -122,4 +122,3 @@ class TestSqlStatement:
         print(f"{idx}".center(50, '='))
         sqlstmts = SqlStatements(sql)
         print(sqlstmts)
-

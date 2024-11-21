@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-20 17:12:59
+# @Last Modified time: 2024-11-21 15:15:09
 # @github: https://github.com/longfengpili
 
 
@@ -34,15 +34,16 @@ class TestSqlFileParse:
 
     def test_sqls(self):
         filepparser = SqlFileParse(self.filepath)
-        arguments, sqls = filepparser.get_filesqls(fpid='12551515, 44546456')
-        for sql in sqls:
+        arguments, stmts = filepparser.get_filesqls(fpid='12551515, 44546456')
+        for purporse, stmt in stmts.items():
             print('='*50)
-            print(sql)
-            print(sqls.get(sql))
+            print(purporse)
+            print(stmt)
 
     def test_withsql(self):
         filepparser = SqlFileParse(self.withfilepath)
-        arguments, sqls = filepparser.get_filesqls(with_test=True, with_snum=3)
-        for sql in sqls:
+        arguments, stmts = filepparser.get_filesqls(with_test=True, with_snum=2)
+        for purporse, stmt in stmts.items():
             print('='*50)
-            print(sql)
+            print(purporse)
+            print(stmt.sql)
