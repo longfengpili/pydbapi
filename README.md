@@ -98,32 +98,86 @@ result.to_csv(outfile)
         * get_column_by_name
             - `cols.get_column_by_name(name)`
             - 返回`ColumnModel`
-## SqlParse
+            
+## Sql
++ SqlStatement
 ```python
-from pydbapi.sql import SqlParse
--- 【purpose】
+from pydbapi.sql import SqlStatement
 -- comment
 sql = 'select * from tablename where part_date >= $part_date;'
-sqlparser = SqlParse(sql)
+sqlstmt = SqlStatement(sql)
 ```
 
 + **属性**  
 
-    - sql  
-    - split_sqls  
-    - purpose  
-    - action  
-    - comment  
-    - tablename  
-    - parameters  
-    - split_withsqls  
-    - combination_sqls  
+    - tokens  
+    - sql
+    - comment
+    - action
+    - tablename
+    - params
+    - subqueries
 
 + **方法**  
 
-    + substitute_parameters
+    + from_sqlsnippets
     ```python
-    sql = sqlparser.substitute_parameters(part_date='2024-01-01')
+    sstmt1 = '-- comment'
+    sqlstmt = SqlStatement.from_sqlsnippets(sstmt1, sql)
+    ```
+    + add
+    ```python
+    sstmt2 = 'and part_date <= $end_date'
+    sqlstmt += sstmt2
+    ```
+    + sub
+    ```python
+    sqlstmt -= sstmt2
+    ```
+    + substitute_params
+    ```python
+    sql = sqlstmt.substitute_params(part_date='2024-01-01')
+    ```
+    + get_with_testsql
+    ```python
+    sql = sqlstmt.get_with_testsql(idx=1)
+    ```
+
++ SqlStatements
+```python
+from pydbapi.sql import SqlStatements
+-- comment
+sql = '''
+    select * from tablename1 where part_date >= $part_date;
+    select * from tablename2 where part_date >= $part_date;
+'''
+sqlstmts = SqlStatements(sql)
+```
+
++ **属性**  
+
+    - statements  
+    - SqlStatement的属性
+
++ **方法**  
+
+    + SqlStatement
+    ```python
+    sqlstmts = sqlstmts.substitute_params(part_date='2024-01-01')
+    ```
+    + iter
+    ```python
+    for stmts in sqlstmts:
+        stmts
+    ```
+    - len
+    ```python
+    len(sqlstmts)
+    ```
+    - getitem
+    ```python
+    sqlstmts[0]
+    sqlstmts[:2]
     ```
 
 
