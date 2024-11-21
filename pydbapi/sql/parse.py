@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-10-09 16:33:05
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-21 10:07:06
+# @Last Modified time: 2024-11-21 10:32:27
 # @github: https://github.com/longfengpili
 
 
@@ -21,7 +21,7 @@ class SqlStatement:
 
     def __init__(self, sql: str):
         self._sql = sql.strip()
-        self._parsed = sqlparse.parse(self._sql)[0]
+        self._parsed = sqlparse.parse(sql)[0]
 
     def __repr__(self):
         _repr = f"[{self.action}]{self.tablename}"
