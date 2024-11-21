@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-20 17:17:51
+# @Last Modified time: 2024-11-21 10:43:35
 # @github: https://github.com/longfengpili
 
 
@@ -72,13 +72,14 @@ class SqlFileParse(object):
 
     def get_sqls_infile(self, content: str):
         sqls = re.findall(r'(?<!--)\s*###\s*\n(.*?)###', content, re.S)
-        return sqls
+        sqlstmtses = [SqlStatements(sql) for sql in sqls]
+        return sqlstmtses
 
     def parse_file(self):
         content = self.get_content()
         arguments = self.get_arguments_infile(content)
-        sqls = self.get_sqls_infile(content)
-        return arguments, sqls
+        sqlstmtses = self.get_sqls_infile(content)
+        return arguments, sqlstmtses
 
     def update_arguments(self, arguments_infile: Dict[str, Any], **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         '''[summary]
@@ -120,13 +121,12 @@ class SqlFileParse(object):
 
     def get_filesqls(self, **kwargs) -> Tuple[Dict[str, Any], Dict[str, str]]:
         fsqlstatements = {}
-        arguments_infile, sqls = self.parse_file()
+        arguments_infile, sqlstmtses = self.parse_file()
         farguments = self.update_arguments(arguments_infile, **kwargs)
 
         filename = self.file.stem
-        for idx, sql in enumerate(sqls):
+        for idx, sqlstmts in enumerate(sqlstmtses):
             purpose = f"【{idx + 1:0>3d}】{filename}"
-            parsed = SqlStatements(sql)
-            parsed = parsed.substitute_params(**farguments)
-            fsqlstatements[purpose] = parsed
+            sqlstmts = sqlstmts.substitute_params(**farguments)
+            fsqlstatements[purpose] = sqlstmts
         return farguments, fsqlstatements
