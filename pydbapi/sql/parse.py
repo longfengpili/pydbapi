@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-10-09 16:33:05
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-20 18:08:47
+# @Last Modified time: 2024-11-21 10:07:06
 # @github: https://github.com/longfengpili
 
 
@@ -20,7 +20,7 @@ sqllogger = logging.getLogger(__name__)
 class SqlStatement:
 
     def __init__(self, sql: str):
-        self._sql = sql
+        self._sql = sql.strip()
         self._parsed = sqlparse.parse(self._sql)[0]
 
     def __repr__(self):
@@ -43,7 +43,7 @@ class SqlStatement:
 
     @classmethod
     def from_sqlsnippets(cls, *sqlsnippets: tuple[str, ]) -> 'SqlStatement':
-        sql = '\n'.join(sqlsnippets)
+        sql = '\n'.join(map(str.strip, sqlsnippets))
         return cls(sql)
 
     @property
@@ -62,11 +62,8 @@ class SqlStatement:
                 continue
             if isinstance(token, Comment):
                 comment = token.value
-                comment = re.search(r'^[-#]*(.*?)$', comment, re.S)
-                if comment:
-                    comment = comment.group(1).strip()
-                    comment = comment.replace('\n', ' ')
-                return comment
+                comment = re.sub(r'^[-# \t]*', '', comment, flags=re.M).strip()
+                return comment.replace('\n', ' ')
         # return 'NoComment'
 
     @property
@@ -77,20 +74,15 @@ class SqlStatement:
 
     @property
     def tablename(self):
-        from_seen = True
+        from_seen = False
         for token in self.tokens:
             if from_seen and isinstance(token, Identifier):
-                tablename = token.value
-                if ' ' in tablename:
-                    tablename = token.get_real_name()
-                return tablename
+                return token.get_real_name() or token.value
             elif token.ttype in (DML, DDL, CTE):
                 if token.value.lower() == 'select':
                     from_seen = False
             elif token.ttype is Keyword and token.value.lower() in ('from', 'join', 'into'):
                 from_seen = True
-            else:
-                pass
 
     @property
     def params(self):
@@ -117,6 +109,7 @@ class SqlStatement:
         for key, value in kwargs.items():
             self._sql = re.sub(rf"\${key}", f"{value}", self._sql)
 
+        self._parsed = sqlparse.parse(self._sql)[0]  # Update parsed SQL
         return self
 
     def get_subqueries(self, tokens: list[Token], 
@@ -126,8 +119,7 @@ class SqlStatement:
         def append_subquery(subtokens: list, subqueries: list):
             _subqueries = subtokens.copy()  # subtokens会clear，所以需要复制到另外的变量
             identifier = Identifier(_subqueries)
-            tokenfirst = identifier.token_first(skip_cm=True)
-            if tokenfirst:
+            if identifier.token_first(skip_cm=True):
                 subqueries.append(identifier)
             subtokens.clear()
 
@@ -135,7 +127,6 @@ class SqlStatement:
             subqueries = []
         if subtokens is None:
             subtokens = []
-        islast = False
 
         for token in tokens:
             # print(f"{type(token)}::{token.ttype}::{token.value}")  
@@ -145,9 +136,7 @@ class SqlStatement:
             if token.ttype in (DML, DDL, CTE):
                 append_subquery(subtokens, subqueries)
                 subtokens.append(token)
-                if token.value.lower() == 'select':
-                    islast = True
-            elif token.ttype == Punctuation and not islast:
+            elif token.ttype == Punctuation:
                 append_subquery(subtokens, subqueries)
             elif isinstance(token, Identifier):  # Identifier 也是 TokenList, 所有必须在下个判断之前
                 subtokens.append(token)
@@ -163,8 +152,7 @@ class SqlStatement:
 
     @property
     def subqueries(self):
-        tokens = self.tokens
-        subqueries = self.get_subqueries(tokens, keep_last=False)
+        subqueries = self.get_subqueries(self.tokens, keep_last=False)
         return subqueries
 
     def get_combination_sql(self, idx: int = 0):
@@ -177,30 +165,30 @@ class SqlStatement:
         selectsql = f'select * from {tablename} limit 10'
         # 组合前面的SQL
         sqlsnippets = ',\n'.join([subquery.value for subquery in subqueries[:idx+1]])
-        combined_sql = SqlStatement.from_sqlsnippets(comment, sqlsnippets, selectsql)
 
-        return combined_sql
+        return SqlStatement.from_sqlsnippets(comment, sqlsnippets, selectsql)
 
 
 class SqlStatements:
 
     def __init__(self, sql: str):
-        self.sql = sql
+        self.sql = sql.strip()
         self._statements = None
 
     def __str__(self):
-        statements = self.statements
-        return f"[Statement: {len(statements)}]{statements[0]}..."
+        return f"[Statement: {len(self)}]{self[0]}..."
 
     def __repr__(self):
-        statements = self.statements
-        return f"[Statement: {len(statements)}]{statements[0]}..."
+        return self.__str__()
 
     def __iter__(self):
         return iter(self.statements)
 
     def __len__(self):
         return len(self.statements)
+
+    def __getitem__(self, index):
+        return self.statements[index]
 
     @classmethod
     def from_sqlstatements(cls, *statements):
@@ -211,23 +199,19 @@ class SqlStatements:
     @property
     def statements(self) -> list[SqlStatement, ]:
         if self._statements is None:
-            sqls = [sql.strip() for sql in self.sql.split(';')]
-            self._statements = [SqlStatement(sql) for sql in sqls if sql]
+            self._statements = [SqlStatement(sql) for sql in self.sql.split(';') if sql.strip()]
             if len(self._statements) > 1:
                 sqllogger.warning(f'SQL has {len(self._statements)} statements ~')
         return self._statements
 
-    def get_statement(self, idx: int = 0):
+    def get_statement(self, idx: int = 0) -> SqlStatement:
         statements = self.statements
         stmt = statements[idx]
         return stmt
 
-    def get_combination_sql(self, idx: int = 0):
-        stmt = self.get_statement()
-        combination_sql = stmt.combination_sqls[idx]
-        return combination_sql
+    def get_combination_sql(self, idx: int = 0) -> SqlStatement:
+        return self.get_statement().combination_sqls[idx]
 
     def substitute_params(self, **kwargs):
-        stmts = self.statements
-        self._statements = [stmt.substitute_params(**kwargs) for stmt in stmts if stmt]
+        self._statements = [stmt.substitute_params(**kwargs) for stmt in self.statements if stmt]
         return self
