@@ -2,13 +2,13 @@
 # @Author: longfengpili
 # @Date:   2024-11-19 14:22:01
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-20 17:33:59
+# @Last Modified time: 2024-11-21 11:27:18
 # @github: https://github.com/longfengpili
 
 
 import pytest
 
-from pydbapi.sql.parse import SqlStatement
+from pydbapi.sql.parse import SqlStatement, SqlStatements
 
 
 class TestSqlStatement:
@@ -115,4 +115,11 @@ class TestSqlStatement:
         combination_sql = sqlstmt.get_combination_sql(2)
         print(combination_sql)
         print(combination_sql.sql)
+
+    @pytest.mark.parametrize("idx", [0, 1, 2, 3, 4])
+    def test_stmts_attributes(self, idx: int):
+        sql = self.sqls[idx]
+        print(f"{idx}".center(50, '='))
+        sqlstmts = SqlStatements(sql)
+        print(sqlstmts)
 

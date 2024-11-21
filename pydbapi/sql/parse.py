@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-10-09 16:33:05
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-21 11:31:51
+# @Last Modified time: 2024-11-21 11:39:19
 # @github: https://github.com/longfengpili
 
 
@@ -53,7 +53,7 @@ class SqlStatement:
     @property
     def sql(self):
         sql = sqlparse.format(self._sql, keyword_case='lower', strip_comments=True, use_space_around_operators=True)
-        return sql.strip()
+        return sql.strip(';')
 
     @property
     def comment(self):

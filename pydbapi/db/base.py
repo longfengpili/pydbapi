@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-20 18:45:24
+# @Last Modified time: 2024-11-21 11:35:50
 # @github: https://github.com/longfengpili
 
 
@@ -33,18 +33,18 @@ class DBbase(ABC):
     def get_conn(self):
         pass
 
-    def prepare_sql_statements(self, sql, verbose):
+    def prepare_sql_statements(self, sqlstmts, verbose):
         if any("jupyter" in arg for arg in sys.argv):
             from tqdm.notebook import tqdm
         else:
             from tqdm import tqdm
 
-        if isinstance(sql, str):
-            sqlstmts = SqlStatements(sql)
-        elif isinstance(sql, SqlStatement):
-            sqlstmts = SqlStatements.from_sqlstatements(sql)
+        if isinstance(sqlstmts, str):
+            sqlstmts = SqlStatements(sqlstmts)
+        elif isinstance(sqlstmts, SqlStatements):
+            sqlstmts = sqlstmts
         else:
-            sqlstmts = sql
+            raise TypeError("sqlstmts must be a string or an instance of SqlStatements")
 
         bar_format = '{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
         sqlstmts = sqlstmts if verbose <= 1 else tqdm(sqlstmts, postfix=['START'], bar_format=bar_format)  # 如果verbose>=2则显示进度条
@@ -93,21 +93,21 @@ class DBbase(ABC):
 
         return results
 
-    def handle_progress_logging(self, step, verbose, sqls):
+    def handle_progress_logging(self, step, verbose, sqlstmts):
         if verbose == 1:
             dblogger.info(step)
         elif verbose >= 2:
-            sqls.postfix[0] = step
+            sqlstmts.postfix[0] = step
             if verbose >= 3:
                 dblogger.info(step)
 
-    def execute(self, sql, count=None, ehandling='raise', verbose=0):
+    def execute(self, sqlstmts: any([str, SqlStatements]), count: int = None, ehandling: str = 'raise', verbose: int = 0):
         '''[summary]
 
         [description]
             执行sql
         Arguments:
-            sql {[str]} -- [sql]
+            sqlstmt {[str, SqlStatements]} -- [sql]
 
         Keyword Arguments:
             count {[int]} -- [返回的结果数量] (default: {None})
@@ -123,7 +123,7 @@ class DBbase(ABC):
         results = None
         conn = self.get_conn()
         cursor = conn.cursor()
-        sqlstmts = self.prepare_sql_statements(sql, verbose)
+        sqlstmts = self.prepare_sql_statements(sqlstmts, verbose)
         try: 
             with logging_redirect_tqdm():
                 for idx, stmt in enumerate(sqlstmts):
