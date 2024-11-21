@@ -103,7 +103,6 @@ result.to_csv(outfile)
 + SqlStatement
 ```python
 from pydbapi.sql import SqlStatement
--- comment
 sql = 'select * from tablename where part_date >= $part_date;'
 sqlstmt = SqlStatement(sql)
 ```
@@ -136,17 +135,16 @@ sqlstmt = SqlStatement(sql)
     ```
     + substitute_params
     ```python
-    sql = sqlstmt.substitute_params(part_date='2024-01-01')
+    sqlstmt = sqlstmt.substitute_params(part_date="'2024-01-01'")
     ```
-    + get_with_testsql
+    + get_with_testsql(only support CETs)
     ```python
-    sql = sqlstmt.get_with_testsql(idx=1)
+    sqlstmt = sqlstmt.get_with_testsql(idx=1)
     ```
 
 + SqlStatements
 ```python
 from pydbapi.sql import SqlStatements
--- comment
 sql = '''
     select * from tablename1 where part_date >= $part_date;
     select * from tablename2 where part_date >= $part_date;
@@ -323,7 +321,7 @@ sqlstmts = SqlStatements(sql)
     可以自动执行表名（表名包含即可）
 
 ## 调用日志格式
-1. 查看每步sql可以使用如下日志格式（如果还出错，同时加上上面的内容）
+1. 查看每步sql可以使用如下日志格式（如果还出错，同时加上下面的内容）
 ```python
 import logging
 dblogger = logging.getLogger('pydbapi.db.base')

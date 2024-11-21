@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-10-09 16:33:05
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-21 15:19:31
+# @Last Modified time: 2024-11-21 15:57:35
 # @github: https://github.com/longfengpili
 
 
@@ -24,9 +24,9 @@ class SqlStatement:
         self._parsed = sqlparse.parse(sql)[0]
 
     def __repr__(self):
-        _repr = f"[{self.action}]{self.tablename}"
+        _repr = f"<{self.action}>{self.tablename}"
         _repr = f"{_repr}::{self.comment}" if self.comment else _repr
-        return _repr
+        return f"SqlStatement({_repr})"
 
     def __sub__(self, sqlstmt: str):
         self._sql = self._sql.strip(';')
@@ -57,7 +57,7 @@ class SqlStatement:
         # use_space_around_operators=True：在运算符周围加空格。
         formatted_sql = sqlparse.format(self._sql, keyword_case='lower', strip_comments=True, use_space_around_operators=True)
         # 手动移除空白行
-        non_blank_lines = [line for line in formatted_sql.splitlines() if line.strip() != '']
+        non_blank_lines = [line.strip() for line in formatted_sql.splitlines() if line.strip() != '']
         sql = '\n'.join(non_blank_lines)
         return sql.strip(';')
 
@@ -166,6 +166,8 @@ class SqlStatement:
 
     def get_with_testsql(self, idx: int = 1):
         subqueries = self.subqueries
+        if self.action != 'with':
+            raise ValueError('The function only support CTEs')
         if not subqueries:
             raise ValueError("No subqueries")
         last_subquery = subqueries[idx]
@@ -187,7 +189,7 @@ class SqlStatements:
         self._statements = None
 
     def __str__(self):
-        return f"[Statement: {len(self)}]{self[0]}..."
+        return f"SqlStatements([stmt:{len(self)}]{self[0]}, ...)"
 
     def __repr__(self):
         return self.__str__()
