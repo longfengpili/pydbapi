@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-10-09 16:33:05
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-21 10:32:27
+# @Last Modified time: 2024-11-21 11:31:51
 # @github: https://github.com/longfengpili
 
 
@@ -74,10 +74,13 @@ class SqlStatement:
 
     @property
     def tablename(self):
-        from_seen = False
+        from_seen = True
         for token in self.tokens:
             if from_seen and isinstance(token, Identifier):
-                return token.get_real_name() or token.value
+                tablename = token.value
+                if ' ' in tablename:
+                    tablename = token.get_real_name()
+                return tablename
             elif token.ttype in (DML, DDL, CTE):
                 if token.value.lower() == 'select':
                     from_seen = False
@@ -190,11 +193,27 @@ class SqlStatements:
     def __getitem__(self, index):
         return self.statements[index]
 
-    @classmethod
-    def from_sqlstatements(cls, *statements):
-        sqls = [stmt._sql for stmt in statements]
-        sql = ';'.join(sqls)
-        return cls(sql)
+    def __add__(self, sqlstmt: str):
+        if len(self) == 1:
+            self.statements[0] += sqlstmt
+            return self
+        raise Exception("'SqlStatements' object cannot perform add with multiple statements.")
+
+    def __sub__(self, sqlstmt: str):
+        if len(self) == 1:
+            self.statements[0] -= sqlstmt
+            return self
+        raise Exception("'SqlStatements' object cannot perform sub with multiple statements.")
+
+    def __getattr__(self, item: str):
+        if len(self) == 1:
+            attribute = getattr(self.statements[0], item)
+            if callable(attribute):
+                def wrapped(*args, **kwargs):
+                    return attribute(*args, **kwargs)
+                return wrapped
+            return attribute
+        raise AttributeError(f"'SqlStatements' object has no attribute '{item}'")
 
     @property
     def statements(self) -> list[SqlStatement, ]:
@@ -204,13 +223,8 @@ class SqlStatements:
                 sqllogger.warning(f'SQL has {len(self._statements)} statements ~')
         return self._statements
 
-    def get_statement(self, idx: int = 0) -> SqlStatement:
-        statements = self.statements
-        stmt = statements[idx]
-        return stmt
-
     def get_combination_sql(self, idx: int = 0) -> SqlStatement:
-        return self.get_statement().combination_sqls[idx]
+        return self.self.statements[0].combination_sqls[idx]
 
     def substitute_params(self, **kwargs):
         self._statements = [stmt.substitute_params(**kwargs) for stmt in self.statements if stmt]
