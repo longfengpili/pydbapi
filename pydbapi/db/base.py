@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-21 11:35:50
+# @Last Modified time: 2024-12-26 17:02:17
 # @github: https://github.com/longfengpili
 
 
@@ -66,8 +66,11 @@ class DBbase(ABC):
         try:
             cursor.execute(sql)
         except Exception as e:
+            error = f"【Error】:{e}【Sql】:{sql}"
             if ehandling == 'raise':
-                raise ValueError(f"【Error】:{e}【Sql】:{sql}")
+                raise ValueError(error)
+            else:
+                dblogger.error(error)
 
     def cur_results(self, cursor, count):
         results = cursor.fetchmany(count) if count else cursor.fetchall()
@@ -191,8 +194,8 @@ class DBMixin(DBbase):
         dblogger.info(f'【{action}】{tablename} delete {cursor.rowcount} rows succeed !')
         return cursor, action, result
 
-    def insert(self, tablename, columns, inserttype='value', values=None, chunksize=1000, 
-               fromtable=None, condition=None, verbose=0):
+    def insert(self, tablename, columns, inserttype: str = 'value', values: list = None, chunksize: int = 1000, 
+               fromtable: str = None, condition: str = None, ehandling: str = 'raise', verbose: int = 0):
         if values:
             vlength = len(values)
 
@@ -201,7 +204,7 @@ class DBMixin(DBbase):
         sqlcompile = SqlCompile(tablename)
         sql_for_insert = sqlcompile.insert(columns, inserttype=inserttype, values=values,
                                            chunksize=chunksize, fromtable=fromtable, condition=condition)
-        cursor, action, result = self.execute(sql_for_insert, verbose=verbose)
+        cursor, action, result = self.execute(sql_for_insert, ehandling=ehandling, verbose=verbose)
 
         rows = cursor.rowcount
         if values and rows != (vlength % chunksize or chunksize):
