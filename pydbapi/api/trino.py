@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-20 18:40:50
+# @Last Modified time: 2024-12-27 10:14:43
 # @github: https://github.com/longfengpili
 
 
@@ -168,8 +168,8 @@ class TrinoDB(DBMixin, DBFileExec):
         cursor, action, result = self.execute(sql_for_create, verbose=verbose)
         return cursor, action, result
 
-    def insert(self, tablename, columns, inserttype='value', values=None, chunksize=1000, 
-               fromtable=None, condition=None, verbose=0):
+    def insert(self, tablename, columns, inserttype: str = 'value', values: list = None, chunksize: int = 1000, 
+               fromtable: str = None, condition: str = None, ehandling: str = 'raise', verbose: int = 0):
         if values:
             vlength = len(values)
 
@@ -177,7 +177,7 @@ class TrinoDB(DBMixin, DBFileExec):
             sqlcompile = SqlCompile(tablename)
             sql_for_insert = sqlcompile.insert(columns, inserttype=inserttype, values=values,
                                                chunksize=chunksize, fromtable=fromtable, condition=condition)
-            cursor, action, result = self.execute(sql_for_insert, verbose=verbose)
+            cursor, action, result = self.execute(sql_for_insert, ehandling=ehandling, verbose=verbose)
 
             rows = cursor.rowcount
             rows = vlength if values else rows
