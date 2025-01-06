@@ -24,7 +24,7 @@ class TestTrino:
 
     def setup_method(self, method):
         self.trinodb = TrinoDB(TRINO_HOST, TRINO_USER, TRINO_PASSWORD, TRINO_DATABASE, safe_rule=False)
-        self.tablename = 'warship_jp_w.test_friut_xu'
+        self.tablename = 'alert_data.test_friut_xu'
         self.id = ColumnModel('id', 'varchar')
         self.name = ColumnModel('name', 'varchar(1024)')
         self.address = ColumnModel('address', 'varchar(1024)')
