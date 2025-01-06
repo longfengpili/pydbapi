@@ -10,6 +10,7 @@ import re
 import sys
 import time
 from datetime import date
+from typing import Union
 
 from abc import ABC, abstractmethod
 
@@ -104,23 +105,20 @@ class DBbase(ABC):
             if verbose >= 3:
                 dblogger.info(step)
 
-    def execute(self, sqlstmts: any([str, SqlStatements]), count: int = None, ehandling: str = 'raise', verbose: int = 0):
-        '''[summary]
+    def execute(self, sqlstmts: Union[str, SqlStatements], count: int = None, ehandling: str = 'raise', verbose: int = 0) -> tuple:
+        '''执行 SQL 语句并返回结果clear
 
-        [description]
-            执行sql
         Arguments:
-            sqlstmt {[str, SqlStatements]} -- [sql]
-
-        Keyword Arguments:
-            count {[int]} -- [返回的结果数量] (default: {None})
-            ehandling {[str]} -- [错误处理] （raise: 错误弹出异常）
-            verbose {[int]} -- [打印进程状态] （0：不打印， 1：文字进度， 2：进度条）
+            sqlstmts (Union[str, SqlStatements]): 要执行的 SQL 语句
+            count (int, optional): 返回的结果数量 (default: None)
+            ehandling (str, optional): 错误处理方式 ('raise': 抛出异常) (default: 'raise')
+            verbose (int, optional): 进程状态打印级别 (0: 不打印, 1: 打印进度信息, 2: 显示进度条)
 
         Returns:
-            cursor {[cursor]} -- [游标，可以返回游标的各种信息]
-            action {[str]} -- [方法]
-            results {[ResModel]} -- [返回的结果]
+            tuple: (cursor, action, results) 
+                cursor: 游标对象, 可以获取游标的各种信息
+                action: 执行的操作类型
+                results: 查询返回的结果
         '''
         
         results = None
