@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2023-06-02 15:27:41
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-20 17:29:02
+# @Last Modified time: 2025-01-15 13:58:58
 # @github: https://github.com/longfengpili
 
 
@@ -23,8 +23,8 @@ class DBFileExec(DBbase):
 
     def get_filesqls(self, filepath, **kw):
         sqlfileparser = SqlFileParse(filepath)
-        arguments, sqls = sqlfileparser.get_filesqls(**kw)
-        return arguments, sqls
+        arguments, sqlstatementses = sqlfileparser.get_filesqls(**kw)
+        return arguments, sqlstatementses
 
     def file_exec(self, filepath: str, ehandling: str = None, verbose: int = 0, 
                   with_test: bool = False, with_snum: int = 0, **kw):

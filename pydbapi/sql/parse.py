@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-10-09 16:33:05
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2024-11-21 15:57:35
+# @Last Modified time: 2025-01-15 14:11:33
 # @github: https://github.com/longfengpili
 
 
@@ -185,7 +185,7 @@ class SqlStatement:
 class SqlStatements:
 
     def __init__(self, sql: str):
-        self.sql = sql.strip()
+        self._sql = sql.strip()
         self._statements = None
 
     def __str__(self):
@@ -237,7 +237,7 @@ class SqlStatements:
     @property
     def statements(self) -> list[SqlStatement, ]:
         if self._statements is None:
-            self._statements = [SqlStatement(sql) for sql in self.sql.split(';') if sql.strip()]
+            self._statements = [SqlStatement(sql) for sql in self._sql.split(';') if sql.strip()]
             if len(self._statements) > 1:
                 sqllogger.warning(f'SQL has {len(self._statements)} statements ~')
         return self._statements
