@@ -2,7 +2,7 @@
 # @Author: longfengpili
 # @Date:   2024-10-09 16:33:05
 # @Last Modified by:   longfengpili
-# @Last Modified time: 2025-01-15 14:11:33
+# @Last Modified time: 2025-03-21 18:29:16
 # @github: https://github.com/longfengpili
 
 
@@ -95,7 +95,7 @@ class SqlStatement:
 
     @property
     def params(self):
-        params = re.findall(r"\$(\w+)", self._sql)
+        params = re.findall(r"\$(\w+)", self.sql)
         return set(params)
 
     def substitute_params(self, **kwargs):
