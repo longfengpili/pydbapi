@@ -14,6 +14,12 @@ logging.config.dictConfig(LOGGING_CONFIG)
 
 os.environ['NUMEXPR_MAX_THREADS'] = '16'
 
+
+def load_ipython_extension(ipython):
+    """Expose the extension entry point used by ``%load_ext pydbapi``."""
+    from pydbapi.api.pydbapimagic import load_ipython_extension as load_extension
+    load_extension(ipython)
+
 # from pydbapi.api import SqliteDB, RedshiftDB, MysqlDB, SnowflakeDB
 # from pydbapi.sql import SqlParse, SqlCompile, SqlFileParse, ColumnModel, ColumnsModel
 

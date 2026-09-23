@@ -6,8 +6,9 @@
 # @github: https://github.com/longfengpili
 
 
-import re
+import inspect
 import sys
+import threading
 import time
 from datetime import date
 from typing import Union
@@ -29,6 +30,26 @@ class DBbase(ABC):
 
     def __init__(self, *args, **kwargs):
         self.dbtype = None
+        self._conn = None
+        self._conn_lock = threading.Lock()
+
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        """Reuse one instance per class; never silently ignore new configuration."""
+        with cls._instance_lock:
+            instance = cls.__dict__.get('_instance')
+            if instance is not None and not args and not kwargs:
+                return instance
+            config = inspect.signature(cls).bind(*args, **kwargs)
+            config.apply_defaults()
+            if instance is None:
+                instance = cls(*args, **kwargs)
+                instance._instance_config = config.arguments
+                cls._instance = instance
+            elif config.arguments != instance._instance_config:
+                raise ValueError('get_instance configuration differs from the existing instance; '
+                                 'construct a separate database instance instead.')
+            return instance
 
     @abstractmethod
     def get_conn(self):
@@ -63,7 +84,6 @@ class DBbase(ABC):
         Raises:
             ValueError -- [sql执行错误原因及SQL]
         '''
-        sql = re.sub(r'\s{2,}', '\n', sql)
         try:
             cursor.execute(sql)
         except Exception as e:
@@ -129,6 +149,8 @@ class DBbase(ABC):
             with logging_redirect_tqdm():
                 for idx, stmt in enumerate(sqlstmts):
                     comment, sql, action, tablename = stmt.comment, stmt.sql, stmt.action, stmt.tablename
+                    if self.dbtype == 'trino':
+                        sql = stmt.sql_without_terminator
                     if not sql:
                         # dblogger.info(f'【{idx:0>2d}_PROGRESS】 no run !!!\n{_sql}')
                         continue

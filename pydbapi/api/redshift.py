@@ -55,31 +55,14 @@ class RedshiftDB(DBMixin, DBFileExec):
         self.auto_rules = AUTO_RULES if safe_rule else None
         self.dbtype = 'redshift'
 
-    # def __new__(cls, *args, **kwargs):
-    #     if not hasattr(RedshiftDB, '_instance'):
-    #         with RedshiftDB._instance_lock:
-    #             if not hasattr(RedshiftDB, '_instance'):
-    #                 RedshiftDB._instance = super().__new__(cls)
-
-    #     return RedshiftDB._instance
-
-    @classmethod
-    def get_instance(cls, *args, **kwargs):
-        if not hasattr(RedshiftDB, '_instance'):
-            with RedshiftDB._instance_lock:
-                if not hasattr(RedshiftDB, '_instance'):
-                    RedshiftDB._instance = cls(*args, **kwargs)
-
-        return RedshiftDB._instance
-
     def get_conn(self):
-        if not hasattr(RedshiftDB, '_conn'):
-            with RedshiftDB._instance_lock:
-                if not hasattr(RedshiftDB, '_conn'):
+        if self._conn is None:
+            with self._conn_lock:
+                if self._conn is None:
                     conn = psycopg2.connect(database=self.database, user=self.user, password=self.password, host=self.host, port=self.port)
                     redlogger.info(f'connect {self.__class__.__name__}({self.user}@{self.host}:{self.port}/{self.database})')
-                    RedshiftDB._conn = conn
-        return RedshiftDB._conn
+                    self._conn = conn
+        return self._conn
 
     def create(self, tablename, columns, indexes=None, verbose=0):
         # tablename = f"{self.database}.{tablename}"
@@ -87,3 +70,6 @@ class RedshiftDB(DBMixin, DBFileExec):
         sql_for_create = sqlcompile.create(columns, indexes)
         cursor, action, result = self.execute(sql_for_create, verbose=verbose)
         return cursor, action, result
+
+    def cur_columns(self, cursor):
+        return super().cur_columns(cursor)

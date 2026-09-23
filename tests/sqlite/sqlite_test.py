@@ -20,8 +20,9 @@ import pandas as pd
 
 class TestSqlite:
 
-    def setup_method(self, method):
-        self.sqlite = SqliteDB()
+    @pytest.fixture(autouse=True)
+    def setup_database(self, tmp_path):
+        self.sqlite = SqliteDB(database=str(tmp_path / 'test.db'))
         self.tablename = 'test_xu'
         self.id = ColumnModel('id', 'varchar')
         self.name = ColumnModel('name', 'varchar')
@@ -29,9 +30,9 @@ class TestSqlite:
         self.birthday = ColumnModel('birthday', 'varchar')
         self.score = ColumnModel('score', 'varchar(1024)')
         self.columns = ColumnsModel(self.id, self.name, self.address, self.birthday, self.score)
-
-    def teardown_method(self, method):
-        pass
+        self.sqlite.create(self.tablename, self.columns)
+        yield
+        self.sqlite.get_conn().close()
 
     # @pytest.mark.skip()
     def test_get_conn(self):
@@ -106,7 +107,7 @@ class TestSqlite:
         #     print(f"【{i}】: {result}")
 
     def test_verbose(self):
-        sqlite = SqliteDB(database=None)
+        sqlite = self.sqlite
         sql = 'select * from test_xu;'
         sqlite.execute(sql, verbose=0)
         # sqlite.execute(sql, verbose=1)

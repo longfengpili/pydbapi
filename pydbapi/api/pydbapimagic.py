@@ -72,12 +72,14 @@ class PydbapiMagics(Magics):
     @default('port')
     def _default_port(self):
         dbtype = self.dbtype
-        if dbtype == 'mysql':
+        if dbtype in ('mysql', 'doris'):
             port = 3306
         elif dbtype == 'trino':
             port = 8443
+        elif dbtype == 'redshift':
+            port = 5439
         else:
-            port = None
+            port = 0
         return port
 
     user = Unicode(allow_none=False, 
@@ -102,6 +104,17 @@ class PydbapiMagics(Magics):
 
     def __init__(self, shell: InteractiveShell = None):
         super(PydbapiMagics, self).__init__(shell)
+        self._database_api = None
+        self._database_config = None
+
+    def _get_database_api(self, cls, **config):
+        key = (cls, config)
+        if self._database_config != key:
+            if self._database_api is not None and self._database_api._conn is not None:
+                self._database_api._conn.close()
+            self._database_api = cls(**config)
+            self._database_config = key
+        return self._database_api
 
     @property
     def dbapi(self):
@@ -109,6 +122,8 @@ class PydbapiMagics(Magics):
             self.dbtype = input('please input your dbtype:')
             if self.dbtype not in ('sqlite', 'mysql', 'doris', 'redshift', 'trino'):
                 raise TypeError(f"not supported {self.dbtype}")
+        if self.dbtype == 'sqlite':
+            return self._get_database_api(SqliteDB, database=self.database or None, safe_rule=self.auto_rule)
         if not self.host:
             self.host = input('please input your host:')
         if not self.port:
@@ -122,20 +137,15 @@ class PydbapiMagics(Magics):
             self.database = input('please input your database:')
 
         dbtype = self.dbtype
-        if dbtype == 'sqlite':
-            dbapi = SqliteDB(self.database)
-        elif dbtype == 'mysql':
-            dbapi = MysqlDB(self.host, self.user, self.password, self.database, self.port, safe_rule=self.auto_rule)
-        elif dbtype == 'doris':
-            dbapi = MysqlDB(self.host, self.user, self.password, self.database, self.port, safe_rule=self.auto_rule, isdoris=True)
-        elif dbtype == 'redshift':
-            dbapi = RedshiftDB(self.host, self.user, self.password, self.database, self.port, safe_rule=self.auto_rule)
-        elif dbtype == 'trino':
-            dbapi = TrinoDB(self.host, self.user, self.password, self.database, self.catalog, self.port, safe_rule=self.auto_rule)
-        else:
-            pass
-
-        return dbapi
+        config = dict(host=self.host, user=self.user, password=self.password,
+                      database=self.database, port=self.port, safe_rule=self.auto_rule)
+        if dbtype in ('mysql', 'doris'):
+            return self._get_database_api(MysqlDB, isdoris=dbtype == 'doris', **config)
+        if dbtype == 'redshift':
+            return self._get_database_api(RedshiftDB, **config)
+        if dbtype == 'trino':
+            return self._get_database_api(TrinoDB, catalog=self.catalog, **config)
+        raise TypeError(f'not supported {dbtype}')
 
     @magic_arguments()
     @argument('--verbose', '-v', default=0, type=int, help="Whether to show verbose")
@@ -157,7 +167,7 @@ class PydbapiMagics(Magics):
         args = parse_argstring(self.pydbapi, line)
         number, verbose, dataname = args.number, args.verbose, args.dataname
         
-        cursor, action, results = self.dbapi.execute(sql=cell, count=number, verbose=verbose)
+        cursor, action, results = self.dbapi.execute(sqlstmts=cell, count=number, verbose=verbose)
         data = results.to_dataframe()
         self.shell.user_ns[dataname] = data
 

@@ -11,7 +11,7 @@ import re
 import sqlparse
 from sqlparse.sql import Token, TokenList, Identifier, IdentifierList, Comment
 from sqlparse.tokens import DML, DDL, CTE
-from sqlparse.tokens import Keyword, Newline, Punctuation
+from sqlparse.tokens import Keyword, Newline, Punctuation, Comment as CommentToken
 
 import logging
 sqllogger = logging.getLogger(__name__)
@@ -52,6 +52,18 @@ class SqlStatement:
 
     @property
     def sql(self):
+        """SQL for execution, preserving comments and string literals."""
+        return self._sql
+
+    @property
+    def sql_without_terminator(self):
+        """Omit top-level statement delimiters for drivers such as Trino."""
+        return ''.join(token.value for token in self.tokens
+                       if not token.match(Punctuation, ';')).strip()
+
+    @property
+    def formatted_sql(self):
+        """Formatted SQL for display only; never used by the execution path."""
         # keyword_case='lower'：将 SQL 关键字转为小写。
         # strip_comments=True：去除所有注释。
         # use_space_around_operators=True：在运算符周围加空格。
@@ -95,7 +107,7 @@ class SqlStatement:
 
     @property
     def params(self):
-        params = re.findall(r"\$(\w+)", self.sql)
+        params = re.findall(r"\$(\w+)", self.formatted_sql)
         return set(params)
 
     def substitute_params(self, **kwargs):
@@ -165,21 +177,48 @@ class SqlStatement:
         return subqueries
 
     def get_with_testsql(self, idx: int = 1):
-        subqueries = self.subqueries
+        """Select up to ten rows from the one-based CTE index, including dependencies."""
         if self.action != 'with':
             raise ValueError('The function only support CTEs')
-        if not subqueries:
-            raise ValueError("No subqueries")
-        last_subquery = subqueries[idx]
-        tablename = last_subquery.get_real_name()
+        # Flatten grouping only; quoted literals remain atomic tokens. This also
+        # handles valid CTE names that sqlparse classifies as keywords.
+        tokens = list(self._parsed.flatten())
+        significant = [(i, token) for i, token in enumerate(tokens)
+                       if not token.is_whitespace and token.ttype not in CommentToken]
+        position = 1  # WITH
+        if position < len(significant) and significant[position][1].normalized == 'RECURSIVE':
+            position += 1
+        ctes = []
+        while position < len(significant):
+            name = significant[position][1].value
+            position += 1
+            depth, seen_as, body_started = 0, False, False
+            while position < len(significant):
+                raw_index, token = significant[position]
+                position += 1
+                if token.match(Keyword, 'AS') and depth == 0:
+                    seen_as = True
+                elif token.match(Punctuation, '('):
+                    depth += 1
+                    body_started = body_started or seen_as
+                elif token.match(Punctuation, ')'):
+                    depth -= 1
+                    if body_started and depth == 0:
+                        ctes.append((name, raw_index + 1))
+                        break
+            else:
+                raise ValueError('Invalid CTE definition')
+            if position >= len(significant) or not significant[position][1].match(Punctuation, ','):
+                break
+            position += 1
+        if not ctes:
+            raise ValueError('No CTE definitions found')
+        if isinstance(idx, bool) or not isinstance(idx, int) or not 1 <= idx <= len(ctes):
+            raise ValueError(f'CTE index must be between 1 and {len(ctes)}')
 
-        # 生成注释内容和SELECT语句
-        comment = f"-- {tablename}_{idx:03d}"
-        selectsql = f'select * from {tablename} limit 10'
-        # 组合前面的SQL
-        sqlsnippets = ',\n'.join([subquery.value for subquery in subqueries[:idx]])
-
-        return SqlStatement.from_sqlsnippets(comment, sqlsnippets, selectsql)
+        name, end = ctes[idx - 1]
+        prefix = ''.join(token.value for token in tokens[:end])
+        return SqlStatement(f'{prefix}\nselect * from {name} limit 10;')
 
 
 class SqlStatements:
@@ -204,7 +243,7 @@ class SqlStatements:
         if isinstance(index, slice):
             # 返回新的 `SqlStatements` 包含切片结果
             sliced_statements = self.statements[index]
-            sql_strings = ';\n'.join([stmt.sql for stmt in sliced_statements])
+            sql_strings = '\n'.join([stmt.sql for stmt in sliced_statements])
             return SqlStatements(sql_strings)
         elif isinstance(index, int):
             return self.statements[index]
@@ -237,7 +276,8 @@ class SqlStatements:
     @property
     def statements(self) -> list[SqlStatement, ]:
         if self._statements is None:
-            self._statements = [SqlStatement(sql) for sql in self._sql.split(';') if sql.strip()]
+            statements = [SqlStatement(sql) for sql in sqlparse.split(self._sql) if sql.strip()]
+            self._statements = [stmt for stmt in statements if stmt._parsed.token_first(skip_cm=True)]
             if len(self._statements) > 1:
                 sqllogger.warning(f'SQL has {len(self._statements)} statements ~')
         return self._statements

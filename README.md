@@ -37,12 +37,61 @@ cursor, action, result = db.execute(sql)
 ```
 
 ## 实例模式
+普通构造（例如 `SqliteDB(database=...)`）会创建独立的数据库对象，每个对象持有自己的连接。
+同一个对象的 `get_conn()` 会复用连接；不同对象即使数据库类型相同，也不会共享连接。
+
+`get_instance(...)` 保留每个数据库类一个实例的行为：首次调用需要提供完整配置；
+后续可以使用相同配置，或无参数调用以取回已有实例。传入不同配置会抛出 `ValueError`，
+需要连接其他数据库时请使用普通构造方法。该方法不会根据配置创建连接池，
+也不保证底层连接可跨线程使用。
+
 ```python
 from pydbapi.api import SqliteDB
 db = SqliteDB.get_instance(database=None)  # 或者提供路径
 sql = 'select * from [table];'
 cursor, action, result = db.execute(sql)
 ```
+
+## P0 修复后的行为与兼容性
+
+- `SqlStatement.sql` 返回保留大小写、注释、字符串空格和换行的 SQL（仅去除整体首尾空白）；
+  末尾分号会保留。Trino 执行时会去掉语句终止分号，保留字符串和注释中的分号。
+  原先依赖格式化文本的展示代码请改用 `formatted_sql`，该属性仅用于展示。
+- 多语句通过 `sqlparse.split()` 分割，字符串和注释中的分号不会作为语句边界。
+- Redshift 已实现结果列元数据接口，可以正常实例化；查询与事务的跨驱动语义将在后续批次完善。
+- `get_with_testsql(idx=1)` 的索引从 **1** 开始，选择第几个 CTE，就保留它和前面的定义，
+  并生成 `SELECT ... LIMIT 10`。支持带引号的 CTE 名称、列名列表和 `WITH RECURSIVE`；
+  非 CTE 语句、无效索引会抛出 `ValueError`。
+- `file_exec(..., with_test=True, with_snum=1)` 与 `SqlFileParse.get_filesqls()` 使用相同调试逻辑：
+  仅处理第一个 SQL 块，要求该块只有一条 CTE 语句，后续块不执行。旧的索引 `0` 不再接受。
+- IPython 扩展通过 `%load_ext pydbapi` 加载。SQLite 只需要数据库路径，
+  无需填写主机、端口、用户名或密码。配置不变时连续单元格复用当前连接，
+  配置变化后在下次执行时关闭旧连接并创建新数据库对象。
+
+IPython 示例：
+
+```python
+%load_ext pydbapi
+%dbconfig DBTYPE = 'sqlite'
+%dbconfig DATABASE = ':memory:'
+```
+
+在另一个单元格执行：
+
+```sql
+%%pydbapi -d result_df
+SELECT 'a;  b' AS value;
+```
+
+本地回归测试（无需外部数据库）：
+
+```bash
+python -m pip install -r requirements.txt pytest
+python -m pytest tests/base tests/sqlite tests/sql tests/colmodel tests/regression
+```
+
+SQLite 测试使用独立临时数据库；MySQL、Redshift、Trino 的连接隔离由 mock 测试验证，
+不代表已完成真实数据库的集成验证。测试期间仅启用控制台日志，不写用户目录日志文件。
 
 ## 结果
 ### 转换为 DataFrame

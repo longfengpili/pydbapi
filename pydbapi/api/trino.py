@@ -124,37 +124,18 @@ class TrinoDB(DBMixin, DBFileExec):
         self.auto_rules = AUTO_RULES if safe_rule else None
         self.dbtype = 'trino'
 
-    # def __new__(cls, *args, **kwargs):
-    #     if not hasattr(TrinoDB, '_instance'):
-    #         with TrinoDB._instance_lock:
-    #             if not hasattr(TrinoDB, '_instance'):
-    #                 TrinoDB._instance = super().__new__(cls)
-
-    #     return TrinoDB._instance
-
-    @classmethod
-    def get_instance(cls, *args, **kwargs):
-        # mytrinologger.info(TrinoDB._instance_lock)
-        if not hasattr(TrinoDB, '_instance'):
-            # mytrinologger.info(TrinoDB._instance_lock)
-            with TrinoDB._instance_lock:
-                if not hasattr(TrinoDB, '_instance'):
-                    TrinoDB._instance = cls(*args, **kwargs)
-
-        return TrinoDB._instance
-
     def get_conn(self):
-        if not hasattr(TrinoDB, '_conn'):
-            with TrinoDB._instance_lock:
-                if not hasattr(TrinoDB, '_conn'):
+        if self._conn is None:
+            with self._conn_lock:
+                if self._conn is None:
                     auth = BasicAuthentication(self.user, self.password)
                     conn = connect(host=self.host, user=self.user, auth=auth, 
                                    catalog=self.catalog, schema=self.database,
                                    port=self.port, http_scheme="https",
                                    **self.kwargs)
                     mytrinologger.info(f'connect {self.__class__.__name__}({self.user}@{self.host}:{self.port}/{self.catalog}.{self.database})')  # noqa: E501
-                    TrinoDB._conn = conn
-        return TrinoDB._conn
+                    self._conn = conn
+        return self._conn
 
     def cur_columns(self, cursor):
         desc = cursor.description

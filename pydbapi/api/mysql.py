@@ -115,34 +115,15 @@ class MysqlDB(DBMixin, DBFileExec):
         self.auto_rules = AUTO_RULES if safe_rule else None
         self.dbtype = 'mysql'
 
-    # def __new__(cls, *args, **kwargs):
-    #     if not hasattr(MysqlDB, '_instance'):
-    #         with MysqlDB._instance_lock:
-    #             if not hasattr(MysqlDB, '_instance'):
-    #                 MysqlDB._instance = super().__new__(cls)
-
-    #     return MysqlDB._instance
-
-    @classmethod
-    def get_instance(cls, *args, **kwargs):
-        # mysqllogger.info(MysqlDB._instance_lock)
-        if not hasattr(MysqlDB, '_instance'):
-            # mysqllogger.info(MysqlDB._instance_lock)
-            with MysqlDB._instance_lock:
-                if not hasattr(MysqlDB, '_instance'):
-                    MysqlDB._instance = cls(*args, **kwargs)
-
-        return MysqlDB._instance
-
     def get_conn(self):
-        if not hasattr(MysqlDB, '_conn'):
-            with MysqlDB._instance_lock:
-                if not hasattr(MysqlDB, '_conn'):
+        if self._conn is None:
+            with self._conn_lock:
+                if self._conn is None:
                     conn = pymysql.connect(database=self.database, user=self.user, password=self.password,
                                            host=self.host, port=self.port, charset=self.charset)
                     mysqllogger.info(f'connect {self.__class__.__name__}({self.user}@{self.host}:{self.port}/{self.database})')
-                    MysqlDB._conn = conn
-        return MysqlDB._conn
+                    self._conn = conn
+        return self._conn
 
     def cur_columns(self, cursor):
         desc = cursor.description

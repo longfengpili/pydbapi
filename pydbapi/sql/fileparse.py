@@ -132,6 +132,8 @@ class SqlFileParse(object):
             purpose = f"【{idx + 1:0>3d}】{filename}"
             sqlstmts = sqlstmts.substitute_params(**farguments)
             if with_test:
-                sqlstmts = sqlstmts.get_with_testsql(with_snum)
+                if len(sqlstmts) != 1:
+                    raise ValueError('CTE debug mode requires exactly one statement in the first block')
+                sqlstmts = SqlStatements(sqlstmts[0].get_with_testsql(with_snum).sql)
             fsqlstatements[purpose] = sqlstmts
         return farguments, fsqlstatements

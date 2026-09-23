@@ -50,31 +50,14 @@ class SqliteDB(DBMixin, DBFileExec):
         self.auto_rules = AUTO_RULES if safe_rule else None
         self.dbtype = 'sqlite'
 
-    # def __new__(cls, *args, **kwargs):
-    #     if not hasattr(SqliteDB, '_instance'):
-    #         with SqliteDB._instance_lock:
-    #             if not hasattr(SqliteDB, '_instance'):
-    #                 SqliteDB._instance = super().__new__(cls)
-
-    #     return SqliteDB._instance
-
-    @classmethod
-    def get_instance(cls, *args, **kwargs):
-        if not hasattr(SqliteDB, '_instance'):
-            with SqliteDB._instance_lock:
-                if not hasattr(SqliteDB, '_instance'):
-                    SqliteDB._instance = cls(*args, **kwargs)
-
-        return SqliteDB._instance
-
     def get_conn(self):
-        if not hasattr(SqliteDB, '_conn'):
-            with SqliteDB._instance_lock:
-                if not hasattr(SqliteDB, '_conn'):
+        if self._conn is None:
+            with self._conn_lock:
+                if self._conn is None:
                     conn = sqlite3.connect(database=self.database)
                     sqlitelogger.info(f'connect {self.__class__.__name__}({self.database})')
-                    SqliteDB._conn = conn
-        return SqliteDB._conn
+                    self._conn = conn
+        return self._conn
 
     def cur_columns(self, cursor):
         desc = cursor.description
