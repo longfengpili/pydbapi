@@ -1,9 +1,8 @@
 sqlparse
-psycopg2-binary
 pandas
-pymysql
-trino
-colorlog
 tqdm
-ipython
+pymysql
+psycopg2-binary
 trino
+ipython
+colorlog

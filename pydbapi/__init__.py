@@ -6,13 +6,9 @@
 # @github: https://github.com/longfengpili
 
 
-import os
-import logging.config
+import logging
 
-from pydbapi.conf import LOGGING_CONFIG
-logging.config.dictConfig(LOGGING_CONFIG)
-
-os.environ['NUMEXPR_MAX_THREADS'] = '16'
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 def load_ipython_extension(ipython):

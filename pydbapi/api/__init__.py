@@ -1,17 +1,22 @@
-# -*- coding: utf-8 -*-
-# @Author: longfengpili
-# @Date:   2023-06-02 15:27:41
-# @Last Modified by:   longfengpili
-# @Last Modified time: 2023-07-27 15:31:46
-# @github: https://github.com/longfengpili
+"""Database adapters, loaded only when their public names are requested."""
+from importlib import import_module
+
+_MODULES = {
+    'RedshiftDB': 'redshift', 'SqlRedshiftCompile': 'redshift',
+    'SqliteDB': 'sqlite', 'SqliteCompile': 'sqlite',
+    'MysqlDB': 'mysql', 'SqlMysqlCompile': 'mysql',
+    'TrinoDB': 'trino', 'SqlTrinoCompile': 'trino',
+}
+__all__ = list(_MODULES)
 
 
-from .redshift import RedshiftDB, SqlRedshiftCompile
-from .sqlite import SqliteDB, SqliteCompile
-from .mysql import MysqlDB, SqlMysqlCompile
-# from .snowflake import SnowflakeDB
-from .trino import TrinoDB, SqlTrinoCompile
+def __getattr__(name):
+    if name not in _MODULES:
+        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+    value = getattr(import_module(f'.{_MODULES[name]}', __name__), name)
+    globals()[name] = value
+    return value
 
-__doc__ = "数据库接口"
-__all__ = ['RedshiftDB', 'SqlRedshiftCompile', 'SqliteDB', 'SqliteCompile',
-           'MysqlDB', 'SqlMysqlCompile', 'TrinoDB', 'SqlTrinoCompile']
+
+def __dir__():
+    return sorted(set(globals()) | set(__all__))

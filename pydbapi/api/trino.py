@@ -9,8 +9,10 @@
 import threading
 from datetime import date
 
-from trino.dbapi import connect
-from trino.auth import BasicAuthentication
+from ._dependencies import require_driver
+
+connect = require_driver('trino.dbapi', 'trino').connect
+BasicAuthentication = require_driver('trino.auth', 'trino').BasicAuthentication
 
 from pydbapi.db import DBMixin, DBFileExec
 from pydbapi.model import ColumnModel, ColumnsModel

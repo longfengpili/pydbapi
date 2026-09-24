@@ -9,9 +9,7 @@
 import pytest
 
 from pydbapi.sql import SqlStatement
-from pydbapi.conf.logconf import LOGGING_CONFIG
-import logging.config
-logging.config.dictConfig(LOGGING_CONFIG)
+import logging
 
 dblogger = logging.getLogger(__name__)
 

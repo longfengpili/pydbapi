@@ -7,7 +7,9 @@
 
 
 import threading
-import psycopg2
+from ._dependencies import require_driver
+
+psycopg2 = require_driver('psycopg2', 'psycopg2-binary')
 
 from pydbapi.db import DBMixin, DBFileExec
 from pydbapi.sql import SqlCompile

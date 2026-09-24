@@ -8,7 +8,12 @@
 from pathlib import Path
 import pandas as pd
 
-from IPython.core.error import UsageError
+try:
+    from IPython.core.error import UsageError
+except ModuleNotFoundError as error:
+    if error.name != 'IPython':
+        raise
+    raise ImportError('Notebook support requires: pip install ipython') from error
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.core.magic import (  # type: ignore
     Magics,
@@ -26,7 +31,7 @@ from IPython.core.magic_arguments import (  # type: ignore
 from traitlets import Int, Bool, Dict, Instance, Unicode, default, observe  # noqa
 from traitlets.config.loader import Config
 
-from pydbapi.api import SqliteDB, MysqlDB, RedshiftDB, TrinoDB
+from pydbapi import api as dbapis
 
 
 # 注册magic命令
@@ -123,7 +128,7 @@ class PydbapiMagics(Magics):
             if self.dbtype not in ('sqlite', 'mysql', 'doris', 'redshift', 'trino'):
                 raise TypeError(f"not supported {self.dbtype}")
         if self.dbtype == 'sqlite':
-            return self._get_database_api(SqliteDB, database=self.database or None, safe_rule=self.auto_rule)
+            return self._get_database_api(dbapis.SqliteDB, database=self.database or None, safe_rule=self.auto_rule)
         if not self.host:
             self.host = input('please input your host:')
         if not self.port:
@@ -140,11 +145,11 @@ class PydbapiMagics(Magics):
         config = dict(host=self.host, user=self.user, password=self.password,
                       database=self.database, port=self.port, safe_rule=self.auto_rule)
         if dbtype in ('mysql', 'doris'):
-            return self._get_database_api(MysqlDB, isdoris=dbtype == 'doris', **config)
+            return self._get_database_api(dbapis.MysqlDB, isdoris=dbtype == 'doris', **config)
         if dbtype == 'redshift':
-            return self._get_database_api(RedshiftDB, **config)
+            return self._get_database_api(dbapis.RedshiftDB, **config)
         if dbtype == 'trino':
-            return self._get_database_api(TrinoDB, catalog=self.catalog, **config)
+            return self._get_database_api(dbapis.TrinoDB, catalog=self.catalog, **config)
         raise TypeError(f'not supported {dbtype}')
 
     @magic_arguments()

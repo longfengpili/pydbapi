@@ -6,6 +6,26 @@
 pip install pydbapi
 ```
 
+默认安装包含全部数据库驱动、IPython 扩展和彩色日志所需依赖，无需组合安装。
+`from pydbapi.api import SqliteDB` 等导入方式保持不变，运行时仅加载所选数据库的驱动。
+
+## 日志与运行环境
+
+导入包不会配置根日志、创建日志目录或修改 `NUMEXPR_MAX_THREADS`。
+默认由应用自己的 logging 配置接收日志，也可显式启用包内日志：
+
+```python
+from pydbapi.conf import configure_logging
+
+configure_logging()  # 控制台
+configure_logging(level='DEBUG', log_file='logs/pydbapi.log')  # 控制台及文件
+# 可传 color=True 启用彩色控制台日志
+```
+
+文件日志按天轮转，保留 30 份备份；仅在显式传入路径时创建目录和文件。
+重复调用会替换本函数创建的处理器，不修改应用的根日志处理器。
+线程相关环境变量由调用方在导入相关依赖前自行设置。
+
 ## 支持的数据库类型
 ### SQLite
 ```python
@@ -86,12 +106,12 @@ SELECT 'a;  b' AS value;
 本地回归测试（无需外部数据库）：
 
 ```bash
-python -m pip install -r requirements.txt pytest
+python -m pip install -r requirements-dev.txt
 python -m pytest
 ```
 
 SQLite 测试使用独立临时数据库；MySQL、Redshift、Trino 的连接隔离由 mock 测试验证，
-不代表已完成真实数据库的集成验证。测试期间仅启用控制台日志，不写用户目录日志文件。
+不代表已完成真实数据库的集成验证。测试由 pytest 捕获日志，不自动写用户目录日志文件。
 
 ## P1：执行、参数与迁移约定
 
@@ -412,7 +432,9 @@ sqlstmts = SqlStatements(sql)
 
 ## 魔法命令
 + 注册方法  
-命令行中执行`pydbapimagic`
+安装 `pydbapi` 后，在当前会话使用 `%load_ext pydbapi` 加载。
+安装包不会自动创建 IPython 启动脚本。需要以后自动加载时，可在命令行显式执行
+`pydbapimagic`，该命令会向用户的 IPython 启动目录写入注册脚本。
 
 + 参数
     * 帮助  

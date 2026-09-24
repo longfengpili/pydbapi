@@ -7,6 +7,8 @@
 
 
 from .myhandlers import MakeFileHandler
-from .logconf import *
+from .logconf import AUTO_RULES, REDSHIFT_AUTO_RULES, LOGGING_CONFIG, configure_logging
+
+__all__ = ['MakeFileHandler', 'AUTO_RULES', 'REDSHIFT_AUTO_RULES', 'LOGGING_CONFIG', 'configure_logging']
 
 # __all__ = ['MakeFileHandler', 'LOGGING_CONFIG', 'AUTO_RULES', 'REDSHIFT_AUTO_RULES']

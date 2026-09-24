@@ -10,7 +10,9 @@ import re
 import threading
 from datetime import date
 
-import pymysql
+from ._dependencies import require_driver
+
+pymysql = require_driver('pymysql', 'pymysql')
 
 from pydbapi.db import DBMixin, DBFileExec
 from pydbapi.model import ColumnModel, ColumnsModel
