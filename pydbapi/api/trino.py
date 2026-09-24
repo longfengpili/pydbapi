@@ -142,28 +142,17 @@ class TrinoDB(DBMixin, DBFileExec):
         columns = ColumnsModel(*tuple(map(lambda x: ColumnModel(x.name, x.type_code), desc))) if desc else None
         return columns
 
+    def _rollback_connection(self, conn):
+        # In the default AUTOCOMMIT mode there is no transaction to roll back.
+        if conn.transaction is not None:
+            conn.rollback()
+
     def create(self, tablename, columns, partition=None, verbose=0):
         # tablename = f"{self.database}.{tablename}"
         sqlcompile = SqlTrinoCompile(tablename)
         sql_for_create = sqlcompile.create(columns, partition=partition)
         cursor, action, result = self.execute(sql_for_create, verbose=verbose)
         return cursor, action, result
-
-    def insert(self, tablename, columns, inserttype: str = 'value', values: list = None, chunksize: int = 1000, 
-               fromtable: str = None, condition: str = None, ehandling: str = 'raise', verbose: int = 0):
-        if values:
-            vlength = len(values)
-
-        if self._check_isauto(tablename):
-            sqlcompile = SqlCompile(tablename)
-            sql_for_insert = sqlcompile.insert(columns, inserttype=inserttype, values=values,
-                                               chunksize=chunksize, fromtable=fromtable, condition=condition)
-            cursor, action, result = self.execute(sql_for_insert, ehandling=ehandling, verbose=verbose)
-
-            rows = cursor.rowcount
-            rows = vlength if values else rows
-            mytrinologger.info(f'【{action}】{tablename} insert succeed !')
-            return cursor, action, result
 
     def alter_tablecol(self, tablename: str, colname: str, newname: str = None, newtype: str = None, 
                        sqlexpr: str = None, partition: str = 'part_date', conditions: list[str] = None, verbose: int = 0):
@@ -175,4 +164,4 @@ class TrinoDB(DBMixin, DBFileExec):
             self.create(mtablename, alter_columns, partition=partition, verbose=verbose)
 
             # alter table
-            self.alter_tablecol_base(tablename, mtablename, alter_columns, conditions=conditions, verbose=verbose)
+            return self.alter_tablecol_base(tablename, mtablename, alter_columns, conditions=conditions, verbose=verbose)

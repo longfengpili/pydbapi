@@ -65,6 +65,27 @@ class SqliteDB(DBMixin, DBFileExec):
 
         return columns
 
+    def _validate_statements(self, statements):
+        super()._validate_statements(statements)
+        if len(statements) > 1 and any(stmt.action in ('pragma', 'vacuum', 'attach', 'detach') for stmt in statements):
+            raise ValueError('SQLite transaction settings and maintenance statements must execute separately')
+
+    def _max_bind_params(self):
+        conn = self.get_conn()
+        if hasattr(conn, 'getlimit'):
+            return conn.getlimit(sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER)
+        return 999
+
+    def _begin_transaction(self, conn, cursor, statements):
+        if statements[0].action in ('pragma', 'vacuum', 'attach', 'detach'):
+            if conn.in_transaction:
+                raise ValueError('SQLite maintenance statement requires no active transaction')
+            return
+        # sqlite3 otherwise starts implicit transactions only for DML, so a
+        # preceding CREATE TABLE would survive a later failure in the batch.
+        if not conn.in_transaction:
+            cursor.execute('BEGIN')
+
     def create(self, tablename, columns, indexes=None, verbose=0):
         # tablename = f"{self.database}.{tablename}"
         sqlcompile = SqliteCompile(tablename)

@@ -55,6 +55,44 @@ class DBbase(ABC):
     def get_conn(self):
         pass
 
+    def close(self):
+        """Release this instance's connection; a later get_conn() can reconnect."""
+        with self._conn_lock:
+            conn, self._conn = self._conn, None
+            if conn is not None:
+                conn.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        try:
+            self.close()
+        except Exception:
+            if exc_type is None:
+                raise
+            dblogger.exception('Failed to close connection while handling an error')
+        return False
+
+    def _begin_transaction(self, conn, cursor, statements):
+        """Drivers other than SQLite start transactions themselves."""
+
+    def _validate_statements(self, statements):
+        controls = {'begin', 'commit', 'rollback', 'savepoint', 'release', 'end', 'start', 'start transaction'}
+        if any(stmt.action in controls for stmt in statements):
+            raise ValueError('execute owns the transaction; use the driver connection for explicit transaction SQL')
+
+    def _rollback_connection(self, conn):
+        conn.rollback()
+
+    def _max_bind_params(self):
+        return None
+
+    @staticmethod
+    def validate_ehandling(ehandling):
+        if ehandling not in ('raise', 'pass'):
+            raise ValueError("ehandling must be 'raise' or 'pass'")
+
     def prepare_sql_statements(self, sqlstmts, verbose):
         if any("jupyter" in arg for arg in sys.argv):
             from tqdm.notebook import tqdm
@@ -68,11 +106,15 @@ class DBbase(ABC):
         else:
             raise TypeError("sqlstmts must be a string or an instance of SqlStatements")
 
+        if not len(sqlstmts):
+            raise ValueError('SQL must contain at least one executable statement')
+        self._validate_statements(sqlstmts)
+
         bar_format = '{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix[0]}'
         sqlstmts = sqlstmts if verbose <= 1 else tqdm(sqlstmts, postfix=['START'], bar_format=bar_format)  # 如果verbose>=2则显示进度条
         return sqlstmts
 
-    def _execute_step(self, cursor, sql, ehandling='raise'):
+    def _execute_step(self, cursor, sql, params=None):
         '''[summary]
 
         [description]
@@ -85,17 +127,22 @@ class DBbase(ABC):
             ValueError -- [sql执行错误原因及SQL]
         '''
         try:
-            cursor.execute(sql)
+            if params is None:
+                cursor.execute(sql)
+            else:
+                cursor.execute(sql, params)
         except Exception as e:
             error = f"【Error】:{e}【Sql】:{sql}"
-            if ehandling == 'raise':
-                raise ValueError(error)
-            else:
-                dblogger.error(error)
+            raise ValueError(error) from e
 
     def cur_results(self, cursor, count):
-        results = cursor.fetchmany(count) if count else cursor.fetchall()
-        results = list(results) if results else []
+        if count is None:
+            return list(cursor.fetchall() or [])
+        results = list(cursor.fetchmany(count) or []) if count else []
+        # Finish streamed queries (including RETURNING) before commit/reuse.
+        # count limits retained rows, not database work or network transfer.
+        while cursor.fetchmany(1000):
+            pass
         return results
 
     @abstractmethod
@@ -106,9 +153,10 @@ class DBbase(ABC):
         return columns
 
     def fetch_query_results(self, action, cursor, count, verbose):
-        columns = self.cur_columns(cursor)
-        results = self.cur_results(cursor, count)
-        results = ResModel(columns, results)
+        columns = self.cur_columns(cursor) if cursor.description is not None else None
+        # Trino must consume its stream even for statements without columns.
+        values = self.cur_results(cursor, count) if columns is not None or self.dbtype == 'trino' else []
+        results = ResModel(columns, values, action=action, rowcount=cursor.rowcount)
 
         if verbose and not columns and action != 'insert':
             dblogger.warning(f"【{action}】No results")
@@ -125,7 +173,15 @@ class DBbase(ABC):
             if verbose >= 3:
                 dblogger.info(step)
 
-    def execute(self, sqlstmts: Union[str, SqlStatements], count: int = None, ehandling: str = 'raise', verbose: int = 0) -> tuple:
+    def execute(self, sqlstmts: Union[str, SqlStatements], count: int = None,
+                ehandling: str = 'raise', verbose: int = 0) -> tuple:
+        """Execute SQL, returning a closed cursor, action and durable result metadata.
+
+        Each call commits on success; pass mode aborts and returns result.error.
+        """
+        return self._execute(sqlstmts, count, ehandling, verbose)
+
+    def _execute(self, sqlstmts, count=None, ehandling='raise', verbose=0, *, parameter_sets=None):
         '''执行 SQL 语句并返回结果clear
 
         Arguments:
@@ -141,38 +197,60 @@ class DBbase(ABC):
                 results: 查询返回的结果
         '''
         
-        results = None
-        conn = self.get_conn()
-        cursor = conn.cursor()
-        sqlstmts = self.prepare_sql_statements(sqlstmts, verbose)
-        try: 
+        self.validate_ehandling(ehandling)
+        if count is not None and (isinstance(count, bool) or not isinstance(count, int) or count < 0):
+            raise ValueError('count must be None or a non-negative integer')
+        if isinstance(verbose, bool) or not isinstance(verbose, int) or verbose < 0:
+            raise ValueError('verbose must be a non-negative integer')
+        statements = SqlStatements(sqlstmts) if isinstance(sqlstmts, str) else sqlstmts
+        sqlstmts = self.prepare_sql_statements(statements, verbose)
+        conn = cursor = None
+        action = None
+        cursor_closed = False
+        try:
+            conn = self.get_conn()
+            cursor = conn.cursor()
+            self._begin_transaction(conn, cursor, statements)
             with logging_redirect_tqdm():
                 for idx, stmt in enumerate(sqlstmts):
-                    comment, sql, action, tablename = stmt.comment, stmt.sql, stmt.action, stmt.tablename
-                    if self.dbtype == 'trino':
-                        sql = stmt.sql_without_terminator
-                    if not sql:
-                        # dblogger.info(f'【{idx:0>2d}_PROGRESS】 no run !!!\n{_sql}')
-                        continue
-
-                    step = f"【{idx:0>2d}_PROGRESS】({action}){tablename}::{comment}"
+                    action = stmt.action
+                    sql = stmt.sql_without_terminator if self.dbtype == 'trino' else stmt.sql
+                    step = f"【{idx:0>2d}_PROGRESS】({action}){stmt.tablename}::{stmt.comment}"
                     self.handle_progress_logging(step, verbose, sqlstmts)
-                    self._execute_step(cursor, sql, ehandling=ehandling)
-
-                    if idx + 1 == len(sqlstmts) or action in ['SELECT', 'WITH']:
-                        results = self.fetch_query_results(action, cursor, count, verbose)
-
+                    params = parameter_sets[idx] if parameter_sets is not None else None
+                    self._execute_step(cursor, sql, params)
+                    # Intermediate streams are drained but their rows are discarded.
+                    result_count = count if idx + 1 == len(sqlstmts) else 0
+                    results = self.fetch_query_results(action, cursor, result_count, verbose)
+            cursor_closed = True
+            cursor.close()
             conn.commit()
-        except Exception:
-            if self.dbtype not in ('trino',):
-                conn.rollback()
+            return cursor, action, results
+        except BaseException as error:
+            if cursor is not None and not cursor_closed:
+                cursor_closed = True
+                try:
+                    cursor.close()
+                except Exception:
+                    dblogger.exception('Failed to close cursor while handling an error')
+            if conn is not None:
+                try:
+                    self._rollback_connection(conn)
+                except Exception:
+                    # An uncertain transaction must never be reused or reported as
+                    # a successfully handled error, even in pass mode.
+                    try:
+                        self.close()
+                    except Exception:
+                        dblogger.exception('Failed to discard connection after rollback failure')
+                    raise
+            if ehandling == 'pass' and cursor is not None and isinstance(error, Exception):
+                dblogger.error('%s', error)
+                return cursor, action, ResModel(None, [], action=action, error=error)
             raise
         finally:
-            if self.dbtype not in ('trino',):
-                cursor.close()
-            # conn.close()  # 注释掉conn
-
-        return cursor, action, results
+            if verbose >= 2:
+                sqlstmts.close()
 
 
 class DBMixin(DBbase):
@@ -211,27 +289,45 @@ class DBMixin(DBbase):
         sqlcompile = SqlCompile(tablename)
         sql_for_delete = sqlcompile.delete(condition)
         cursor, action, result = self.execute(sql_for_delete, verbose=verbose)
-        dblogger.info(f'【{action}】{tablename} delete {cursor.rowcount} rows succeed !')
+        dblogger.info(f'【{action}】{tablename} delete {result.rowcount} rows succeed !')
         return cursor, action, result
 
     def insert(self, tablename, columns, inserttype: str = 'value', values: list = None, chunksize: int = 1000, 
                fromtable: str = None, condition: str = None, ehandling: str = 'raise', verbose: int = 0):
-        if values:
-            vlength = len(values)
-
+        self.validate_ehandling(ehandling)
         self._check_isauto(tablename)
-        
-        sqlcompile = SqlCompile(tablename)
-        sql_for_insert = sqlcompile.insert(columns, inserttype=inserttype, values=values,
-                                           chunksize=chunksize, fromtable=fromtable, condition=condition)
-        cursor, action, result = self.execute(sql_for_insert, ehandling=ehandling, verbose=verbose)
-
-        rows = cursor.rowcount
-        if values and rows != (vlength % chunksize or chunksize):
-            raise Exception('Insert Error !!!')
-
-        rows = vlength if values else rows
-        dblogger.info(f'【{action}】{tablename} insert {rows} rows succeed !')
+        if inserttype == 'value':
+            if not isinstance(columns, ColumnsModel) or not len(columns):
+                raise ValueError('columns must be a non-empty ColumnsModel')
+            if isinstance(chunksize, bool) or not isinstance(chunksize, int) or chunksize <= 0:
+                raise ValueError('chunksize must be a positive integer')
+            if not isinstance(values, list) or not values:
+                raise ValueError('values must be a non-empty list')
+            if any(not isinstance(row, (list, tuple)) or len(row) != len(columns) for row in values):
+                raise ValueError('Each row must have exactly as many values as columns')
+            limit = self._max_bind_params()
+            if limit is not None:
+                if len(columns) > limit:
+                    raise ValueError('Number of columns exceeds the driver bind parameter limit')
+                chunksize = min(chunksize, limit // len(columns))
+            placeholder = '?' if self.dbtype in ('sqlite', 'trino') else '%s'
+            column_names = ', '.join(col.newname for col in columns)
+            row_sql = '(' + ', '.join([placeholder] * len(columns)) + ')'
+            sqls, parameter_sets = [], []
+            for offset in range(0, len(values), chunksize):
+                chunk = values[offset:offset + chunksize]
+                sqls.append(f'insert into {tablename} ({column_names}) values '
+                            + ', '.join([row_sql] * len(chunk)) + ';')
+                parameter_sets.append(tuple(value for row in chunk for value in row))
+            cursor, action, result = self._execute(SqlStatements('\n'.join(sqls)), ehandling=ehandling,
+                                                    verbose=verbose, parameter_sets=parameter_sets)
+        else:
+            sql = SqlCompile(tablename).insert(columns, inserttype=inserttype,
+                                               fromtable=fromtable, condition=condition)
+            cursor, action, result = self.execute(sql, ehandling=ehandling, verbose=verbose)
+        if result.error is None:
+            rows = len(values) if inserttype == 'value' else result.rowcount
+            dblogger.info('%s insert %s rows succeeded', tablename, rows)
         return cursor, action, result
 
     def get_columns(self, tablename, verbose=0):
@@ -288,39 +384,37 @@ class DBMixin(DBbase):
             dblogger.info(f'【{tablename}】add columns succeeded !【{new_columns - old_columns}】')
 
     def alter_tablename(self, ftablename: str, ttablename: str, retries: int = 3, verbose: int = 0):
+        if isinstance(retries, bool) or not isinstance(retries, int) or retries <= 0:
+            raise ValueError('retries must be a positive integer')
         altersql = f'alter table {ftablename} rename to {ttablename};'
-        attempt = 0
-
-        while attempt < retries:
+        renamed = False
+        for attempt in range(retries):
             try:
-                self.execute(altersql, verbose=verbose)
-            except Exception as e:
-                dblogger.error(f"Attempt {attempt + 1} failed: {e}")
-                time.sleep(5)  # 在重试之前等待
-                attempt += 1
-
-            try:
-                self.get_columns(ttablename)
-                dblogger.info(f"alter table {ftablename} to {ttablename} succeeded ~")
-                break
-            except Exception:
-                pass
-
-        if attempt == retries:
-            dblogger.error(f"All {retries} attempts to rename table {ftablename} to {ttablename} failed.")
+                if not renamed:
+                    self.execute(altersql, verbose=verbose)
+                    renamed = True
+                if not self.get_columns(ttablename):
+                    raise RuntimeError('Renamed table has no visible columns')
+                dblogger.info('Renamed %s to %s', ftablename, ttablename)
+                return
+            except Exception as error:
+                if attempt + 1 == retries:
+                    phase = 'metadata verification' if renamed else 'SQL execution'
+                    raise RuntimeError(f'Failed to rename {ftablename} to {ttablename} '
+                                       f'after {retries} attempts ({phase})') from error
+                time.sleep(5)
 
     def alter_column(self, tablename: str, colname: str, newname: str = None, newtype: str = None, sqlexpr: str = None):
         old_columns = self.get_columns(tablename)
         alter_col = old_columns.get_column_by_name(colname)
 
         if not alter_col:
-            dblogger.error(f"{colname} not in {tablename} !!!")
-            return
+            raise ValueError(f'{colname} not in {tablename}')
 
         newname = newname or alter_col.newname
         newtype = newtype or alter_col.coltype
-        sqlexpr = sqlexpr or f"cast({colname} as {newtype})" if newtype != alter_col.coltype \
-                             else f"{alter_col.newname}" if newname != alter_col.newname else None
+        if sqlexpr is None:
+            sqlexpr = f'cast({colname} as {newtype})' if newtype != alter_col.coltype else colname
         newcol = ColumnModel(newname, newtype, sqlexpr=sqlexpr)
         if newcol == alter_col:
             dblogger.info(f"{newcol} same, not need to change ~")
@@ -332,20 +426,33 @@ class DBMixin(DBbase):
 
     def alter_tablecol_base(self, ftablename: str, mtablename: str, alter_columns: ColumnsModel, 
                             conditions: list[str] = None, verbose: int = 0):
-        # tablename
-        today = date.today()
-        today_str = today.strftime('%Y%m%d')
-        time_str = time.time_ns()
-        tablename_backup = f"{ftablename}_backup_{today_str}_{time_str}_{self.user}"
-
-        # alter ftablename to backup
-        self.alter_tablename(ftablename, tablename_backup, verbose=verbose)
-
-        # move data to mtablename
-        conditions = conditions or [None]
-        for condition in conditions:
-            self.insert(mtablename, alter_columns, fromtable=tablename_backup, inserttype='select', 
-                        condition=condition, verbose=verbose)
-
-        # alter mtablename to ftablename
-        self.alter_tablename(mtablename, ftablename, verbose=verbose)
+        if ftablename == mtablename:
+            raise ValueError('Source and staging tables must differ')
+        self._check_isauto(ftablename)
+        self._check_isauto(mtablename)
+        source_columns = self.get_columns(ftablename)
+        staging_columns = self.get_columns(mtablename)
+        if not source_columns or not staging_columns:
+            raise ValueError('Both source and staging tables must exist')
+        if set(staging_columns.all_cols) != set(alter_columns.all_cols):
+            raise ValueError('Staging columns do not match the migration columns')
+        count = self.execute(f'select count(*) from {mtablename}')[2].values[0][0]
+        if count:
+            raise ValueError('Staging table must be empty before migration')
+        today_str = date.today().strftime('%Y%m%d')
+        tablename_backup = f'{ftablename}_backup_{today_str}_{time.time_ns()}'
+        stage = 'backup rename'
+        try:
+            self.alter_tablename(ftablename, tablename_backup, verbose=verbose)
+            stage = 'copy'
+            for condition in conditions or [None]:
+                self.insert(mtablename, alter_columns, fromtable=tablename_backup, inserttype='select',
+                            condition=condition, verbose=verbose)
+            stage = 'final rename'
+            self.alter_tablename(mtablename, ftablename, verbose=verbose)
+        except Exception as error:
+            raise RuntimeError(f'Migration failed during {stage}: source={ftablename}, '
+                               f'backup={tablename_backup}, staging={mtablename}. '
+                               'Existing tables are retained for recovery.') from error
+        dblogger.info('Migration complete; backup retained at %s', tablename_backup)
+        return tablename_backup

@@ -7,12 +7,14 @@
 
 
 import re
+import ast
 import os
 from pathlib import Path
 from datetime import datetime, date, timedelta
 from typing import Any, Dict, List, Tuple
 
 from .parse import SqlStatements
+from .expressions import evaluate_expression
 
 import logging
 sqllogger = logging.getLogger(__name__)
@@ -33,11 +35,16 @@ class SqlFileParse(object):
         return content
 
     def parse_argument(self, argument: str, arguments: Dict[str, Any]) -> Tuple[str, Any]:
-        key, value = argument.split('=', 1)
-        key, value = key.strip(), value.strip()
+        tree = ast.parse(argument.strip())
+        if len(tree.body) != 1 or not isinstance(tree.body[0], ast.Assign):
+            raise ValueError('Unsupported argument assignment')
+        assignment = tree.body[0]
+        if len(assignment.targets) != 1 or not isinstance(assignment.targets[0], ast.Name):
+            raise ValueError('Unsupported argument target')
+        key = assignment.targets[0].id
+        value = ast.get_source_segment(argument.strip(), assignment.value)
         try:
-            globals_value = {'timedelta': timedelta}
-            value = eval(value, globals_value, arguments)
+            value = evaluate_expression(value, arguments)
         except NameError as e:
             raise NameError(f"{e}, please set it before '{key}' !!!")
         return key, value
@@ -55,12 +62,10 @@ class SqlFileParse(object):
             'now': datetime.now(),
         }
         arguments_infile = re.findall(r'(?<!--)\s*#【arguments】#\s*\n(.*?)#【arguments】#', content, re.S)
-        arguments_infile = ';'.join(arguments_infile).replace('\n', ';')
-        arguments_infile = [argument.strip() for argument in arguments_infile.split(';') if argument]
-        for argument in arguments_infile:
-            if argument.startswith('--'):
-                continue
-
+        source = '\n'.join(arguments_infile)
+        source = '\n'.join('' if line.lstrip().startswith('--') else line for line in source.splitlines())
+        for assignment in ast.parse(source).body:
+            argument = ast.get_source_segment(source, assignment)
             key, value = self.parse_argument(argument, arguments)
             arguments[key] = value
 
@@ -71,7 +76,7 @@ class SqlFileParse(object):
         return arguments
 
     def get_sqls_infile(self, content: str):
-        sqls = re.findall(r'(?<!--)\s*###\s*\n(.*?)###', content, re.S)
+        sqls = re.findall(r'^[ \t]*###[ \t]*\r?\n(.*?)^[ \t]*###[ \t]*(?:\r?\n|$)', content, re.S | re.M)
         sqlstmtses = [SqlStatements(sql) for sql in sqls]
         return sqlstmtses
 
@@ -96,9 +101,7 @@ class SqlFileParse(object):
         # 获取文件名
         filename = self.file.stem
         
-        # 过滤掉值为空的参数
-        kwargs = {k: v for k, v in kwargs.items() if v}
-        # 组合文件参数和传入参数
+        # Explicit falsy values are valid overrides, including None.
         farguments = {**arguments_infile, **kwargs}
 
         # 记录最终参数的日志
@@ -130,6 +133,9 @@ class SqlFileParse(object):
 
         for idx, sqlstmts in enumerate(sqlstmtses):
             purpose = f"【{idx + 1:0>3d}】{filename}"
+            description = sqlstmts[0].comment if len(sqlstmts) else None
+            if description:
+                purpose += f'::{description}'
             sqlstmts = sqlstmts.substitute_params(**farguments)
             if with_test:
                 if len(sqlstmts) != 1:

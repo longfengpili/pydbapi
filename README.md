@@ -58,7 +58,7 @@ cursor, action, result = db.execute(sql)
   末尾分号会保留。Trino 执行时会去掉语句终止分号，保留字符串和注释中的分号。
   原先依赖格式化文本的展示代码请改用 `formatted_sql`，该属性仅用于展示。
 - 多语句通过 `sqlparse.split()` 分割，字符串和注释中的分号不会作为语句边界。
-- Redshift 已实现结果列元数据接口，可以正常实例化；查询与事务的跨驱动语义将在后续批次完善。
+- Redshift 已实现结果列元数据接口，可以正常实例化。
 - `get_with_testsql(idx=1)` 的索引从 **1** 开始，选择第几个 CTE，就保留它和前面的定义，
   并生成 `SELECT ... LIMIT 10`。支持带引号的 CTE 名称、列名列表和 `WITH RECURSIVE`；
   非 CTE 语句、无效索引会抛出 `ValueError`。
@@ -87,11 +87,82 @@ SELECT 'a;  b' AS value;
 
 ```bash
 python -m pip install -r requirements.txt pytest
-python -m pytest tests/base tests/sqlite tests/sql tests/colmodel tests/regression
+python -m pytest
 ```
 
 SQLite 测试使用独立临时数据库；MySQL、Redshift、Trino 的连接隔离由 mock 测试验证，
 不代表已完成真实数据库的集成验证。测试期间仅启用控制台日志，不写用户目录日志文件。
+
+## P1：执行、参数与迁移约定
+
+### 结果与资源管理
+
+`execute(sqlstmts, count=None, ehandling='raise', verbose=0)` 继续返回
+`(cursor, action, result)`，其中 `result` 为最后一条有效语句的 `ResModel`。
+末尾注释和空分号不会覆盖查询结果。`result.action` 保存操作类型，`result.rowcount`
+保存驱动报告的影响行数（未知为 `-1`）；分批插入时对应最后一批，而非批次总和。
+无结果集时 `values == []`，可安全导出空 DataFrame/CSV。
+
+所有驱动的 cursor 返回前均已关闭，请使用结果对象读取数据和元信息。
+`count=None` 返回全部，`count=0` 保留列但返回零行；负数、布尔值、非整数无效。
+限制返回行数时仍会读完并丢弃剩余数据以完成流式查询；限制数据库工作量请使用 SQL `LIMIT`。
+`close()` 不会为了关闭而建立连接，可重复调用，关闭后可重新连接。
+`with db:` 仅管理连接生命周期，每次 `execute()` 各自提交，不构成跨调用事务。
+
+### 错误与事务边界
+
+- `ehandling` 只接受 `'raise'` 和 `'pass'`，`'raises'` 等拼写错误直接报错。
+- `raise` 停止并回滚本次调用，然后抛出异常；SQL 错误保留原始驱动异常作为 `__cause__`。
+- `pass` 同样停止并回滚，但返回空结果及 `result.error`，不继续执行当前批次剩余 SQL。
+  参数校验、连接/游标创建失败及回滚失败仍抛出异常；回滚失败会丢弃不确定状态的连接。
+- `file_exec()` 按块分别提交，失败不会撤销之前已提交的块。`pass`/`epass` 允许继续后续块，
+  调用者应检查每块的 `result.error`。当前不提供整个文件的原子执行选项。
+- SQLite 普通批次显式开启事务，DDL/DML 可一起回滚。`PRAGMA`、`VACUUM`、`ATTACH`、`DETACH`
+  必须单独调用，且连接不能已有事务，以避免设置被静默忽略。
+- MySQL/Doris 的隐式提交 DDL、非事务表，以及 Trino 默认自动提交模式，可能无法撤销此前修改。
+  Trino 显式事务模式会回滚已建立的事务。实际原子性受数据库能力限制。
+- 封装管理事务边界，不接受 `BEGIN`、`START`、`COMMIT`、`ROLLBACK`、`SAVEPOINT`、`RELEASE` 等控制语句。
+  手工事务请使用 `get_conn()` 的原生驱动接口，自行管理游标和事务，不要与封装执行混用。
+
+### 批量插入
+
+`db.insert(..., inserttype='value')` 自动绑定各批数据，提前校验行宽和正整数 `chunksize`。
+所有批次在同一次执行中提交；支持事务的数据库中途失败会回滚此前批次。
+SQLite 按运行时参数数量上限缩小批次；旧版 Python 无对应 API 时保守使用 999 个参数。
+`SqlCompile.insert()` 仍用于生成 SQL 文本；需要绑定数据请使用 `db.insert()`。
+
+### 文件参数与块描述
+
+`$参数` 是兼容的文本模板，不是驱动绑定。变量名完整匹配并一次替换，不会误替换同前缀变量，
+也不会再次解释替换值里的 `$变量` 或反斜杠；注释不替换。缺参报错，`None` 转为 SQL 文本 `NULL`。
+使用模板时由调用者负责 SQL 片段及字符串引号。传入 `0`、`False`、空字符串和 `None` 均可覆盖文件值。
+
+参数区采用受限 AST 求值，不再执行任意 Python。支持常量、列表/元组/字典、已定义变量、简单算术、
+`date(...)`、`datetime(...)`、`timedelta(...)` 和 `today`/`now`；拒绝导入、属性访问、任意函数和推导式，
+并限制表达式及结果大小。日期仍转为带引号的 SQL 日期文本，字符串可含分号。
+外部覆盖不会重新计算已求值的依赖表达式。
+
+SQL 块由独占一行的 `###` 分隔；普通字符串中的 `###` 不会截断语句。
+结果字典键现在包含序号、文件名和第一条语句的注释描述。
+描述中的 `verbose`/`verbose1`、`verbose2`、`verbose3`、`epass` 实际控制执行；
+显式非零 `verbose` 和非 `None` 的 `ehandling` 优先。
+
+### 表结构迁移
+
+重命名重试次数有上限，最终失败抛出异常；目标表恰好存在不代表重命名成功。
+重命名成功但元数据检查失败时只重试检查。`alter_column()` 保留自定义 `sqlexpr`，不存在的列直接报错。
+迁移前检查源表和中间表存在、名称不同、中间表列名匹配且为空。
+成功后保留并返回备份表名；失败时停止，异常包含失败阶段、源表、备份表和中间表名称。
+
+迁移跨多次执行，**不保证整体原子性，不自动恢复或删除备份**。分条件复制失败时，中间表可能有部分数据；
+重试前应明确处理这些数据，迁移期间应暂停对相关表的并发写入。
+
+### 测试
+
+`python -m pytest` 默认运行无需外部数据库的全量测试。真实 MySQL/Trino 测试需显式
+`--run-integration`，会修改测试表，须先配置隔离测试库。
+旧 MySQL 配置在 `tests/mysql/mysql_test.py`；Trino 需自行提供未跟踪的 `tests/variables.py`。
+当前验证包括真实 SQLite 及外部驱动边界 mock，不包括真实外部数据库集成验证。
 
 ## 结果
 ### 转换为 DataFrame

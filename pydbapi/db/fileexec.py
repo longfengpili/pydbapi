@@ -7,6 +7,7 @@
 
 
 import time
+import re
 from pathlib import Path
 
 from .base import DBbase
@@ -30,6 +31,8 @@ class DBFileExec(DBbase):
                   with_test: bool = False, with_snum: int = 1, **kw):
         st = time.time()
         results = {}
+        if ehandling is not None:
+            self.validate_ehandling(ehandling)
 
         filename = Path(filepath).stem
 
@@ -39,10 +42,10 @@ class DBFileExec(DBbase):
         arguments, sqlstatementses = self.get_filesqls(filepath, with_test=with_test, with_snum=with_snum, **kw)
         for desc, sqlstmts in sqlstatementses.items():
             dblogger.info(f">>> START {desc}")
-            sqlverbose = verbose or (2 if 'verbose2' in desc else 1
-                                     if 'verbose1' in desc or filename.startswith('test')
-                                     else 0)
-            sqlehandling = ehandling or ('pass' if 'epass' in desc else 'raise')
+            flags = set(re.findall(r'\b(?:verbose[123]?|epass)\b', desc))
+            sqlverbose = verbose or (3 if 'verbose3' in flags else 2 if 'verbose2' in flags else 1
+                                     if {'verbose', 'verbose1'} & flags or filename.startswith('test') else 0)
+            sqlehandling = ehandling or ('pass' if 'epass' in flags else 'raise')
             cursor, action, result = self.execute(sqlstmts, ehandling=sqlehandling, verbose=sqlverbose)
             results[desc] = result
             # dblogger.info(f"End {desc}")

@@ -110,8 +110,8 @@ class PydbapiMagics(Magics):
     def _get_database_api(self, cls, **config):
         key = (cls, config)
         if self._database_config != key:
-            if self._database_api is not None and self._database_api._conn is not None:
-                self._database_api._conn.close()
+            if self._database_api is not None:
+                self._database_api.close()
             self._database_api = cls(**config)
             self._database_config = key
         return self._database_api

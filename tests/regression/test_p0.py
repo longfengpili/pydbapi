@@ -110,7 +110,7 @@ def test_execution_preserves_comments_and_case(db):
     traced = []
     db.get_conn().set_trace_callback(traced.append)
     db.execute(sql)
-    assert traced[0] == sql
+    assert sql in traced
 
 
 def test_trailing_comment_does_not_replace_query_result(db):

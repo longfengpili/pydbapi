@@ -11,13 +11,17 @@ import csv
 from pathlib import Path
 
 import pandas as pd
+from .colmodel import ColumnsModel
 
 
 class ResModel:
 
-    def __init__(self, cols: list, values: list):
-        self.cols = cols
+    def __init__(self, cols: list, values: list, *, action=None, rowcount=-1, error=None):
+        self.cols = cols if cols is not None else ColumnsModel()
         self.values = values
+        self.action = action
+        self.rowcount = rowcount
+        self.error = error
 
     def __repr__(self):
         if not self.cols or not self.values: 
@@ -63,7 +67,8 @@ class ResModel:
     def to_csv(self, fpath: str):
         with Path(fpath).open(mode='w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
-            writer.writerow(self.cols.all_cols)
+            if self.cols:
+                writer.writerow(self.cols.all_cols)
             writer.writerows(self.values)
 
     def to_insert_values(self):

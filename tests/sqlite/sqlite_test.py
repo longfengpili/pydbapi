@@ -92,7 +92,8 @@ class TestSqlite:
     def test_execfile(self):
         dirpath = os.path.dirname(os.path.abspath(__file__))
         filepath = os.path.join(dirpath, 'sqlite.sql')
-        self.sqlite.file_exec(filepath, name='pizza', ehandling='raises', verbose=0)  # raise的时候才会报错
+        results = self.sqlite.file_exec(filepath, name="'pizza'", ehandling='pass', verbose=0)
+        assert any(result.error is not None for result in results.values())
 
     def test_get_instance(self):
         # sqlite1 = SqliteDB.get_instance()

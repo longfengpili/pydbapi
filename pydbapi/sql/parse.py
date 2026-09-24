@@ -89,6 +89,8 @@ class SqlStatement:
         for token in self.tokens:
             if token.ttype in (DML, DDL, CTE):
                 return token.value.lower()
+        return next((token.value.lower() for token in self._parsed.flatten()
+                     if not token.is_whitespace and token.ttype not in CommentToken), None)
 
     @property
     def tablename(self):
@@ -107,8 +109,8 @@ class SqlStatement:
 
     @property
     def params(self):
-        params = re.findall(r"\$(\w+)", self.formatted_sql)
-        return set(params)
+        return {name for token in self._parsed.flatten() if token.ttype not in CommentToken
+                for name in re.findall(r'\$(\w+)', token.value)}
 
     def substitute_params(self, **kwargs):
         '''[summary]
@@ -127,8 +129,13 @@ class SqlStatement:
             missing_params = ', '.join(params_diff)
             raise Exception(f"Missing params: {missing_params}. Please provide values for all params.")
 
-        for key, value in kwargs.items():
-            self._sql = re.sub(rf"\${key}", f"{value}", self._sql)
+        def replace(match):
+            value = kwargs[match.group(1)]
+            return 'NULL' if value is None else str(value)
+
+        self._sql = ''.join(token.value if token.ttype in CommentToken
+                            else re.sub(r'\$(\w+)', replace, token.value)
+                            for token in self._parsed.flatten())
 
         self._parsed = sqlparse.parse(self._sql)[0]  # Update parsed SQL
         return self
@@ -277,7 +284,9 @@ class SqlStatements:
     def statements(self) -> list[SqlStatement, ]:
         if self._statements is None:
             statements = [SqlStatement(sql) for sql in sqlparse.split(self._sql) if sql.strip()]
-            self._statements = [stmt for stmt in statements if stmt._parsed.token_first(skip_cm=True)]
+            self._statements = [stmt for stmt in statements if any(
+                not token.is_whitespace and token.ttype not in CommentToken and not token.match(Punctuation, ';')
+                for token in stmt._parsed.flatten())]
             if len(self._statements) > 1:
                 sqllogger.warning(f'SQL has {len(self._statements)} statements ~')
         return self._statements

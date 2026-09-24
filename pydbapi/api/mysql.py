@@ -144,14 +144,14 @@ class MysqlDB(DBMixin, DBFileExec):
         sqlcompile = SqlMysqlCompile(tablename)
         sql_for_dump = sqlcompile.dumpsql(columns, dumpfile, condition=condition)
         cursor, action, result = self.execute(sql_for_dump, verbose=verbose)
-        mysqllogger.info(f"【{action}】{tablename} dumpdata {cursor.rowcount} rows succeed, outfile: {dumpfile} !")
+        mysqllogger.info(f"【{action}】{tablename} dumpdata {result.rowcount} rows succeed, outfile: {dumpfile} !")
         return cursor, action, result
 
     def loaddata(self, tablename, columns, loadfile, fieldterminated=',', verbose=0):
         sqlcompile = SqlMysqlCompile(tablename)
         sql_for_load = sqlcompile.loadsql(columns, loadfile, fieldterminated=fieldterminated)
         cursor, action, result = self.execute(sql_for_load, verbose=verbose)
-        mysqllogger.info(f"【{action}】{tablename} loaddata {cursor.rowcount} rows succeed, loadfile: {loadfile} !")
+        mysqllogger.info(f"【{action}】{tablename} loaddata {result.rowcount} rows succeed, loadfile: {loadfile} !")
         return cursor, action, result
 
     def alter_tablecol(self, tablename: str, colname: str, newname: str = None, newtype: str = None, 
@@ -167,4 +167,4 @@ class MysqlDB(DBMixin, DBFileExec):
                         partition=partition, distribution=distribution, verbose=verbose)
 
             # alter table
-            self.alter_tablecol_base(tablename, mtablename, alter_columns, conditions=conditions, verbose=verbose)
+            return self.alter_tablecol_base(tablename, mtablename, alter_columns, conditions=conditions, verbose=verbose)
